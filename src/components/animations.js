@@ -54,13 +54,67 @@ export async function initAnimations() {
     ease: 'none'
   });
 
-  gsap.from('.bundle-stack > div', {
-    scrollTrigger: { trigger: '.bundle-stack', start: 'top 84%', once: true },
+  gsap.from('.bundle-core', {
+    scrollTrigger: { trigger: '.bundle-visual', start: 'top 82%', once: true },
     opacity: 0,
-    x: -35,
-    rotateY: -18,
-    duration: .75,
-    stagger: .13,
+    scale: .55,
+    rotate: -18,
+    duration: 1,
+    ease: 'back.out(1.35)'
+  });
+  gsap.from('.bundle-orbit', {
+    scrollTrigger: { trigger: '.bundle-visual', start: 'top 82%', once: true },
+    opacity: 0,
+    scale: .7,
+    duration: 1.15,
+    stagger: .16,
     ease: 'power3.out'
+  });
+  gsap.from('.bundle-node', {
+    scrollTrigger: { trigger: '.bundle-visual', start: 'top 76%', once: true },
+    opacity: 0,
+    y: 18,
+    duration: .58,
+    stagger: .12,
+    ease: 'power2.out',
+    clearProps: 'transform,opacity'
+  });
+  gsap.from('.bundle-feature', {
+    scrollTrigger: { trigger: '.bundle-features', start: 'top 86%', once: true },
+    opacity: 0,
+    x: 24,
+    duration: .62,
+    stagger: .1,
+    ease: 'power2.out',
+    clearProps: 'transform,opacity'
+  });
+
+  gsap.from('.evidence-card .evidence-media', {
+    scrollTrigger: { trigger: '.evidence-showcase', start: 'top 84%', once: true },
+    clipPath: 'inset(0 0 100% 0)',
+    duration: .9,
+    stagger: .14,
+    ease: 'power3.inOut',
+    clearProps: 'clipPath'
+  });
+  gsap.from('.evidence-copy > *', {
+    scrollTrigger: { trigger: '.evidence-showcase', start: 'top 78%', once: true },
+    opacity: 0,
+    y: 18,
+    duration: .52,
+    stagger: .055,
+    ease: 'power2.out',
+    clearProps: 'transform,opacity'
+  });
+
+  gsap.utils.toArray('.section-index').forEach((label) => {
+    gsap.from(label, {
+      scrollTrigger: { trigger: label, start: 'top 93%', once: true },
+      opacity: 0,
+      x: 20,
+      duration: .5,
+      ease: 'power2.out',
+      clearProps: 'transform,opacity'
+    });
   });
 }

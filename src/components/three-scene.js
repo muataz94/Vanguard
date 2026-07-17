@@ -1,7 +1,7 @@
 import {
   AmbientLight, BoxGeometry, BufferGeometry, Group, IcosahedronGeometry,
   LineBasicMaterial, LineLoop, Mesh, MeshStandardMaterial, PerspectiveCamera,
-  PointLight, Scene, TorusGeometry, Vector3, WebGLRenderer
+  OctahedronGeometry, PointLight, Scene, TorusGeometry, Vector3, WebGLRenderer
 } from 'three';
 
 export async function initThreeScene(container) {
@@ -20,11 +20,27 @@ export async function initThreeScene(container) {
 
   const group = new Group();
   scene.add(group);
-  const green = new MeshStandardMaterial({ color: 0x47b07b, roughness: 0.35, metalness: 0.45 });
+  const green = new MeshStandardMaterial({ color: 0x47b07b, emissive: 0x102f20, emissiveIntensity: 1.2, roughness: 0.28, metalness: 0.62 });
   const pale = new MeshStandardMaterial({ color: 0xf5faf7, roughness: 0.55, metalness: 0.2 });
-  const torus = new Mesh(new TorusGeometry(1.55, 0.12, 12, 64), green);
-  torus.rotation.set(0.75, 0.25, 0.2);
-  group.add(torus);
+  const darkWire = new MeshStandardMaterial({ color: 0x68c895, emissive: 0x0b2a1a, wireframe: true, transparent: true, opacity: .55 });
+
+  const ringGroup = new Group();
+  const ringSettings = [
+    [1.72, .085, .8, .18, .2],
+    [1.34, .055, -.62, .55, -.34],
+    [2.02, .035, 1.18, -.25, .72]
+  ];
+  ringSettings.forEach(([radius, tube, x, y, z], index) => {
+    const ring = new Mesh(new TorusGeometry(radius, tube, 10, 84), index === 1 ? pale : green);
+    ring.rotation.set(x, y, z);
+    ring.userData.speed = index % 2 ? -.004 : .003;
+    ringGroup.add(ring);
+  });
+  group.add(ringGroup);
+
+  const core = new Mesh(new OctahedronGeometry(.72, 0), darkWire);
+  core.rotation.set(.2, 0, .18);
+  group.add(core);
 
   const vShape = new Group();
   const leftArm = new Mesh(new BoxGeometry(0.16, 1.75, 0.13), green);
@@ -84,7 +100,10 @@ export async function initThreeScene(container) {
   };
   const animate = () => {
     if (!visible || document.hidden) return;
-    group.rotation.y += 0.0022;
+    group.rotation.y += 0.0018;
+    ringGroup.children.forEach((ring) => { ring.rotation.z += ring.userData.speed; });
+    core.rotation.y -= .0045;
+    core.rotation.x += .0022;
     group.rotation.x += (pointer.y - group.rotation.x) * 0.025;
     group.rotation.z += (pointer.x - group.rotation.z) * 0.025;
     renderer.render(scene, camera);

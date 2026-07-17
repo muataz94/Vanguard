@@ -10,9 +10,10 @@ test('homepage content, pricing, FAQ and placeholder contact are correct', async
   await expect(page.locator('#risk-title')).toBeVisible();
   await expect(page.locator('#pricing-grid .price-card')).toHaveCount(4);
   await expect(page.locator('[data-plan="annual"] .price-badge')).toHaveText('أفضل قيمة');
-  await expect(page.locator('[data-plan="one-month"] button')).toBeDisabled();
   await expect(page.locator('[data-plan="six-months"] .dev-warning')).toBeVisible();
   await expect(page.locator('.whatsapp-float')).toHaveAttribute('href', /^https:\/\/wa\.me\/9647717220578\?text=/);
+  await expect(page.locator('[data-plan="one-month"] .price-action')).toBeEnabled();
+  await expect(page.locator('[data-plan="one-month"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*95/);
   await expect(page.locator('[data-plan="three-months"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*199/);
   await expect(page.locator('[data-plan="six-months"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*450/);
   await expect(page.locator('[data-plan="annual"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*795/);

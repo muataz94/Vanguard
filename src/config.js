@@ -20,7 +20,7 @@ export const siteConfig = {
     supportedMarketsVerified: false
   },
   pricing: [
-    { id: 'one-month', months: 1, priceUsd: 95, enabled: false },
+    { id: 'one-month', months: 1, priceUsd: 95, enabled: true },
     { id: 'three-months', months: 3, priceUsd: 199, enabled: true },
     { id: 'six-months', months: 6, priceUsd: 450, enabled: true, requiresPriceReview: true },
     { id: 'annual', months: 12, priceUsd: 795, enabled: true }
