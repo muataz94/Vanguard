@@ -13,6 +13,7 @@ function renderContent() {
   workflow.forEach(([number, title, copy]) => {
     const item = document.createElement('li');
     item.className = 'workflow-item reveal';
+    item.dataset.tooltip = `خطوة ${number}: ${copy}`;
     item.innerHTML = `<span>${number}</span><div><h3>${title}</h3><p>${copy}</p></div>`;
     workflowList.append(item);
   });
@@ -21,6 +22,7 @@ function renderContent() {
   benefits.forEach(([icon, title, copy], index) => {
     const card = document.createElement('article');
     card.className = 'benefit-card reveal';
+    card.dataset.tooltip = `لماذا تهمك هذه الميزة: ${copy}`;
     card.innerHTML = `<div class="benefit-top"><i data-lucide="${icon}" aria-hidden="true"></i><span>0${index + 1}</span></div><h3>${title}</h3><p>${copy}</p>`;
     benefitsGrid.append(card);
   });
@@ -38,6 +40,7 @@ function renderContent() {
     item.setAttribute('aria-pressed', String(index === 0));
     item.setAttribute('aria-controls', 'market-detail');
     item.classList.toggle('is-active', index === 0);
+    item.dataset.tooltip = `اختر ${market} لعرض طريقة استخدام المؤشر مع هذه الفئة.`;
     item.innerHTML = `<span><i data-lucide="${marketIcons[index]}" aria-hidden="true"></i><b>0${index + 1}</b></span><strong>${market}</strong><small>عرض التفاصيل</small>`;
     item.addEventListener('click', () => {
       document.querySelectorAll('#markets-list button').forEach((button) => {
@@ -152,27 +155,103 @@ function initScrollTop() {
 function initScrollUi() {
   const header = document.querySelector('.site-header');
   const progress = document.querySelector('.scroll-progress span');
+  const marketPath = document.querySelector('.market-scroll-line');
+  const marketCandles = [...document.querySelectorAll('.market-scroll-candles g')];
+  const marketValue = document.querySelector('.market-scroll-value b');
+  const pathLength = marketPath?.getTotalLength() || 0;
+  if (marketPath) {
+    marketPath.style.strokeDasharray = `${pathLength}`;
+    marketPath.style.strokeDashoffset = `${pathLength}`;
+  }
   const update = () => {
     const max = document.documentElement.scrollHeight - window.innerHeight;
     const ratio = max > 0 ? Math.min(1, window.scrollY / max) : 0;
     progress.style.transform = `scaleX(${ratio})`;
+    if (marketPath) marketPath.style.strokeDashoffset = `${pathLength * (1 - ratio)}`;
+    marketCandles.forEach((candle) => candle.classList.toggle('is-active', ratio >= Number(candle.dataset.step)));
+    if (marketValue) marketValue.textContent = String(Math.round(ratio * 100)).padStart(2, '0');
     header.classList.toggle('is-scrolled', window.scrollY > 24);
   };
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update, { passive: true });
+  let queued = false;
+  const schedule = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { update(); queued = false; });
+  };
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule, { passive: true });
   update();
+}
+
+function initTooltips() {
+  const tooltip = document.createElement('div');
+  tooltip.id = 'ui-tooltip';
+  tooltip.className = 'ui-tooltip';
+  tooltip.setAttribute('role', 'tooltip');
+  tooltip.setAttribute('aria-hidden', 'true');
+  document.body.append(tooltip);
+
+  const annotate = (selector, text) => document.querySelectorAll(selector).forEach((element) => {
+    element.dataset.tooltip ||= typeof text === 'function' ? text(element) : text;
+    element.classList.add('tooltip-ready');
+  });
+  annotate('.hero [href="#pricing"]', 'ينقلك مباشرة إلى الباقات المتاحة لاختيار مدة الاشتراك.');
+  annotate('.hero [href="#demo"]', 'انتقل إلى العرض التعريفي لفهم خطوات الإعداد والاستخدام.');
+  annotate('.problem-feature', (element) => element.querySelector('p')?.textContent);
+  annotate('.workflow-item, .benefit-card, .market-pills button', (element) => element.dataset.tooltip);
+  annotate('.bundle-feature', (element) => element.querySelector('p')?.textContent);
+  annotate('.evidence-card', (element) => element.querySelector('.evidence-copy p')?.textContent);
+  annotate('.price-card', (element) => `هذه الباقة تشمل جميع أدوات الحزمة لمدة ${element.querySelector('h3')?.textContent}. اضغط زر الطلب للتواصل عبر واتساب.`);
+  annotate('.activation-steps li', (element) => `الخطوة ${element.querySelector('b')?.textContent} من عملية التفعيل اليدوي.`);
+  annotate('.faq-question', 'اضغط لفتح الإجابة أو إغلاقها.');
+  annotate('.whatsapp-float, [data-mobile-contact]', 'تواصل مباشرة مع فريق Vanguard عبر واتساب.');
+
+  let active;
+  const position = (target) => {
+    const rect = target.getBoundingClientRect();
+    const tip = tooltip.getBoundingClientRect();
+    const left = Math.min(window.innerWidth - tip.width - 12, Math.max(12, rect.left + rect.width / 2 - tip.width / 2));
+    let top = rect.bottom + 11;
+    if (top + tip.height > window.innerHeight - 12) top = rect.top - tip.height - 11;
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${Math.max(12, top)}px`;
+  };
+  const show = (target) => {
+    if (!target?.dataset.tooltip) return;
+    active = target;
+    tooltip.textContent = target.dataset.tooltip;
+    tooltip.setAttribute('aria-hidden', 'false');
+    target.setAttribute('aria-describedby', tooltip.id);
+    requestAnimationFrame(() => { position(target); tooltip.classList.add('is-visible'); });
+  };
+  const hide = (target) => {
+    if (target !== active) return;
+    target.removeAttribute('aria-describedby');
+    tooltip.classList.remove('is-visible');
+    tooltip.setAttribute('aria-hidden', 'true');
+    active = undefined;
+  };
+  document.querySelectorAll('[data-tooltip]').forEach((element) => {
+    element.addEventListener('pointerenter', () => show(element));
+    element.addEventListener('pointerleave', () => hide(element));
+    element.addEventListener('focus', () => show(element));
+    element.addEventListener('blur', () => hide(element));
+  });
+  window.addEventListener('scroll', () => { if (active) position(active); }, { passive: true });
+  window.addEventListener('resize', () => { if (active) position(active); }, { passive: true });
 }
 
 async function startEnhancements() {
   try {
-    const [{ initAnimations }, { initThreeScene }] = await Promise.all([
-      import('./components/animations.js'),
-      import('./components/three-scene.js')
-    ]);
+    const { initAnimations } = await import('./components/animations.js');
     await initAnimations();
+    const loadThree = async () => {
+      const { initThreeScene } = await import('./components/three-scene.js');
+      initThreeScene(document.querySelector('#three-scene'));
+    };
     window.requestIdleCallback
-      ? window.requestIdleCallback(() => initThreeScene(document.querySelector('#three-scene')), { timeout: 1200 })
-      : window.setTimeout(() => initThreeScene(document.querySelector('#three-scene')), 400);
+      ? window.requestIdleCallback(loadThree, { timeout: 1600 })
+      : window.setTimeout(loadThree, 700);
   } catch (error) {
     console.warn('تعذر تحميل التحسينات البصرية؛ ستبقى النسخة الثابتة متاحة.', error);
   }
@@ -185,6 +264,7 @@ initMobileCta();
 initVideoPlaceholder();
 initScrollTop();
 initScrollUi();
+initTooltips();
 initAnalytics();
 document.querySelectorAll('[data-track]').forEach((link) => link.addEventListener('click', () => trackEvent('cta_click', { source_section: link.dataset.track })));
 validateConfig().forEach((warning) => console.warn(`[Vanguard config] ${warning}`));

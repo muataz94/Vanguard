@@ -29,6 +29,9 @@ test('homepage content, pricing, FAQ and placeholder contact are correct', async
   await page.locator('#markets-list button').nth(1).click();
   await expect(page.locator('#markets-list button').nth(1)).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#market-detail-title')).toHaveText('العملات الرقمية');
+  await page.locator('.benefit-card').first().hover();
+  await expect(page.locator('.ui-tooltip')).toBeVisible();
+  await expect(page.locator('.ui-tooltip')).not.toHaveText('');
   await expect(page.locator('#three-scene canvas')).toBeAttached();
   const fontFamily = await page.locator('body').evaluate((node) => getComputedStyle(node).fontFamily);
   expect(fontFamily).toContain('Fustat');
@@ -68,6 +71,8 @@ test('scroll progress, sticky header and return-to-top control are wired', async
   await expect(page.locator('.scroll-top')).toHaveClass(/is-visible/);
   const progressTransform = await page.locator('.scroll-progress span').evaluate((node) => getComputedStyle(node).transform);
   expect(progressTransform).not.toBe('none');
+  await expect(page.locator('.market-scroll-value b')).not.toHaveText('00');
+  expect(await page.locator('.market-scroll-candles g.is-active').count()).toBeGreaterThan(1);
   await page.locator('.scroll-top').click();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(20);
 });
