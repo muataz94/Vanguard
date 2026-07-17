@@ -2,7 +2,7 @@
 export const siteConfig = {
   brand: { nameAr: 'مؤشر فانگارد', nameEn: 'Vanguard Indicator' },
   contact: {
-    whatsappNumber: '964XXXXXXXXXX',
+    whatsappNumber: '9647717220578',
     telegramUsername: '',
     email: 'support@example.com',
     defaultMessage: 'مرحباً، أرغب بالاستفسار عن مؤشر فانگارد والباقات المتاحة.'

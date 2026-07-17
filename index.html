@@ -9,6 +9,9 @@
     <meta name="theme-color" content="#050706">
     <link rel="canonical" href="https://YOUR-PROJECT.pages.dev/">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&family=Fustat:wght@200..800&display=swap" rel="stylesheet">
     <link rel="preload" href="/assets/vanguard-logo.png" as="image" type="image/png">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ar_IQ">
@@ -24,6 +27,7 @@
   </head>
   <body>
     <a class="skip-link" href="#main-content">انتقل إلى المحتوى الرئيسي</a>
+    <div class="scroll-progress" aria-hidden="true"><span></span></div>
     <header class="site-header" id="top">
       <div class="container header-inner">
         <a class="brand" href="#top" aria-label="مؤشر فانگارد — الصفحة الرئيسية">
@@ -52,8 +56,8 @@
             <h1 id="hero-title">حلّل السوق بوضوح أكبر، واتخذ قراراتك <em>بانضباط</em></h1>
             <p class="hero-lead">مؤشر تحليلي لمنصة TradingView يساعدك على قراءة مناطق الدخول والخروج، متابعة الإشارات، واستلام التنبيهات على هاتفك ضمن تجربة واضحة وسهلة الاستخدام.</p>
             <div class="button-row">
-              <a class="button button--primary" href="#pricing" data-track="hero-primary">احصل على المؤشر الآن <span aria-hidden="true">←</span></a>
-              <a class="button button--secondary" href="#demo">شاهد طريقة العمل <span aria-hidden="true">◉</span></a>
+              <a class="button button--primary" href="#pricing" data-track="hero-primary">احصل على المؤشر الآن <i data-lucide="arrow-left" aria-hidden="true"></i></a>
+              <a class="button button--secondary" href="#demo">شاهد طريقة العمل <i data-lucide="play" aria-hidden="true"></i></a>
             </div>
             <ul class="trust-list" aria-label="مزايا أساسية">
               <li>يعمل على TradingView</li><li>يدعم تنبيهات الهاتف</li><li>إعداد واستخدام مبسّطان</li>
@@ -99,8 +103,9 @@
         <div class="container demo-layout">
           <div><p class="section-index">04 — العرض التوضيحي</p><h2 id="demo-title">شاهد سير العمل <em>على الرسم</em></h2><p>سيعرض الفيديو الحقيقي طريقة الإعداد وقراءة التنبيهات خطوة بخطوة بعد إضافته من مالك المنتج.</p><button class="text-button" type="button" data-video-play>ماذا سيشمل الفيديو؟ <span aria-hidden="true">←</span></button></div>
           <div class="video-placeholder" role="group" aria-label="مكان الفيديو التعريفي">
+            <img class="demo-art" src="/assets/vanguard-abstract-visual.webp" alt="" width="1536" height="1024" loading="lazy">
             <!-- TODO: أضف معرّف فيديو YouTube في src/config.js بعد توفير مادة حقيقية. -->
-            <button class="play-button" type="button" data-video-play aria-label="عرض معلومات الفيديو"><span aria-hidden="true">▶</span></button>
+            <button class="play-button" type="button" data-video-play aria-label="عرض معلومات الفيديو"><i data-lucide="play" aria-hidden="true"></i></button>
             <p>سيتم إضافة الفيديو التعريفي هنا</p><small>لا يوجد تشغيل تلقائي</small>
           </div>
         </div>
@@ -150,9 +155,10 @@
       <section class="final-cta" aria-labelledby="final-title"><div class="container"><p class="section-index">ابدأ بخطوة واضحة</p><h2 id="final-title">ابدأ بتجربة تحليل أكثر <em>وضوحاً وتنظيماً</em></h2><div class="button-row centered-row"><a class="button button--primary" href="#pricing">اختر باقتك</a><a class="button button--secondary" data-whatsapp data-source="final_cta" aria-label="تواصل معنا عبر واتساب">تواصل معنا</a></div></div></section>
     </main>
 
-    <footer class="site-footer"><div class="container footer-grid"><div class="footer-brand"><a class="brand" href="#top"><img src="/assets/vanguard-logo.png" alt="شعار مؤشر فانگارد" width="52" height="52"><span><b>Vanguard</b><small>Indicator</small></span></a><p>أداة تحليلية مساعدة لمنصة TradingView تساعد على تنظيم قراءة الإشارات والتنبيهات.</p></div><div><h2>روابط مهمة</h2><a href="/privacy.html">سياسة الخصوصية</a><a href="/terms.html">الشروط والأحكام</a><a href="/refund.html">سياسة الاسترجاع</a><a href="/risk-disclosure.html">إفصاح المخاطر</a></div><div><h2>التواصل</h2><a id="footer-email" href="mailto:support@example.com">support@example.com</a><a data-whatsapp data-source="footer" aria-label="تواصل معنا عبر واتساب">واتساب</a><p id="business-name">[يجب الاستكمال قبل النشر]</p><p id="business-address">[يجب الاستكمال قبل النشر]</p></div></div><div class="container footer-bottom"><p>© <span id="current-year"></span> مؤشر فانگارد. جميع الحقوق محفوظة.</p><p>النتائج السابقة لا تضمن النتائج المستقبلية.</p></div></footer>
+    <footer class="site-footer"><div class="container footer-grid"><div class="footer-brand"><a class="brand" href="#top"><img src="/assets/vanguard-logo.png" alt="شعار مؤشر فانگارد" width="52" height="52"><span><b>Vanguard</b><small>Indicator</small></span></a><p>أداة تحليلية مساعدة لمنصة TradingView تساعد على تنظيم قراءة الإشارات والتنبيهات.</p></div><div><h2>روابط مهمة</h2><a href="/privacy.html">سياسة الخصوصية</a><a href="/terms.html">الشروط والأحكام</a><a href="/refund.html">سياسة الاسترجاع</a><a href="/risk-disclosure.html">إفصاح المخاطر</a></div><div><h2>التواصل</h2><a id="footer-email" href="mailto:support@example.com">support@example.com</a><a data-whatsapp data-source="footer" aria-label="تواصل معنا عبر واتساب">واتساب</a><p id="whatsapp-number" class="footer-phone" dir="ltr"></p><p id="business-name">[يجب الاستكمال قبل النشر]</p><p id="business-address">[يجب الاستكمال قبل النشر]</p></div></div><div class="container footer-bottom"><p>© <span id="current-year"></span> مؤشر فانگارد. جميع الحقوق محفوظة.</p><p>النتائج السابقة لا تضمن النتائج المستقبلية.</p></div></footer>
 
     <a class="whatsapp-float" data-whatsapp data-source="floating_button" aria-label="تواصل معنا عبر واتساب"><img class="wa-mark" src="/assets/whatsapp-mark.svg" alt="" width="28" height="28"><span>واتساب</span></a>
+    <button class="scroll-top" type="button" aria-label="العودة إلى أعلى الصفحة" title="العودة إلى الأعلى"><i data-lucide="chevron-up" aria-hidden="true"></i></button>
     <div class="mobile-action-bar" aria-label="إجراءات الاشتراك"><a class="button button--primary" href="#pricing">الباقات</a><a class="button button--whatsapp" data-mobile-contact aria-label="تواصل معنا عبر واتساب"><img class="wa-mark" src="/assets/whatsapp-mark.svg" alt="" width="24" height="24"> واتساب</a></div>
     <noscript><div class="noscript">JavaScript معطّل. لتفعيل التواصل، راسل بريد الدعم الموضح في تذييل الصفحة، ولا ترسل أي معلومات مالية عبر الموقع.</div></noscript>
     <div class="video-toast" role="status" aria-live="polite" hidden>لم يُضف الفيديو الحقيقي بعد. سيشمل الإعداد، قراءة الإشارات، والتنبيهات.</div>

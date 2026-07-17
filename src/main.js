@@ -1,5 +1,5 @@
 import './styles.css';
-import { createIcons, BellRing, ChartNoAxesCombined, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } from 'lucide';
+import { createIcons, ArrowLeft, BellRing, ChartNoAxesCombined, Check, ChevronUp, CircleAlert, MessageCircle, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } from 'lucide';
 import { siteConfig, validateConfig } from './config.js';
 import { benefits, faqs, workflow } from './content.js';
 import { initAnalytics, trackEvent } from './analytics.js';
@@ -38,9 +38,13 @@ function renderContent() {
   document.querySelector('#current-year').textContent = new Date().getFullYear();
   document.querySelector('#footer-email').textContent = siteConfig.contact.email;
   document.querySelector('#footer-email').href = `mailto:${siteConfig.contact.email}`;
+  const contactDigits = siteConfig.contact.whatsappNumber.replace(/\D/g, '');
+  document.querySelector('#whatsapp-number').textContent = contactDigits.length === 13
+    ? `+${contactDigits.slice(0, 3)} ${contactDigits.slice(3, 6)} ${contactDigits.slice(6, 9)} ${contactDigits.slice(9)}`
+    : `+${contactDigits}`;
   document.querySelector('#business-name').textContent = siteConfig.business.legalName;
   document.querySelector('#business-address').textContent = siteConfig.business.physicalAddress;
-  createIcons({ icons: { BellRing, ChartNoAxesCombined, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } });
+  createIcons({ icons: { ArrowLeft, BellRing, ChartNoAxesCombined, Check, ChevronUp, CircleAlert, MessageCircle, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } });
 }
 
 function initNavigation() {
@@ -102,6 +106,29 @@ function initVideoPlaceholder() {
   }));
 }
 
+function initScrollTop() {
+  const button = document.querySelector('.scroll-top');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const update = () => button.classList.toggle('is-visible', window.scrollY > 700);
+  window.addEventListener('scroll', update, { passive: true });
+  button.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }));
+  update();
+}
+
+function initScrollUi() {
+  const header = document.querySelector('.site-header');
+  const progress = document.querySelector('.scroll-progress span');
+  const update = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const ratio = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+    progress.style.transform = `scaleX(${ratio})`;
+    header.classList.toggle('is-scrolled', window.scrollY > 24);
+  };
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
+  update();
+}
+
 async function startEnhancements() {
   try {
     const [{ initAnimations }, { initThreeScene }] = await Promise.all([
@@ -122,6 +149,8 @@ initNavigation();
 initContactLinks();
 initMobileCta();
 initVideoPlaceholder();
+initScrollTop();
+initScrollUi();
 initAnalytics();
 document.querySelectorAll('[data-track]').forEach((link) => link.addEventListener('click', () => trackEvent('cta_click', { source_section: link.dataset.track })));
 validateConfig().forEach((warning) => console.warn(`[Vanguard config] ${warning}`));

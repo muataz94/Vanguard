@@ -30,8 +30,21 @@ export function renderFaq(container, items) {
       const open = button.getAttribute('aria-expanded') === 'true';
       button.setAttribute('aria-expanded', String(!open));
       icon.textContent = open ? '+' : '−';
-      panel.hidden = open;
-      if (!open) trackEvent('faq_open', { source_section: 'faq' });
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (open) {
+        if (reduced || !panel.animate) panel.hidden = true;
+        else panel.animate(
+          [{ height: `${panel.scrollHeight}px`, opacity: 1 }, { height: '0px', opacity: 0 }],
+          { duration: 190, easing: 'ease-in' }
+        ).finished.then(() => { panel.hidden = true; panel.style.height = ''; });
+      } else {
+        panel.hidden = false;
+        if (!reduced && panel.animate) panel.animate(
+          [{ height: '0px', opacity: 0 }, { height: `${panel.scrollHeight}px`, opacity: 1 }],
+          { duration: 260, easing: 'cubic-bezier(.2,.8,.2,1)' }
+        );
+        trackEvent('faq_open', { source_section: 'faq' });
+      }
     });
     item.append(button, panel);
     container.append(item);

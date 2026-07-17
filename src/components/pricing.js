@@ -1,4 +1,3 @@
-import { createIcons, Check, CircleAlert, Clock3 } from 'lucide';
 import { siteConfig } from '../config.js';
 import { buildPlanMessage, configureContactLink } from './contact.js';
 import { trackEvent } from '../analytics.js';
@@ -52,5 +51,4 @@ export function renderPricing(container) {
     card.append(action);
     container.append(card);
   });
-  createIcons({ icons: { Check, CircleAlert, Clock3 } });
 }

@@ -26,6 +26,18 @@ export async function initThreeScene(container) {
   torus.rotation.set(0.75, 0.25, 0.2);
   group.add(torus);
 
+  const vShape = new Group();
+  const leftArm = new Mesh(new BoxGeometry(0.16, 1.75, 0.13), green);
+  const rightArm = new Mesh(new BoxGeometry(0.16, 1.75, 0.13), pale);
+  leftArm.rotation.z = -0.53;
+  rightArm.rotation.z = 0.53;
+  leftArm.position.set(-0.43, 0.2, 0.42);
+  rightArm.position.set(0.43, 0.2, 0.42);
+  vShape.scale.setScalar(0.78);
+  vShape.rotation.x = -0.12;
+  vShape.add(leftArm, rightArm);
+  group.add(vShape);
+
   const nodeGeometry = new IcosahedronGeometry(0.11, 0);
   const positions = [[-1.9, .8, .4], [1.8, .7, -.3], [-1.4, -1.25, .6], [1.35, -1.2, .2], [0, 1.7, -.5]];
   const points = [];

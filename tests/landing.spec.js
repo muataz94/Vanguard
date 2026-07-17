@@ -12,8 +12,10 @@ test('homepage content, pricing, FAQ and placeholder contact are correct', async
   await expect(page.locator('[data-plan="annual"] .price-badge')).toHaveText('أفضل قيمة');
   await expect(page.locator('[data-plan="one-month"] button')).toBeDisabled();
   await expect(page.locator('[data-plan="six-months"] .dev-warning')).toBeVisible();
-  await expect(page.locator('.whatsapp-float')).toHaveAttribute('aria-disabled', 'true');
-  await expect(page.locator('.whatsapp-float')).toHaveAttribute('href', '/#footer-email');
+  await expect(page.locator('.whatsapp-float')).toHaveAttribute('href', /^https:\/\/wa\.me\/9647717220578\?text=/);
+  await expect(page.locator('[data-plan="three-months"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*199/);
+  await expect(page.locator('[data-plan="six-months"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*450/);
+  await expect(page.locator('[data-plan="annual"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*795/);
   const faqButton = page.locator('.faq-question').first();
   await faqButton.click();
   await expect(faqButton).toHaveAttribute('aria-expanded', 'true');
@@ -21,6 +23,8 @@ test('homepage content, pricing, FAQ and placeholder contact are correct', async
   await page.locator('.play-button').click();
   await expect(page.locator('.video-toast')).toBeVisible();
   await expect(page.locator('#three-scene canvas')).toBeAttached();
+  const fontFamily = await page.locator('body').evaluate((node) => getComputedStyle(node).fontFamily);
+  expect(fontFamily).toContain('Fustat');
   expect(errors).toEqual([]);
 });
 
@@ -36,6 +40,29 @@ test('mobile menu traps focus and closes with Escape', async ({ page }) => {
   await expect(toggle).toBeFocused();
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
   await expect(page.locator('.mobile-action-bar')).toBeVisible();
+  await expect(page.locator('[data-mobile-contact]')).toHaveAttribute('href', /^https:\/\/wa\.me\/9647717220578\?text=/);
+});
+
+test('tablet navigation and two-column content remain usable', async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.goto('/');
+  await expect(page.locator('.menu-toggle')).toBeVisible();
+  await page.locator('.menu-toggle').click();
+  await expect(page.locator('.primary-nav')).toHaveClass(/is-open/);
+  await expect(page.locator('.primary-nav a[href="#pricing"]').first()).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.primary-nav')).not.toHaveClass(/is-open/);
+});
+
+test('scroll progress, sticky header and return-to-top control are wired', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight * .55));
+  await expect(page.locator('.site-header')).toHaveClass(/is-scrolled/);
+  await expect(page.locator('.scroll-top')).toHaveClass(/is-visible/);
+  const progressTransform = await page.locator('.scroll-progress span').evaluate((node) => getComputedStyle(node).transform);
+  expect(progressTransform).not.toBe('none');
+  await page.locator('.scroll-top').click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(20);
 });
 
 test('keyboard navigation, accordion semantics and heading order are valid', async ({ page }) => {
@@ -79,6 +106,7 @@ for (const route of ['/privacy.html', '/terms.html', '/refund.html', '/risk-disc
     expect(response?.status()).toBe(200);
     await expect(page.locator('main')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+    if (route !== '/404.html') await expect(page.locator('[data-whatsapp]')).toHaveAttribute('href', /^https:\/\/wa\.me\/9647717220578\?text=/);
     expect(errors).toEqual([]);
   });
 }
