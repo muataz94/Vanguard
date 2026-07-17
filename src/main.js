@@ -1,5 +1,5 @@
 import './styles.css';
-import { createIcons, ArrowLeft, BellRing, ChartNoAxesCombined, Check, ChevronUp, CircleAlert, MessageCircle, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } from 'lucide';
+import { createIcons, ArrowLeft, BellRing, Bitcoin, ChartCandlestick, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, CircleAlert, Landmark, MessageCircle, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } from 'lucide';
 import { siteConfig, validateConfig } from './config.js';
 import { benefits, faqs, workflow } from './content.js';
 import { initAnalytics, trackEvent } from './analytics.js';
@@ -25,9 +25,29 @@ function renderContent() {
     benefitsGrid.append(card);
   });
 
+  const marketIcons = ['landmark', 'bitcoin', 'chart-candlestick', 'chart-spline'];
+  const marketDescriptions = [
+    'يمكن تنظيم قراءة أزواج العملات ضمن إعدادات يحددها المستخدم. يجب التحقق من ملاءمة كل إعداد قبل استخدامه.',
+    'تساعد الواجهة على ترتيب متابعة الأصول الرقمية المتقلبة، مع ضرورة استخدام إدارة مخاطر صارمة.',
+    'يمكن مراجعة إشارات الأسهم ضمن ساعات السوق والسيولة المتاحة، بعد تأكيد الإعدادات المدعومة.',
+    'تتيح البنية متابعة مؤشرات السوق بصرياً عبر أطر زمنية مختلفة وفق خطة المستخدم.'
+  ];
   siteConfig.markets.forEach((market, index) => {
-    const item = document.createElement('span');
-    item.innerHTML = `<b>0${index + 1}</b>${market}<small>قيد التحقق</small>`;
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.setAttribute('aria-pressed', String(index === 0));
+    item.setAttribute('aria-controls', 'market-detail');
+    item.classList.toggle('is-active', index === 0);
+    item.innerHTML = `<span><i data-lucide="${marketIcons[index]}" aria-hidden="true"></i><b>0${index + 1}</b></span><strong>${market}</strong><small>عرض التفاصيل</small>`;
+    item.addEventListener('click', () => {
+      document.querySelectorAll('#markets-list button').forEach((button) => {
+        const active = button === item;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+      document.querySelector('#market-detail-title').textContent = market;
+      document.querySelector('#market-detail-copy').textContent = marketDescriptions[index];
+    });
     document.querySelector('#markets-list').append(item);
   });
 
@@ -44,7 +64,7 @@ function renderContent() {
     : `+${contactDigits}`;
   document.querySelector('#business-name').textContent = siteConfig.business.legalName;
   document.querySelector('#business-address').textContent = siteConfig.business.physicalAddress;
-  createIcons({ icons: { ArrowLeft, BellRing, ChartNoAxesCombined, Check, ChevronUp, CircleAlert, MessageCircle, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } });
+  createIcons({ icons: { ArrowLeft, BellRing, Bitcoin, ChartCandlestick, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, CircleAlert, Landmark, MessageCircle, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } });
 }
 
 function initNavigation() {
@@ -97,13 +117,27 @@ function initNavigation() {
 }
 
 function initVideoPlaceholder() {
-  const toast = document.querySelector('.video-toast');
-  document.querySelectorAll('[data-video-play]').forEach((button) => button.addEventListener('click', () => {
-    trackEvent('video_play', { source_section: 'demo' });
-    toast.hidden = false;
-    clearTimeout(window.vanguardToastTimer);
-    window.vanguardToastTimer = window.setTimeout(() => { toast.hidden = true; }, 5000);
-  }));
+  const placeholder = document.querySelector('.video-placeholder');
+  const explainer = document.querySelector('.video-explainer');
+  const triggers = [...document.querySelectorAll('[data-video-play]')];
+  const close = document.querySelector('.video-explainer__close');
+  triggers.forEach((button) => {
+    button.setAttribute('aria-expanded', 'false');
+    button.setAttribute('aria-controls', 'video-explainer');
+    button.addEventListener('click', () => {
+      trackEvent('video_play', { source_section: 'demo' });
+      explainer.hidden = false;
+      placeholder.classList.add('is-explaining');
+      triggers.forEach((trigger) => trigger.setAttribute('aria-expanded', 'true'));
+      close.focus();
+    });
+  });
+  close.addEventListener('click', () => {
+    explainer.hidden = true;
+    placeholder.classList.remove('is-explaining');
+    triggers.forEach((trigger) => trigger.setAttribute('aria-expanded', 'false'));
+    triggers[0].focus();
+  });
 }
 
 function initScrollTop() {

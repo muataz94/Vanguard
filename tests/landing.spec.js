@@ -21,7 +21,13 @@ test('homepage content, pricing, FAQ and placeholder contact are correct', async
   await expect(faqButton).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator('.faq-answer').first()).toBeVisible();
   await page.locator('.play-button').click();
-  await expect(page.locator('.video-toast')).toBeVisible();
+  await expect(page.locator('.video-explainer')).toBeVisible();
+  await expect(page.locator('.play-button')).toHaveAttribute('aria-expanded', 'true');
+  await page.locator('.video-explainer__close').click();
+  await expect(page.locator('.video-explainer')).toBeHidden();
+  await page.locator('#markets-list button').nth(1).click();
+  await expect(page.locator('#markets-list button').nth(1)).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#market-detail-title')).toHaveText('العملات الرقمية');
   await expect(page.locator('#three-scene canvas')).toBeAttached();
   const fontFamily = await page.locator('body').evaluate((node) => getComputedStyle(node).fontFamily);
   expect(fontFamily).toContain('Fustat');

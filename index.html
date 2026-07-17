@@ -107,6 +107,12 @@
             <!-- TODO: أضف معرّف فيديو YouTube في src/config.js بعد توفير مادة حقيقية. -->
             <button class="play-button" type="button" data-video-play aria-label="عرض معلومات الفيديو"><i data-lucide="play" aria-hidden="true"></i></button>
             <p>سيتم إضافة الفيديو التعريفي هنا</p><small>لا يوجد تشغيل تلقائي</small>
+            <div id="video-explainer" class="video-explainer" hidden>
+              <button class="video-explainer__close" type="button" aria-label="إغلاق تفاصيل العرض">×</button>
+              <strong>ماذا سيشرح الفيديو؟</strong>
+              <ul><li>إضافة المؤشر إلى TradingView</li><li>قراءة المناطق والإشارات بصرياً</li><li>ضبط تنبيهات الهاتف</li><li>تطبيق إدارة المخاطر قبل القرار</li></ul>
+              <p>سيُستبدل هذا الشرح بفيديو حقيقي بعد توفيره من مالك المنتج.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -121,6 +127,7 @@
       <section class="section markets-section" aria-labelledby="markets-title">
         <div class="container section-heading centered"><p class="section-index">06 — الأسواق</p><h2 id="markets-title">مصمم لمرونة <em>أسلوبك التحليلي</em></h2></div>
         <div id="markets-list" class="container market-pills"></div>
+        <div id="market-detail" class="container market-detail" role="region" aria-live="polite" aria-labelledby="market-detail-title"><span class="market-detail__icon" aria-hidden="true"><i data-lucide="chart-candlestick"></i></span><div><p class="section-index">الفئة المحددة</p><h3 id="market-detail-title">الفوركس</h3><p id="market-detail-copy">يمكن تنظيم قراءة أزواج العملات ضمن إعدادات يحددها المستخدم. يجب التحقق من ملاءمة كل إعداد قبل استخدامه.</p></div></div>
         <p class="container disclaimer">هذه الفئات قيد تأكيد المالك. قد تختلف كفاءة الإعدادات حسب الأصل المالي، الإطار الزمني، ظروف السوق وطريقة إدارة المخاطر.</p>
       </section>
 
@@ -161,7 +168,6 @@
     <button class="scroll-top" type="button" aria-label="العودة إلى أعلى الصفحة" title="العودة إلى الأعلى"><i data-lucide="chevron-up" aria-hidden="true"></i></button>
     <div class="mobile-action-bar" aria-label="إجراءات الاشتراك"><a class="button button--primary" href="#pricing">الباقات</a><a class="button button--whatsapp" data-mobile-contact aria-label="تواصل معنا عبر واتساب"><img class="wa-mark" src="/assets/whatsapp-mark.svg" alt="" width="24" height="24"> واتساب</a></div>
     <noscript><div class="noscript">JavaScript معطّل. لتفعيل التواصل، راسل بريد الدعم الموضح في تذييل الصفحة، ولا ترسل أي معلومات مالية عبر الموقع.</div></noscript>
-    <div class="video-toast" role="status" aria-live="polite" hidden>لم يُضف الفيديو الحقيقي بعد. سيشمل الإعداد، قراءة الإشارات، والتنبيهات.</div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
