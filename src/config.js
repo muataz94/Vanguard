@@ -20,23 +20,29 @@ export const siteConfig = {
     supportedMarketsVerified: false
   },
   pricing: [
-    { id: 'one-month', months: 1, priceUsd: 95, enabled: true },
-    { id: 'three-months', months: 3, priceUsd: 199, enabled: true },
-    { id: 'six-months', months: 6, priceUsd: 450, enabled: true, requiresPriceReview: true },
-    { id: 'annual', months: 12, priceUsd: 795, enabled: true }
+    { id: 'one-month', labelAr: 'شهر واحد', months: 1, priceUsd: 95, enabled: false },
+    { id: 'three-months', labelAr: 'ثلاثة أشهر', months: 3, priceUsd: 199, enabled: true },
+    { id: 'six-months', labelAr: 'ستة أشهر', months: 6, priceUsd: 450, enabled: true, requiresPriceReview: true },
+    { id: 'annual', labelAr: 'اشتراك سنوي', months: 12, priceUsd: 795, enabled: true }
   ],
   markets: ['الفوركس', 'العملات الرقمية', 'الأسهم', 'المؤشرات'],
-  media: { youtubeVideoId: '', ogImage: '/og-image-placeholder.webp' },
+  media: { youtubeVideoId: '', ogImage: '/Vanguard/og-image-placeholder.webp' },
   analytics: { enabled: false, provider: 'cloudflare', token: '' },
-  deployment: { productionUrl: 'https://YOUR-PROJECT.pages.dev' }
+  deployment: { productionUrl: 'https://muataz94.github.io/Vanguard/' }
 };
 
 export function validateConfig() {
   const warnings = [];
   const number = siteConfig.contact.whatsappNumber;
   if (!/^\d{10,15}$/.test(number)) warnings.push('رقم واتساب ما يزال قيمة مؤقتة؛ تم تعطيل روابط التواصل.');
+  if (/example\.com$/i.test(siteConfig.contact.email)) warnings.push('بريد الدعم ما يزال بريداً تجريبياً ويجب استبداله قبل النشر التجاري.');
+  if (siteConfig.business.legalName.includes('يجب الاستكمال')) warnings.push('الاسم القانوني للنشاط غير مكتمل.');
+  if (siteConfig.business.physicalAddress.includes('يجب الاستكمال')) warnings.push('العنوان الفعلي للنشاط غير مكتمل.');
+  if (!siteConfig.product.nonRepaintingClaimVerified) warnings.push('ادعاء عدم إعادة الرسم غير متحقق؛ يجب ألا يُعرض كميزة.');
+  if (siteConfig.product.showEvidence) warnings.push('قسم الأمثلة يستخدم صوراً توضيحية مؤقتة؛ يجب إضافة لقطات موثقة قبل عرض نتائج حقيقية.');
   const three = siteConfig.pricing.find((plan) => plan.months === 3);
   const six = siteConfig.pricing.find((plan) => plan.months === 6);
   if (three && six && six.priceUsd > three.priceUsd * 2) warnings.push('سعر الستة أشهر أعلى من شراء باقتين لثلاثة أشهر؛ يلزم مراجعته.');
+  warnings.push('سياسة الاسترجاع ما تزال غير مكتملة ويجب اعتمادها قبل البيع.');
   return warnings;
 }

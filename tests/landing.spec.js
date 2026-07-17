@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('homepage content, pricing, FAQ and placeholder contact are correct', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/');
+  await page.goto('/Vanguard/');
   await expect(page).toHaveTitle(/مؤشر فانگارد/);
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(page.locator('h1')).toHaveCount(1);
@@ -12,8 +12,7 @@ test('homepage content, pricing, FAQ and placeholder contact are correct', async
   await expect(page.locator('[data-plan="annual"] .price-badge')).toHaveText('أفضل قيمة');
   await expect(page.locator('[data-plan="six-months"] .dev-warning')).toBeVisible();
   await expect(page.locator('.whatsapp-float')).toHaveAttribute('href', /^https:\/\/wa\.me\/9647717220578\?text=/);
-  await expect(page.locator('[data-plan="one-month"] .price-action')).toBeEnabled();
-  await expect(page.locator('[data-plan="one-month"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*95/);
+  await expect(page.locator('[data-plan="one-month"] .price-action')).toBeDisabled();
   await expect(page.locator('[data-plan="three-months"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*199/);
   await expect(page.locator('[data-plan="six-months"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*450/);
   await expect(page.locator('[data-plan="annual"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*795/);
@@ -40,7 +39,7 @@ test('homepage content, pricing, FAQ and placeholder contact are correct', async
 
 test('mobile menu traps focus and closes with Escape', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/Vanguard/');
   const toggle = page.locator('.menu-toggle');
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
@@ -55,7 +54,7 @@ test('mobile menu traps focus and closes with Escape', async ({ page }) => {
 
 test('tablet navigation and two-column content remain usable', async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1024 });
-  await page.goto('/');
+  await page.goto('/Vanguard/');
   await expect(page.locator('.menu-toggle')).toBeVisible();
   await page.locator('.menu-toggle').click();
   await expect(page.locator('.primary-nav')).toHaveClass(/is-open/);
@@ -65,7 +64,7 @@ test('tablet navigation and two-column content remain usable', async ({ page }) 
 });
 
 test('scroll progress, sticky header and return-to-top control are wired', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/Vanguard/');
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight * .55));
   await expect(page.locator('.site-header')).toHaveClass(/is-scrolled/);
   await expect(page.locator('.scroll-top')).toHaveClass(/is-visible/);
@@ -78,7 +77,7 @@ test('scroll progress, sticky header and return-to-top control are wired', async
 });
 
 test('keyboard navigation, accordion semantics and heading order are valid', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/Vanguard/');
   await page.keyboard.press('Tab');
   await expect(page.locator('.skip-link')).toBeFocused();
   await page.keyboard.press('Enter');
@@ -95,7 +94,7 @@ test('keyboard navigation, accordion semantics and heading order are valid', asy
 for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
   test(`layout has no horizontal overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto('/');
+    await page.goto('/Vanguard/');
     const sizes = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }));
     expect(sizes.scrollWidth).toBeLessThanOrEqual(sizes.clientWidth + 1);
   });
@@ -104,13 +103,13 @@ for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
 test('reduced motion keeps static fallback and skips canvas', async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await context.newPage();
-  await page.goto('/');
+  await page.goto('/Vanguard/');
   await expect(page.locator('.scene-fallback')).toBeVisible();
   await expect(page.locator('#three-scene canvas')).toHaveCount(0);
   await context.close();
 });
 
-for (const route of ['/privacy.html', '/terms.html', '/refund.html', '/risk-disclosure.html', '/404.html']) {
+for (const route of ['/Vanguard/privacy.html', '/Vanguard/terms.html', '/Vanguard/refund.html', '/Vanguard/risk-disclosure.html', '/Vanguard/404.html']) {
   test(`${route} renders directly without runtime errors`, async ({ page }) => {
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -118,7 +117,7 @@ for (const route of ['/privacy.html', '/terms.html', '/refund.html', '/risk-disc
     expect(response?.status()).toBe(200);
     await expect(page.locator('main')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-    if (route !== '/404.html') await expect(page.locator('[data-whatsapp]')).toHaveAttribute('href', /^https:\/\/wa\.me\/9647717220578\?text=/);
+    if (!route.endsWith('/404.html')) await expect(page.locator('[data-whatsapp]')).toHaveAttribute('href', /^https:\/\/wa\.me\/9647717220578\?text=/);
     expect(errors).toEqual([]);
   });
 }

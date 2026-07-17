@@ -1,10 +1,22 @@
 # Vanguard Indicator landing page
 
-صفحة هبوط عربية RTL ثابتة لمؤشر Vanguard، مبنية بـ Vite وJavaScript وCSS وThree.js وGSAP. لا يوجد backend أو دفع آلي، والتواصل الحالي مصمم كتدفق يدوي عبر واتساب.
+Production-oriented Arabic RTL landing page for **Vanguard Indicator — مؤشر فانگارد**, a TradingView analysis aid. The site is static: it has no backend, accounts, card collection, recurring billing, or fake checkout.
 
-## التشغيل المحلي
+Live URL: <https://muataz94.github.io/Vanguard/>
 
-يتطلب Node.js 20 أو أحدث.
+## Technology
+
+- Vite and vanilla JavaScript ES modules
+- Modern RTL CSS
+- Three.js hero visual with CSS and reduced-motion fallbacks
+- GSAP and ScrollTrigger
+- Lucide icons
+- Playwright browser tests
+- GitHub Pages deployment through GitHub Actions
+
+Node.js 22 is used in CI. Use Node.js 22 or a compatible current LTS release locally.
+
+## Local setup
 
 ```bash
 npm install
@@ -13,65 +25,102 @@ npm run build
 npm run preview
 ```
 
-ينتج أمر البناء مجلد `dist` الجاهز للنشر.
-
-## الإعداد قبل النشر
-
-حدّث `src/config.js` فقط للبيانات المركزية:
-
-- رقم واتساب مضبوط حالياً على `9647717220578`. غيّره من `whatsappNumber` فقط إذا تغيّر رقم العمل؛ يجب أن يبقى بصيغة دولية من 10 إلى 15 رقماً بلا `+` أو مسافات.
-- الواجهة تستخدم Alexandria للعناوين وFustat للنصوص عبر روابط Google Fonts المطلوبة في كل صفحة عامة.
-- استبدل بريد المثال.
-- أكمل الاسم القانوني والعنوان الفعلي للنشاط.
-- أكّد الأسعار. سعر الستة أشهر (450 دولاراً) أعلى من باقتين لثلاثة أشهر (398 دولاراً) ويحتاج قراراً تجارياً.
-- أكّد الأسواق المدعومة، وشمول التحديثات، وعدد الحسابات.
-- لا تفعّل ادعاء عدم إعادة الرسم إلا بعد تحقق تقني موثق.
-- اعتمد سياسة الاسترجاع والشروط مع مستشار مؤهل وفق الولاية القانونية.
-- أضف فيديو حقيقياً عبر `youtubeVideoId` أو ملف MP4 مضغوط ثم نفّذ تضمين التحميل عند الطلب.
-- استبدل `YOUR-PROJECT.pages.dev` في الإعدادات ووسوم SEO و`robots.txt` و`sitemap.xml` بالنطاق الإنتاجي.
-- أضف لقطات حقيقية متوازنة في `public/screenshots` مع الأصل والإطار والتاريخ والسياق والنتيجة. لا تستخدم النتائج الافتراضية كدليل.
-
-## التحليلات والخصوصية
-
-التحليلات معطّلة افتراضياً. لتفعيل Cloudflare Web Analytics، عيّن `analytics.enabled` إلى `true` وأضف رمز الموقع. الأحداث المسموحة مجهولة: `cta_click` و`pricing_plan_click` و`video_play` و`faq_open` و`whatsapp_click`. لا ترسل الوحدة أرقاماً أو أسماء أو رسائل أو بيانات مالية.
-
-## النشر على Cloudflare Pages
-
-1. أنشئ مستودع GitHub وادفع الملفات إلى فرع `main`.
-2. في Cloudflare افتح **Workers & Pages** ثم **Create application** ثم **Pages**.
-3. اختر **Connect to Git** واربط المستودع والفرع `main`.
-4. عيّن Build command إلى `npm run build`.
-5. عيّن Build output directory إلى `dist`.
-6. اترك Root directory فارغاً لأن المشروع في جذر المستودع.
-7. نفّذ النشر، ثم استبدل كل نطاقات placeholder بعنوان `pages.dev` الناتج.
-8. أعد البناء واختبر الصفحة الرئيسية، الصفحات القانونية، 404، الروابط، والباقات على الهاتف.
-
-بديل Git الأساسي:
+Run the automated browser suite with:
 
 ```bash
-git init
-git add .
-git commit -m "Initial Vanguard landing page"
-git branch -M main
-git remote add origin YOUR_GITHUB_REPOSITORY_URL
-git push -u origin main
+npm run test:e2e
 ```
 
-## قائمة QA وLighthouse
+Vite serves the project under `/Vanguard/`. The production build is written to the ignored `dist` directory.
 
-- [ ] تشغيل Lighthouse Mobile بعد وضع النطاق الإنتاجي وتسجيل النتائج الفعلية فقط.
-- [ ] فحص Performance وAccessibility وBest Practices وSEO.
-- [ ] التأكد من عدم وجود layout shift عند تحميل الصور والمشهد.
-- [ ] التأكد من تحميل Three.js بعد المحتوى الحرج وتوقف الرسم عند إخفاء الصفحة.
-- [ ] الاختبار بعروض 320، 360، 390، 430، 768، 1024، 1440 بكسل.
-- [ ] الاختبار بلوحة المفاتيح: رابط التخطي، القائمة، Escape، حصر التركيز، الأسئلة، وكل CTA.
-- [ ] اختبار تكبير 200% و`prefers-reduced-motion`.
-- [ ] اختبار Chrome وEdge وFirefox وSafari/iOS/Android حيث تتوفر الأجهزة أو الخدمات.
-- [ ] التحقق من عدم وجود أخطاء console أو طلبات 404 أو وسائط autoplay.
-- [x] اختبار روابط ورسائل واتساب العامة ورسائل الباقات بالرقم الحقيقي، دون إرسال بيانات حساسة للتحليلات.
-- [ ] مراجعة التباين وتسلسل العناوين واتجاه RTL والنصوص القانونية.
-- [ ] استكمال كل عناصر `[يجب الاستكمال قبل النشر]` قبل الإعلان.
+## Configuration
 
-## ملاحظات امتثال
+Edit mutable business information only in `src/config.js`:
 
-الموقع لا يَعِد بالربح أو الدقة أو قبول الإعلانات. الموافقة الإعلانية تعتمد على المنصة والولاية والترخيص والحساب الإعلاني. تحذير المخاطر ظاهر في الصفحة، والنتائج التاريخية لا تضمن النتائج المستقبلية.
+- `contact.whatsappNumber`: international digits without `+`, spaces, or punctuation.
+- `contact.defaultMessage` and support email.
+- `business.legalName` and `business.physicalAddress`.
+- `pricing`: labels, durations, prices, availability, and review flags.
+- `product`: verified product claims and optional sections.
+- `media.youtubeVideoId`: real demonstration video when available.
+- `analytics`: disabled by default and limited to anonymous interaction events.
+
+The supplied logo source of truth is `public/assets/vanguard-logo.png`. Do not distort, recolor, rotate, crop, or replace its identity.
+
+## WhatsApp and pricing
+
+WhatsApp URLs and package-specific Arabic messages are generated from `src/config.js`. A valid number is required before a click-to-chat link is created. Enabled plans include their configured name, duration, and price in the prefilled message. The site never collects payment-card information.
+
+The six-month price is deliberately flagged for owner review because two three-month subscriptions currently cost less. The one-month plan is disabled by configuration. Do not remove these safeguards without confirmed commercial terms.
+
+## Legal and owner-supplied content
+
+Direct static pages exist for privacy, terms, refund policy, and risk disclosure. Values marked `[يجب الاستكمال قبل النشر]` are factual placeholders and must not be presented as finalized legal information.
+
+Before commercial launch, the owner must provide or confirm:
+
+- Legal business name and physical address
+- Real support email
+- Final pricing and refund policy
+- Verified balanced screenshots and their context
+- Non-repainting behavior, if it will be claimed
+- Supported markets and activation rules
+- Actual demonstration video
+- Permission-based testimonials before enabling that section
+
+## GitHub Pages deployment
+
+The repository is deployed by `.github/workflows/deploy-pages.yml` whenever `main` is pushed. The workflow:
+
+1. Checks out the repository.
+2. Installs Node.js 22 and runs `npm ci`.
+3. Builds the Vite multi-page site.
+4. Uploads `dist` as a Pages artifact.
+5. Deploys the artifact to GitHub Pages.
+
+Repository setting required once:
+
+1. Open **Settings → Pages**.
+2. Under **Build and deployment**, choose **GitHub Actions** as the source.
+
+Do not commit or manually publish `dist`.
+
+## SEO and routing
+
+- Vite base: `/Vanguard/`
+- Canonical production origin: `https://muataz94.github.io/Vanguard/`
+- Static legal pages are included as Rollup inputs for direct loading.
+- `robots.txt`, `sitemap.xml`, favicon, logo, Open Graph image, and HTML assets use Pages-compatible paths.
+
+## Accessibility checklist
+
+- Arabic `lang` and RTL direction
+- Semantic landmarks and one page-level `h1`
+- Focus-visible skip link and controls
+- Mobile-menu focus trap, Escape handling, and focus restoration
+- Accessible FAQ accordion semantics
+- Touch-friendly controls and logical reading order
+- Reduced-motion fallback and nonessential canvas suppression
+- Tooltips supplement visible content; essential information is never hover-only
+- Verify keyboard navigation and 200% zoom after content changes
+
+## Performance checklist
+
+- Three.js is dynamically imported after critical content and browser idle time
+- Canvas pixel ratio is capped and rendering pauses when hidden/offscreen
+- Below-the-fold images are lazy-loaded with explicit dimensions
+- No external 3D models, large textures, autoplay media, or heavy UI framework
+- Scroll handlers are passive/frame-throttled
+- Run Lighthouse before reporting any score; do not invent results
+
+## Troubleshooting
+
+- Blank assets on Pages: confirm `base: '/Vanguard/'` and keep public assets and internal static-page links under `/Vanguard/`.
+- Legal page missing from `dist`: preserve its entry in `vite.config.js` under `build.rollupOptions.input`.
+- WhatsApp disabled: check `contact.whatsappNumber` contains 10–15 digits.
+- Stale local styles: stop the old Vite process, restart `npm run dev`, and hard-refresh once.
+- Pages workflow fails: inspect the Actions log and confirm Pages source is set to GitHub Actions.
+
+## Compliance
+
+This product is described only as an analytical aid. Do not add guaranteed-profit language, fabricated results, fake urgency, testimonials without permission, regulatory claims, or claims of guaranteed advertising approval. Trading risk and the possibility of capital loss must remain visible.

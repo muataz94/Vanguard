@@ -12,7 +12,7 @@ export function createWhatsAppUrl(message = siteConfig.contact.defaultMessage) {
 }
 
 export function buildPlanMessage(plan) {
-  return `مرحباً، أرغب بالاشتراك في ${siteConfig.brand.nameAr}.\n\nالباقة: اشتراك ${plan.months} ${plan.months === 1 ? 'شهر' : 'أشهر'}\nالمدة: ${plan.months} ${plan.months === 1 ? 'شهر' : 'أشهر'}\nالسعر: ${plan.priceUsd} دولار\n\nيرجى تزويدي بتفاصيل الدفع والتفعيل.`;
+  return `مرحباً، أرغب بالاشتراك في ${siteConfig.brand.nameAr}.\n\nالباقة: ${plan.labelAr}\nالمدة: ${plan.months} ${plan.months === 1 ? 'شهر' : 'أشهر'}\nالسعر: ${plan.priceUsd} دولار\n\nيرجى تزويدي بتفاصيل الدفع والتفعيل.`;
 }
 
 function element(tag, className, text) {

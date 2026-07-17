@@ -4,4 +4,8 @@ dist
 *.log
 test-results
 playwright-report
+.env
+.env.*
 .DS_Store
+.vscode/*
+!.vscode/extensions.json

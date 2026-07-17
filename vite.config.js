@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'node:path';
 
 export default defineConfig({
+  base: '/Vanguard/',
   build: {
     target: 'es2020',
     cssCodeSplit: true,
@@ -15,9 +16,7 @@ export default defineConfig({
         notFound: resolve(import.meta.dirname, '404.html')
       },
       output: {
-        manualChunks: {
-          animation: ['gsap']
-        }
+        manualChunks: { animation: ['gsap'] }
       }
     }
   }

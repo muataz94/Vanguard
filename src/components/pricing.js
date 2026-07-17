@@ -2,8 +2,6 @@ import { siteConfig } from '../config.js';
 import { buildPlanMessage, configureContactLink } from './contact.js';
 import { trackEvent } from '../analytics.js';
 
-const planNames = { 1: 'شهر واحد', 3: 'ثلاثة أشهر', 6: 'ستة أشهر', 12: 'اشتراك سنوي' };
-
 function createElement(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -22,7 +20,7 @@ export function renderPricing(container) {
     card.dataset.plan = plan.id;
     if (isBest) card.append(createElement('span', 'price-badge', 'أفضل قيمة'));
     card.append(createElement('p', 'eyebrow', plan.enabled ? 'متاح للتفعيل اليدوي' : 'غير متاح حالياً'));
-    card.append(createElement('h3', '', planNames[plan.months]));
+    card.append(createElement('h3', '', plan.labelAr));
     const price = createElement('p', 'price');
     price.append(createElement('strong', '', `$${plan.priceUsd}`), createElement('span', '', ' إجمالي الباقة'));
     card.append(price, createElement('p', 'monthly', `ما يعادل ${monthly.toFixed(2)} دولار شهرياً`));
