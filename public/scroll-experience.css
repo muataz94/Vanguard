@@ -1,0 +1,123 @@
+/* Scroll-driven editorial motion inspired by premium scrollytelling sites. */
+@supports (animation-timeline: view()) {
+  .hero-copy > *, .split-heading > *, .section-heading > *, .demo-layout > *, .bundle-content > *, .evidence-heading > *, .faq-intro > *, .risk-panel > *, .final-cta .container > * {
+    animation: chapter-reveal both linear;
+    animation-timeline: view();
+    animation-range: entry 5% cover 32%;
+  }
+
+  .problem-feature, .workflow-item, .benefit-card, .market-pills > button, .evidence-card, .price-card, .activation-steps li, .faq-item {
+    animation: card-rise both linear;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+  }
+
+  .problem-feature:nth-child(2), .benefit-card:nth-child(2), .market-pills > button:nth-child(2), .price-card:nth-child(2), .activation-steps li:nth-child(2) { animation-range: entry 7% cover 34%; }
+  .problem-feature:nth-child(3), .benefit-card:nth-child(3), .market-pills > button:nth-child(3), .price-card:nth-child(3), .activation-steps li:nth-child(3) { animation-range: entry 12% cover 39%; }
+
+  .hero-visual, .bundle-visual, .video-placeholder, .evidence-media {
+    animation: visual-depth both linear;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+    will-change: transform, opacity, filter;
+  }
+
+  .hero-marquee {
+    animation: marquee-drift both linear;
+    animation-timeline: scroll(root block);
+  }
+
+  .section::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgba(71,176,123,.045) 48%, transparent);
+    opacity: 0;
+    animation: section-bloom both linear;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+  }
+
+  .section > *, .final-cta > * { position: relative; z-index: 1; }
+}
+
+@keyframes chapter-reveal {
+  0% { opacity: 0; transform: translateY(70px); filter: blur(10px); clip-path: inset(0 0 100% 0); }
+  55% { opacity: .75; filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); clip-path: inset(0); }
+}
+
+@keyframes card-rise {
+  0% { opacity: 0; transform: translateY(54px) scale(.96); filter: blur(7px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes visual-depth {
+  0% { opacity: .28; transform: translate3d(0,70px,0) scale(.9); filter: blur(9px) saturate(.7); }
+  42% { opacity: 1; transform: translate3d(0,0,0) scale(1); filter: blur(0) saturate(1); }
+  100% { opacity: .75; transform: translate3d(0,-46px,0) scale(1.035); filter: blur(1px) saturate(.9); }
+}
+
+@keyframes section-bloom {
+  0%,100% { opacity: 0; transform: scaleY(.7); }
+  45%,58% { opacity: 1; transform: scaleY(1); }
+}
+
+@keyframes marquee-drift {
+  from { transform: translateX(7vw); }
+  to { transform: translateX(-7vw); }
+}
+
+@media (min-width: 1001px) {
+  .demo-layout > div:first-child, .bundle-content, .faq-intro {
+    position: sticky;
+    inset-block-start: calc(var(--header) + 46px);
+    align-self: start;
+  }
+
+  .problem-section, .markets-section, .pricing-section, .risk-section {
+    isolation: isolate;
+    overflow: clip;
+  }
+
+  .problem-section::before {
+    content: "V";
+    position: absolute;
+    z-index: 0;
+    inset-inline-end: -2vw;
+    inset-block-start: 6%;
+    color: rgba(71,176,123,.045);
+    font: 800 clamp(12rem,28vw,32rem)/1 "Alexandria",sans-serif;
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .market-pills, .pricing-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 14px;
+    padding-block: 8px 24px;
+    scroll-snap-type: inline mandatory;
+    overscroll-behavior-inline: contain;
+    -webkit-mask-image: linear-gradient(to left,transparent 0,#000 30px,#000 calc(100% - 30px),transparent 100%);
+    mask-image: linear-gradient(to left,transparent 0,#000 30px,#000 calc(100% - 30px),transparent 100%);
+  }
+
+  .market-pills > button, .pricing-grid .price-card {
+    flex: 0 0 min(84vw,340px);
+    scroll-snap-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-copy > *, .split-heading > *, .section-heading > *, .demo-layout > *, .bundle-content > *, .evidence-heading > *, .faq-intro > *, .risk-panel > *, .final-cta .container > *, .problem-feature, .workflow-item, .benefit-card, .market-pills > button, .evidence-card, .price-card, .activation-steps li, .faq-item, .hero-visual, .bundle-visual, .video-placeholder, .evidence-media, .hero-marquee, .section::after {
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    clip-path: none !important;
+  }
+}
