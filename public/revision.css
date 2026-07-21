@@ -1,0 +1,124 @@
+/* Video-review redesign layer. Loaded after the Vite bundle so it can refine the existing system safely. */
+:root {
+  --section-space: clamp(64px, 7vw, 104px);
+  --card-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+}
+
+.section { padding-block: var(--section-space); }
+.site-header { --header: 82px; }
+.primary-nav { gap: 30px; font-size: .98rem; }
+.primary-nav > a:not(.button) { font-weight: 650; }
+.button--small { min-height: 46px; padding-inline: 20px; }
+.brand img { width: 48px; height: 48px; }
+.brand b { font-size: 1rem; }
+
+.hero { min-height: auto; padding-block: clamp(72px, 8vw, 112px) 0; }
+.hero-layout { grid-template-columns: minmax(0, 1.08fr) minmax(380px, .92fr); gap: clamp(42px, 6vw, 88px); }
+.hero-copy { position: relative; z-index: 3; }
+.hero h1 { max-width: 820px; font-size: clamp(2.8rem, 6.6vw, 5.45rem); }
+.hero-lead { max-width: 710px; font-size: clamp(1.02rem, 1.8vw, 1.22rem); }
+.hero .button-row { margin-block: 34px 26px; }
+.hero .button { min-height: 56px; padding-inline: 26px; }
+.hero-visual { min-height: 520px; border: 1px solid rgba(71,176,123,.16); background: linear-gradient(145deg, rgba(71,176,123,.06), rgba(0,0,0,.18)); clip-path: polygon(0 0, 92% 0, 100% 8%, 100% 100%, 8% 100%, 0 92%); }
+.hero-visual::after { content: "VANGUARD / ANALYSIS SYSTEM"; position: absolute; inset-inline-end: 18px; inset-block-start: 16px; z-index: 4; color: rgba(245,250,247,.35); font: 600 .62rem/1 monospace; letter-spacing: .16em; direction: ltr; }
+.signal-card { width: min(350px, 88%); inset-inline-start: 4%; inset-block-end: 5%; padding: 18px; }
+.hero-marquee { min-height: 62px; margin-block-start: 46px; font-size: .82rem; }
+.trust-list { font-size: .95rem; }
+.risk-note { max-width: 690px; font-size: .88rem; }
+
+.split-heading { gap: clamp(36px, 6vw, 72px); margin-block-end: 42px; }
+.problem-grid { gap: 14px; border: 0; }
+.problem-feature { min-height: 235px; padding: 28px; border: 1px solid var(--border-subtle) !important; background: linear-gradient(150deg, rgba(71,176,123,.055), rgba(11,15,13,.3)); }
+.problem-feature h3 { margin-block: 38px 10px; }
+.problem-feature:hover { border-color: var(--border-green) !important; box-shadow: var(--card-shadow); }
+
+.workflow-list { max-width: 1120px; }
+.workflow-item p { color: #aebdb5; }
+@media (min-width: 901px) {
+  .workflow-item { min-height: 245px; padding-inline: 13px; }
+  .workflow-item h3 { margin-block-start: 28px; }
+}
+
+.benefits-grid { gap: 14px; border: 0; }
+.benefit-card,
+.benefit-card:nth-child(3n),
+.benefit-card:nth-child(n+4) { min-height: 255px; border: 1px solid var(--border-subtle); background: linear-gradient(145deg, rgba(71,176,123,.07), rgba(11,15,13,.48)); }
+.benefit-card h3 { margin-block: 48px 10px; }
+.benefit-card p { font-size: .94rem; }
+.benefit-card:hover { border-color: var(--border-green); box-shadow: var(--card-shadow); }
+
+.demo-section { padding-block: clamp(70px, 8vw, 112px); }
+.demo-layout { grid-template-columns: .72fr 1.28fr; gap: clamp(42px, 7vw, 86px); }
+.video-placeholder { border: 10px solid #0a110d; box-shadow: 0 34px 90px rgba(0,0,0,.28); }
+.video-placeholder::after { content: "REAL PRODUCT DEMO REQUIRED"; position: absolute; inset-inline-start: 18px; inset-block-end: 14px; z-index: 2; color: rgba(245,250,247,.55); font: 650 .62rem/1 monospace; letter-spacing: .12em; direction: ltr; }
+
+.bundle-layout { gap: clamp(44px, 7vw, 90px); }
+.bundle-visual { min-height: 470px; }
+.bundle-feature { min-height: 132px; }
+
+.market-pills > button { min-height: 145px; }
+.market-detail { border-radius: 10px; }
+
+.evidence-heading { margin-block-end: 42px; }
+.evidence-showcase { gap: 16px; }
+.evidence-card { border-radius: 10px; }
+.evidence-card--featured .evidence-media { min-height: 310px; }
+.evidence-disclaimer { background: rgba(71,176,123,.055); }
+
+.pricing-section { padding-block: clamp(76px, 8vw, 116px); }
+.pricing-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.price-card { min-height: 520px; padding: 30px 24px; display: flex; flex-direction: column; border-radius: 12px; background: linear-gradient(155deg, rgba(71,176,123,.08), var(--surface-850) 45%); }
+.price-card .check-list { flex: 1; }
+.price-card--best { transform: translateY(-8px); box-shadow: 0 0 0 1px rgba(71,176,123,.2), 0 28px 80px rgba(71,176,123,.14); }
+.price-card[aria-disabled="true"], .price-card:has(.price-action[aria-disabled="true"]) { opacity: .62; filter: grayscale(.25); }
+.price strong { font-size: 3rem; }
+.price-action { min-height: 52px; }
+.dev-warning { margin-block-start: 14px; padding: 10px; border: 1px solid rgba(226,184,91,.28); background: rgba(226,184,91,.06); }
+
+.activation-section { padding-block: 72px; }
+.activation-steps { gap: 8px; margin-block: 36px 0; }
+.activation-steps li { min-height: 110px; border-radius: 8px; background: rgba(245,250,247,.075); }
+
+.faq-layout { gap: clamp(44px, 7vw, 78px); }
+.faq-question { min-height: 74px; font-size: 1rem; }
+
+.risk-section { padding-block: 54px; background: #090a08; }
+.risk-panel { border-width: 2px; border-radius: 12px; background: linear-gradient(135deg, rgba(226,184,91,.075), var(--surface-850)); box-shadow: 0 30px 90px rgba(0,0,0,.24); }
+.risk-panel p:last-child { font-size: 1rem; line-height: 1.9; }
+
+.final-cta { padding-block: clamp(82px, 10vw, 128px); }
+.final-cta .button { min-width: 190px; }
+.site-footer { padding-block-start: 60px; }
+
+@media (max-width: 1100px) {
+  .primary-nav { gap: 18px; font-size: .9rem; }
+  .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+  .price-card { min-height: 470px; }
+}
+
+@media (max-width: 1000px) {
+  .site-header { --header: 72px; }
+  .hero-layout { grid-template-columns: 1fr; }
+  .hero-visual { width: min(720px, 100%); margin-inline: auto; }
+}
+
+@media (max-width: 720px) {
+  :root { --section-space: 68px; }
+  .hero { padding-block-start: 48px; }
+  .hero h1 { font-size: clamp(2.35rem, 12vw, 3.7rem); }
+  .hero-visual { min-height: 360px; }
+  .hero-marquee { margin-block-start: 34px; }
+  .problem-feature { min-height: auto; }
+  .benefit-card { min-height: 220px; }
+  .demo-layout { gap: 30px; }
+  .video-placeholder { border-width: 6px; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .price-card { min-height: auto; }
+  .price-card--best { transform: none; }
+  .activation-section { padding-block: 58px; }
+  .risk-section { padding-block: 38px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .price-card--best { transform: none; }
+}
