@@ -1,3 +1,5 @@
+@import url('/Vanguard/scroll-experience.css');
+
 /* Video-review redesign layer. Loaded after the Vite bundle so it can refine the existing system safely. */
 :root {
   --section-space: clamp(64px, 7vw, 104px);
