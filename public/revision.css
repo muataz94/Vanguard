@@ -1,5 +1,4 @@
-/* Focused live refinements.
-   Motion stays native and restrained; the main scroll story is the Forex candle rail. */
+/* Focused live refinements and Forex candle transitions between sections. */
 
 :root {
   --section-space: clamp(76px, 8vw, 116px);
@@ -13,7 +12,7 @@
 .brand img { width: 46px; height: 46px; }
 .button--small { min-height: 44px; padding-inline: 18px; }
 
-/* Hero: clear and premium without oversized spacing. */
+/* Hero */
 .hero { min-height: auto; padding-block: clamp(66px, 8vw, 104px) 0; }
 .hero-layout {
   grid-template-columns: minmax(0, 1.06fr) minmax(360px, .94fr);
@@ -34,12 +33,115 @@
 .hero-marquee { min-height: 62px; margin-block-start: 44px; font-size: .82rem; }
 .signal-card { width: min(340px, 88%); }
 
-/* Remove the previously overdone editorial scroll styling. */
+/* Remove the previous fixed Forex rail; the candle effect now appears at section boundaries. */
+.market-scroll-effect { display: none !important; }
 .demo-layout > div:first-child,
 .bundle-content,
 .faq-intro { position: static; }
 .section::after { content: none !important; }
 .problem-section::before { content: none !important; }
+
+/* Section-to-section Forex candlestick transition. */
+.section-transition-host {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+.section-transition-host > :not(.section-candle-transition) {
+  position: relative;
+  z-index: 2;
+}
+.section-candle-transition {
+  position: absolute;
+  z-index: 4;
+  inset-inline: 0;
+  inset-block-start: clamp(-112px, -9vh, -64px);
+  height: clamp(210px, 30vh, 330px);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(42px);
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(5, 7, 6, .78) 22%, rgba(8, 18, 13, .94) 50%, rgba(5, 7, 6, .72) 78%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  will-change: transform, opacity;
+}
+.section-candle-grid {
+  position: absolute;
+  inset: 0;
+  opacity: .72;
+  background-image:
+    linear-gradient(rgba(71, 176, 123, .08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(71, 176, 123, .08) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+.section-candle-price-line {
+  position: absolute;
+  z-index: 2;
+  inset-inline: 6%;
+  inset-block-start: 51%;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: right center;
+  background: linear-gradient(90deg, transparent, rgba(145, 217, 180, .85) 14%, rgba(71, 176, 123, .95) 50%, rgba(145, 217, 180, .85) 86%, transparent);
+  box-shadow: 0 0 18px rgba(71, 176, 123, .46);
+}
+.section-candle-chart {
+  position: absolute;
+  z-index: 3;
+  inset-inline: max(7vw, 40px);
+  inset-block: 18% 16%;
+  display: grid;
+  grid-template-columns: repeat(13, minmax(8px, 1fr));
+  align-items: end;
+  gap: clamp(10px, 2.3vw, 34px);
+  direction: ltr;
+}
+.section-candle {
+  position: relative;
+  justify-self: center;
+  width: clamp(8px, .9vw, 14px);
+  height: var(--candle-height);
+  opacity: 0;
+  transform: scaleY(.06);
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+}
+.section-candle::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block: -18px -18px;
+  width: 1.5px;
+  transform: translateX(-50%);
+  background: currentColor;
+  box-shadow: 0 0 9px currentColor;
+}
+.section-candle i {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 24%;
+  height: 56%;
+  border-radius: 2px;
+  background: currentColor;
+  box-shadow: 0 0 14px color-mix(in srgb, currentColor 55%, transparent);
+}
+.section-candle--up { color: var(--brand-green); }
+.section-candle--down { color: var(--danger); }
+.section-candle-meta {
+  position: absolute;
+  z-index: 5;
+  inset-inline: max(6vw, 32px);
+  inset-block-end: 18px;
+  display: flex;
+  justify-content: space-between;
+  color: rgba(245, 250, 247, .72);
+  font: 650 .65rem/1 monospace;
+  letter-spacing: .14em;
+  direction: ltr;
+}
+.section-candle-meta b { color: var(--green-300); }
 
 /* Cleaner cards and tighter section rhythm. */
 .split-heading { gap: clamp(32px, 5vw, 66px); margin-block-end: 42px; }
@@ -108,111 +210,35 @@
 }
 .final-cta { padding-block: clamp(84px, 10vw, 132px); }
 
-/* Forex candlestick scroll progress.
-   The existing JS activates each candle and draws the path according to page progress. */
-.market-scroll-effect {
-  position: fixed;
-  z-index: 62;
-  left: 18px;
-  right: auto;
-  top: 17vh;
-  bottom: 13vh;
-  width: 78px;
-  padding: 14px 9px;
-  opacity: 1;
-  pointer-events: none;
-  mix-blend-mode: normal;
-  border: 1px solid rgba(71,176,123,.22);
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(5,7,6,.9), rgba(10,17,13,.78));
-  box-shadow: 0 18px 58px rgba(0,0,0,.32), inset 0 0 28px rgba(71,176,123,.035);
-  backdrop-filter: blur(10px);
-}
-.market-scroll-effect::before {
-  content: "FOREX";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 8px;
-  color: rgba(145,217,180,.72);
-  text-align: center;
-  font: 700 .54rem/1 monospace;
-  letter-spacing: .16em;
-}
-.market-scroll-effect::after {
-  content: "";
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  top: 50%;
-  border-top: 1px dashed rgba(245,250,247,.16);
-  box-shadow: 0 0 12px rgba(71,176,123,.08);
-}
-.market-scroll-effect svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  filter: drop-shadow(0 0 8px rgba(71,176,123,.12));
-}
-.market-scroll-grid { stroke: rgba(71,176,123,.09); stroke-width: .8; }
-.market-scroll-line {
-  stroke: var(--green-400);
-  stroke-width: 2.25;
-  stroke-linecap: round;
-  filter: drop-shadow(0 0 5px rgba(71,176,123,.62));
-}
-.market-scroll-candles g {
-  opacity: .12;
-  transform-box: fill-box;
-  transform-origin: center bottom;
-  transform: scaleY(.18);
-  transition:
-    opacity .38s ease,
-    transform .48s cubic-bezier(.22,1,.36,1),
-    filter .38s ease;
-}
-.market-scroll-candles g.is-active {
-  opacity: 1;
-  transform: scaleY(1);
-  filter: drop-shadow(0 0 6px rgba(71,176,123,.78));
-  animation: candle-ignite .5s cubic-bezier(.22,1,.36,1) both;
-}
-.market-scroll-candles line { stroke: var(--green-300); stroke-width: 1.45; }
-.market-scroll-candles rect { fill: var(--brand-green); rx: 1px; }
-.market-scroll-candles .down line { stroke: #ff9ba2; }
-.market-scroll-candles .down rect { fill: var(--danger); }
-.market-scroll-label,
-.market-scroll-value {
-  left: 0;
-  right: 0;
-  width: 100%;
-  color: var(--green-300);
-  text-align: center;
-  writing-mode: horizontal-tb;
-  transform: none;
-  font: 650 .54rem/1 monospace;
-  letter-spacing: .08em;
-}
-.market-scroll-label { top: -20px; }
-.market-scroll-value { bottom: -20px; }
-.market-scroll-value b { color: var(--brand-white); }
-
-@keyframes candle-ignite {
-  0% { transform: scaleY(.18); opacity: .12; }
-  60% { transform: scaleY(1.12); opacity: 1; }
-  100% { transform: scaleY(1); opacity: 1; }
-}
-
-@media (max-width: 1220px) {
-  .market-scroll-effect { display: none; }
-}
-
 @media (max-width: 1000px) {
   .site-header { --header: 72px; }
   .hero-layout { grid-template-columns: 1fr; }
   .hero-visual { width: min(700px, 100%); margin-inline: auto; }
   .pricing-grid { grid-template-columns: repeat(2, 1fr); }
   .price-card { min-height: 465px; }
+}
+
+@media (max-width: 800px) {
+  .section-candle-transition {
+    inset-block-start: -62px;
+    height: 190px;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+  }
+  .section-candle-chart {
+    inset-inline: 18px;
+    inset-block: 22% 18%;
+    gap: 8px;
+  }
+  .section-candle {
+    width: 7px;
+    height: calc(var(--candle-height) * .65);
+  }
+  .section-candle-meta {
+    inset-inline: 18px;
+    inset-block-end: 12px;
+    font-size: .55rem;
+  }
 }
 
 @media (max-width: 720px) {
@@ -230,8 +256,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .market-scroll-candles g,
-  .market-scroll-candles g.is-active,
+  .section-candle-transition { display: none !important; }
   .price-card--best {
     animation: none !important;
     transition: none !important;
