@@ -1,126 +1,240 @@
-@import url('/Vanguard/scroll-experience.css');
+/* Focused live refinements.
+   Motion stays native and restrained; the main scroll story is the Forex candle rail. */
 
-/* Video-review redesign layer. Loaded after the Vite bundle so it can refine the existing system safely. */
 :root {
-  --section-space: clamp(64px, 7vw, 104px);
-  --card-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+  --section-space: clamp(76px, 8vw, 116px);
+  --soft-shadow: 0 22px 64px rgba(0, 0, 0, .24);
 }
 
 .section { padding-block: var(--section-space); }
-.site-header { --header: 82px; }
-.primary-nav { gap: 30px; font-size: .98rem; }
+.site-header { --header: 78px; }
+.primary-nav { gap: 24px; font-size: .94rem; }
 .primary-nav > a:not(.button) { font-weight: 650; }
-.button--small { min-height: 46px; padding-inline: 20px; }
-.brand img { width: 48px; height: 48px; }
-.brand b { font-size: 1rem; }
+.brand img { width: 46px; height: 46px; }
+.button--small { min-height: 44px; padding-inline: 18px; }
 
-.hero { min-height: auto; padding-block: clamp(72px, 8vw, 112px) 0; }
-.hero-layout { grid-template-columns: minmax(0, 1.08fr) minmax(380px, .92fr); gap: clamp(42px, 6vw, 88px); }
-.hero-copy { position: relative; z-index: 3; }
-.hero h1 { max-width: 820px; font-size: clamp(2.8rem, 6.6vw, 5.45rem); }
-.hero-lead { max-width: 710px; font-size: clamp(1.02rem, 1.8vw, 1.22rem); }
-.hero .button-row { margin-block: 34px 26px; }
-.hero .button { min-height: 56px; padding-inline: 26px; }
-.hero-visual { min-height: 520px; border: 1px solid rgba(71,176,123,.16); background: linear-gradient(145deg, rgba(71,176,123,.06), rgba(0,0,0,.18)); clip-path: polygon(0 0, 92% 0, 100% 8%, 100% 100%, 8% 100%, 0 92%); }
-.hero-visual::after { content: "VANGUARD / ANALYSIS SYSTEM"; position: absolute; inset-inline-end: 18px; inset-block-start: 16px; z-index: 4; color: rgba(245,250,247,.35); font: 600 .62rem/1 monospace; letter-spacing: .16em; direction: ltr; }
-.signal-card { width: min(350px, 88%); inset-inline-start: 4%; inset-block-end: 5%; padding: 18px; }
-.hero-marquee { min-height: 62px; margin-block-start: 46px; font-size: .82rem; }
-.trust-list { font-size: .95rem; }
-.risk-note { max-width: 690px; font-size: .88rem; }
-
-.split-heading { gap: clamp(36px, 6vw, 72px); margin-block-end: 42px; }
-.problem-grid { gap: 14px; border: 0; }
-.problem-feature { min-height: 235px; padding: 28px; border: 1px solid var(--border-subtle) !important; background: linear-gradient(150deg, rgba(71,176,123,.055), rgba(11,15,13,.3)); }
-.problem-feature h3 { margin-block: 38px 10px; }
-.problem-feature:hover { border-color: var(--border-green) !important; box-shadow: var(--card-shadow); }
-
-.workflow-list { max-width: 1120px; }
-.workflow-item p { color: #aebdb5; }
-@media (min-width: 901px) {
-  .workflow-item { min-height: 245px; padding-inline: 13px; }
-  .workflow-item h3 { margin-block-start: 28px; }
+/* Hero: clear and premium without oversized spacing. */
+.hero { min-height: auto; padding-block: clamp(66px, 8vw, 104px) 0; }
+.hero-layout {
+  grid-template-columns: minmax(0, 1.06fr) minmax(360px, .94fr);
+  gap: clamp(38px, 5.5vw, 76px);
 }
+.hero h1 { max-width: 850px; font-size: clamp(2.75rem, 6.2vw, 5.25rem); }
+.hero-lead { max-width: 700px; }
+.hero-visual {
+  min-height: 510px;
+  border: 1px solid rgba(71, 176, 123, .2);
+  background:
+    linear-gradient(rgba(71, 176, 123, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(71, 176, 123, .045) 1px, transparent 1px),
+    radial-gradient(circle at 58% 45%, rgba(71, 176, 123, .12), transparent 58%);
+  background-size: 42px 42px, 42px 42px, auto;
+  clip-path: polygon(0 0, 93% 0, 100% 8%, 100% 100%, 7% 100%, 0 92%);
+}
+.hero-marquee { min-height: 62px; margin-block-start: 44px; font-size: .82rem; }
+.signal-card { width: min(340px, 88%); }
+
+/* Remove the previously overdone editorial scroll styling. */
+.demo-layout > div:first-child,
+.bundle-content,
+.faq-intro { position: static; }
+.section::after { content: none !important; }
+.problem-section::before { content: none !important; }
+
+/* Cleaner cards and tighter section rhythm. */
+.split-heading { gap: clamp(32px, 5vw, 66px); margin-block-end: 42px; }
+.problem-grid { gap: 14px; border: 0; }
+.problem-feature {
+  min-height: 220px;
+  padding: 28px;
+  border: 1px solid var(--border-subtle) !important;
+  background: linear-gradient(145deg, rgba(71,176,123,.05), rgba(11,15,13,.28));
+}
+.problem-feature h3 { margin-block: 34px 10px; }
+.problem-feature:hover { border-color: var(--border-green) !important; box-shadow: var(--soft-shadow); }
 
 .benefits-grid { gap: 14px; border: 0; }
 .benefit-card,
 .benefit-card:nth-child(3n),
-.benefit-card:nth-child(n+4) { min-height: 255px; border: 1px solid var(--border-subtle); background: linear-gradient(145deg, rgba(71,176,123,.07), rgba(11,15,13,.48)); }
-.benefit-card h3 { margin-block: 48px 10px; }
-.benefit-card p { font-size: .94rem; }
-.benefit-card:hover { border-color: var(--border-green); box-shadow: var(--card-shadow); }
+.benefit-card:nth-child(n+4) {
+  min-height: 250px;
+  border: 1px solid var(--border-subtle);
+  background: linear-gradient(145deg, rgba(71,176,123,.055), rgba(11,15,13,.42));
+}
+.benefit-card h3 { margin-block: 46px 10px; }
+.benefit-card:hover { border-color: var(--border-green); box-shadow: var(--soft-shadow); }
 
-.demo-section { padding-block: clamp(70px, 8vw, 112px); }
-.demo-layout { grid-template-columns: .72fr 1.28fr; gap: clamp(42px, 7vw, 86px); }
-.video-placeholder { border: 10px solid #0a110d; box-shadow: 0 34px 90px rgba(0,0,0,.28); }
-.video-placeholder::after { content: "REAL PRODUCT DEMO REQUIRED"; position: absolute; inset-inline-start: 18px; inset-block-end: 14px; z-index: 2; color: rgba(245,250,247,.55); font: 650 .62rem/1 monospace; letter-spacing: .12em; direction: ltr; }
-
-.bundle-layout { gap: clamp(44px, 7vw, 90px); }
-.bundle-visual { min-height: 470px; }
+.demo-layout { grid-template-columns: .8fr 1.2fr; gap: clamp(38px, 6vw, 74px); }
+.video-placeholder { border: 7px solid #0a110d; box-shadow: 0 28px 76px rgba(0,0,0,.25); }
+.bundle-layout { gap: clamp(42px, 6vw, 78px); }
+.bundle-visual { min-height: 460px; }
 .bundle-feature { min-height: 132px; }
-
 .market-pills > button { min-height: 145px; }
 .market-detail { border-radius: 10px; }
 
 .evidence-heading { margin-block-end: 42px; }
-.evidence-showcase { gap: 16px; }
 .evidence-card { border-radius: 10px; }
-.evidence-card--featured .evidence-media { min-height: 310px; }
+.evidence-card:hover { border-color: var(--border-green); }
 .evidence-disclaimer { background: rgba(71,176,123,.055); }
 
-.pricing-section { padding-block: clamp(76px, 8vw, 116px); }
-.pricing-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.price-card { min-height: 520px; padding: 30px 24px; display: flex; flex-direction: column; border-radius: 12px; background: linear-gradient(155deg, rgba(71,176,123,.08), var(--surface-850) 45%); }
+.pricing-grid { gap: 14px; }
+.price-card {
+  min-height: 500px;
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 11px;
+  background: linear-gradient(155deg, rgba(71,176,123,.065), var(--surface-850) 48%);
+}
 .price-card .check-list { flex: 1; }
-.price-card--best { transform: translateY(-8px); box-shadow: 0 0 0 1px rgba(71,176,123,.2), 0 28px 80px rgba(71,176,123,.14); }
-.price-card[aria-disabled="true"], .price-card:has(.price-action[aria-disabled="true"]) { opacity: .62; filter: grayscale(.25); }
-.price strong { font-size: 3rem; }
-.price-action { min-height: 52px; }
-.dev-warning { margin-block-start: 14px; padding: 10px; border: 1px solid rgba(226,184,91,.28); background: rgba(226,184,91,.06); }
+.price-card--best {
+  transform: translateY(-7px);
+  box-shadow: 0 0 0 1px rgba(71,176,123,.18), 0 25px 68px rgba(71,176,123,.12);
+}
+.price-action { min-height: 50px; }
+.dev-warning {
+  margin-block-start: 12px;
+  padding: 9px;
+  border: 1px solid rgba(226,184,91,.25);
+  background: rgba(226,184,91,.055);
+}
+.activation-steps { gap: 8px; }
+.activation-steps li { border-radius: 8px; background: rgba(245,250,247,.07); }
+.risk-section { padding-block: 48px; background: #090a08; }
+.risk-panel {
+  border-width: 2px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(226,184,91,.07), var(--surface-850));
+}
+.final-cta { padding-block: clamp(84px, 10vw, 132px); }
 
-.activation-section { padding-block: 72px; }
-.activation-steps { gap: 8px; margin-block: 36px 0; }
-.activation-steps li { min-height: 110px; border-radius: 8px; background: rgba(245,250,247,.075); }
+/* Forex candlestick scroll progress.
+   The existing JS activates each candle and draws the path according to page progress. */
+.market-scroll-effect {
+  position: fixed;
+  z-index: 62;
+  left: 18px;
+  right: auto;
+  top: 17vh;
+  bottom: 13vh;
+  width: 78px;
+  padding: 14px 9px;
+  opacity: 1;
+  pointer-events: none;
+  mix-blend-mode: normal;
+  border: 1px solid rgba(71,176,123,.22);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(5,7,6,.9), rgba(10,17,13,.78));
+  box-shadow: 0 18px 58px rgba(0,0,0,.32), inset 0 0 28px rgba(71,176,123,.035);
+  backdrop-filter: blur(10px);
+}
+.market-scroll-effect::before {
+  content: "FOREX";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 8px;
+  color: rgba(145,217,180,.72);
+  text-align: center;
+  font: 700 .54rem/1 monospace;
+  letter-spacing: .16em;
+}
+.market-scroll-effect::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 50%;
+  border-top: 1px dashed rgba(245,250,247,.16);
+  box-shadow: 0 0 12px rgba(71,176,123,.08);
+}
+.market-scroll-effect svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 8px rgba(71,176,123,.12));
+}
+.market-scroll-grid { stroke: rgba(71,176,123,.09); stroke-width: .8; }
+.market-scroll-line {
+  stroke: var(--green-400);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px rgba(71,176,123,.62));
+}
+.market-scroll-candles g {
+  opacity: .12;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  transform: scaleY(.18);
+  transition:
+    opacity .38s ease,
+    transform .48s cubic-bezier(.22,1,.36,1),
+    filter .38s ease;
+}
+.market-scroll-candles g.is-active {
+  opacity: 1;
+  transform: scaleY(1);
+  filter: drop-shadow(0 0 6px rgba(71,176,123,.78));
+  animation: candle-ignite .5s cubic-bezier(.22,1,.36,1) both;
+}
+.market-scroll-candles line { stroke: var(--green-300); stroke-width: 1.45; }
+.market-scroll-candles rect { fill: var(--brand-green); rx: 1px; }
+.market-scroll-candles .down line { stroke: #ff9ba2; }
+.market-scroll-candles .down rect { fill: var(--danger); }
+.market-scroll-label,
+.market-scroll-value {
+  left: 0;
+  right: 0;
+  width: 100%;
+  color: var(--green-300);
+  text-align: center;
+  writing-mode: horizontal-tb;
+  transform: none;
+  font: 650 .54rem/1 monospace;
+  letter-spacing: .08em;
+}
+.market-scroll-label { top: -20px; }
+.market-scroll-value { bottom: -20px; }
+.market-scroll-value b { color: var(--brand-white); }
 
-.faq-layout { gap: clamp(44px, 7vw, 78px); }
-.faq-question { min-height: 74px; font-size: 1rem; }
+@keyframes candle-ignite {
+  0% { transform: scaleY(.18); opacity: .12; }
+  60% { transform: scaleY(1.12); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
 
-.risk-section { padding-block: 54px; background: #090a08; }
-.risk-panel { border-width: 2px; border-radius: 12px; background: linear-gradient(135deg, rgba(226,184,91,.075), var(--surface-850)); box-shadow: 0 30px 90px rgba(0,0,0,.24); }
-.risk-panel p:last-child { font-size: 1rem; line-height: 1.9; }
-
-.final-cta { padding-block: clamp(82px, 10vw, 128px); }
-.final-cta .button { min-width: 190px; }
-.site-footer { padding-block-start: 60px; }
-
-@media (max-width: 1100px) {
-  .primary-nav { gap: 18px; font-size: .9rem; }
-  .pricing-grid { grid-template-columns: repeat(2, 1fr); }
-  .price-card { min-height: 470px; }
+@media (max-width: 1220px) {
+  .market-scroll-effect { display: none; }
 }
 
 @media (max-width: 1000px) {
   .site-header { --header: 72px; }
   .hero-layout { grid-template-columns: 1fr; }
-  .hero-visual { width: min(720px, 100%); margin-inline: auto; }
+  .hero-visual { width: min(700px, 100%); margin-inline: auto; }
+  .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+  .price-card { min-height: 465px; }
 }
 
 @media (max-width: 720px) {
   :root { --section-space: 68px; }
   .hero { padding-block-start: 48px; }
-  .hero h1 { font-size: clamp(2.35rem, 12vw, 3.7rem); }
+  .hero h1 { font-size: clamp(2.3rem, 12vw, 3.65rem); }
   .hero-visual { min-height: 360px; }
-  .hero-marquee { margin-block-start: 34px; }
-  .problem-feature { min-height: auto; }
-  .benefit-card { min-height: 220px; }
-  .demo-layout { gap: 30px; }
-  .video-placeholder { border-width: 6px; }
-  .pricing-grid { grid-template-columns: 1fr; }
+  .problem-feature,
+  .benefit-card,
   .price-card { min-height: auto; }
+  .demo-layout { gap: 30px; }
+  .pricing-grid { grid-template-columns: 1fr; }
   .price-card--best { transform: none; }
-  .activation-section { padding-block: 58px; }
   .risk-section { padding-block: 38px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .price-card--best { transform: none; }
+  .market-scroll-candles g,
+  .market-scroll-candles g.is-active,
+  .price-card--best {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
 }
