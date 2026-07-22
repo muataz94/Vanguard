@@ -21,7 +21,7 @@ export const siteConfig = {
   },
   evidenceExamples: [],
   pricing: [
-    { id: 'one-month', labelAr: 'شهر واحد', months: 1, priceUsd: 95, enabled: false },
+    { id: 'one-month', labelAr: 'شهر واحد', months: 1, priceUsd: 95, enabled: true },
     { id: 'three-months', labelAr: 'ثلاثة أشهر', months: 3, priceUsd: 199, enabled: true },
     { id: 'six-months', labelAr: 'ستة أشهر', months: 6, priceUsd: 450, enabled: true, requiresPriceReview: true },
     { id: 'annual', labelAr: 'اشتراك سنوي', months: 12, priceUsd: 795, enabled: true }

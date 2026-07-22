@@ -43,7 +43,7 @@ The visual source of truth is `public/assets/vanguard-logo.png`. Do not distort,
 ## Current commercial safeguards
 
 - WhatsApp links use `9647717220578` and package-specific Arabic messages.
-- The one-month plan is disabled by configuration.
+- The one-month plan is available and opens a prefilled WhatsApp activation request.
 - The six-month USD 450 price requires owner review because two three-month plans currently cost less.
 - Development warnings are emitted only in development and never displayed as public card content.
 - The site does not request or collect payment-card information.

@@ -41,7 +41,7 @@ test('home, assets, navigation, pricing and WhatsApp are production-ready', asyn
   }
 
   await expect(page.locator('#pricing-grid .price-card')).toHaveCount(4);
-  await expect(page.locator('[data-plan="one-month"] .price-action')).toBeDisabled();
+  await expect(page.locator('[data-plan="one-month"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*95/);
   await expect(page.locator('.dev-warning')).toHaveCount(0);
   await expect(page.locator('[data-plan="three-months"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*199/);
   await expect(page.locator('[data-plan="six-months"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*450/);
