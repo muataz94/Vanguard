@@ -16,7 +16,7 @@ export function renderPricing(container) {
   siteConfig.pricing.forEach((plan) => {
     const monthly = plan.priceUsd / plan.months;
     const isBest = plan.enabled && Math.abs(monthly - bestMonthly) < 0.01;
-    const card = createElement('article', `price-card reveal${isBest ? ' price-card--best' : ''}`);
+    const card = createElement('article', `price-card${isBest ? ' price-card--best' : ''}`);
     card.dataset.plan = plan.id;
     if (isBest) card.append(createElement('span', 'price-badge', 'أفضل قيمة'));
     card.append(createElement('p', 'eyebrow', plan.enabled ? 'متاح للتفعيل اليدوي' : 'غير متاح حالياً'));
@@ -33,11 +33,6 @@ export function renderPricing(container) {
     });
     card.append(list);
 
-    if (plan.requiresPriceReview) {
-      const warning = createElement('p', 'dev-warning');
-      warning.innerHTML = '<i data-lucide="circle-alert" aria-hidden="true"></i><span>تنبيه قبل النشر: سعر هذه الباقة يحتاج مراجعة تجارية.</span>';
-      card.append(warning);
-    }
     const action = createElement(plan.enabled ? 'a' : 'button', 'button button--primary price-action', plan.enabled ? 'اطلب تفاصيل التفعيل' : 'غير متاح حالياً');
     if (plan.enabled) {
       configureContactLink(action, { message: buildPlanMessage(plan), sourceSection: 'pricing', planId: plan.id });

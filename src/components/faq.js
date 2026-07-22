@@ -3,7 +3,7 @@ import { trackEvent } from '../analytics.js';
 export function renderFaq(container, items) {
   items.forEach(([question, answer], index) => {
     const item = document.createElement('div');
-    item.className = 'faq-item reveal';
+    item.className = 'faq-item';
     const button = document.createElement('button');
     button.className = 'faq-question';
     button.type = 'button';

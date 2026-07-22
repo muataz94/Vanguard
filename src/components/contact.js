@@ -60,15 +60,15 @@ export function ensureContactDialog() {
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   const note = element('p', 'contact-dialog__note');
-  const emailIsPlaceholder = /example\.com$/i.test(siteConfig.contact.email);
-  note.textContent = emailIsPlaceholder
-    ? 'تنبيه للمالك: البريد ورقم واتساب ما زالا بيانات تجريبية. أضف بيانات العمل الحقيقية في ملف الإعدادات.'
-    : 'يمكنك أيضاً العودة واختيار إحدى الباقات لإرسال تفاصيلها تلقائياً.';
+  const emailIsConfigured = Boolean(siteConfig.contact.email) && !/example\.com$/i.test(siteConfig.contact.email);
+  note.textContent = emailIsConfigured
+    ? 'يمكنك أيضًا العودة واختيار إحدى الباقات لإرسال تفاصيلها تلقائيًا.'
+    : 'استخدم قناة التواصل الرسمية الظاهرة في الصفحة للاستفسار عن التفعيل.';
 
   close.addEventListener('click', () => dialog.close());
   copyEmail.addEventListener('click', () => copyText(siteConfig.contact.email, status));
   dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
-  actions.append(email, copyEmail);
+  if (emailIsConfigured) actions.append(email, copyEmail);
   shell.append(accent, close, eyebrow, title, copy, selection, actions, status, note);
   dialog.append(shell);
   document.body.append(dialog);
