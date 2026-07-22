@@ -33,12 +33,15 @@ test('home, assets, navigation, pricing and WhatsApp are production-ready', asyn
   expect(await page.locator('.brand img').first().evaluate((image) => image.naturalWidth)).toBeGreaterThan(0);
   expect(await page.locator('.brand img').first().evaluate((image) => image.currentSrc)).not.toContain('/Vanguard/Vanguard/');
 
-  await expect(page.locator('.candle-bridge')).toHaveCount(4);
-  await expect(page.locator('.section-candle-transition, .section-transition-host, .market-scroll-effect')).toHaveCount(0);
-  for (const bridge of await page.locator('.candle-bridge').all()) {
-    expect(await bridge.locator('.candle-bridge__candles > span').count()).toBeLessThanOrEqual(7);
-    expect(await bridge.evaluate((node) => getComputedStyle(node).position)).toBe('relative');
+  await expect(page.locator('[data-market-portal]')).toHaveCount(4);
+  await expect(page.locator('.market-portal__fallback')).toHaveCount(4);
+  await expect(page.locator('canvas[data-market-portal-canvas]')).toHaveCount(1);
+  await expect(page.locator('.candle-bridge, .section-candle-transition, .section-transition-host, .market-scroll-effect, .pin-spacer')).toHaveCount(0);
+  for (const portal of await page.locator('[data-market-portal]').all()) {
+    expect(await portal.evaluate((node) => getComputedStyle(node).position)).toBe('relative');
+    expect(await portal.evaluate((node) => getComputedStyle(node).position)).not.toBe('fixed');
   }
+  expect(await page.locator('html').evaluate((node) => getComputedStyle(node).scrollSnapType)).toBe('none');
 
   await expect(page.locator('#pricing-grid .price-card')).toHaveCount(4);
   await expect(page.locator('[data-plan="one-month"] .price-action')).toHaveAttribute('href', /wa\.me\/9647717220578.*95/);
@@ -104,13 +107,58 @@ test('reduced motion renders complete static content without canvas', async ({ b
   const page = await context.newPage();
   const diagnostics = watchPage(page);
   await openLanding(page);
-  await expect(page.locator('#three-scene canvas')).toHaveCount(0);
+  await expect(page.locator('canvas[data-market-portal-canvas]')).toHaveCount(0);
+  await expect(page.locator('html')).toHaveAttribute('data-motion-mode', 'static');
   await expect(page.locator('.scene-fallback')).toBeVisible();
-  const states = await page.locator('.motion-group, .candle-bridge').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
+  await expect(page.locator('.market-portal__fallback')).toHaveCount(4);
+  const states = await page.locator('.motion-group, .market-portal').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
   expect(states.every(({ opacity, transform }) => opacity === '1' && transform === 'none')).toBeTruthy();
   expect(diagnostics.errors).toEqual([]);
   expect(diagnostics.failures).toEqual([]);
   await context.close();
+});
+
+for (const [label, width, height, expectedCount] of [
+  ['mobile', 390, 844, 8],
+  ['tablet', 768, 1024, 14],
+  ['desktop', 1440, 900, 22]
+]) {
+  test(`shared market portal uses the ${label} candle budget`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    const diagnostics = watchPage(page);
+    await openLanding(page);
+    await expect(page.locator('canvas[data-market-portal-canvas]')).toHaveCount(1);
+    await expect(page.locator('[data-market-portal]')).toHaveCount(4);
+    const counts = await page.locator('[data-market-portal]').evaluateAll((zones) => zones.map((zone) => Number(zone.dataset.candleCount)));
+    expect(counts).toEqual([expectedCount, expectedCount, expectedCount, expectedCount]);
+    expect(diagnostics.errors).toEqual([]);
+    expect(diagnostics.failures).toEqual([]);
+  });
+}
+
+test('market portal scrubs in both directions and renders only while active', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openLanding(page);
+  const portal = page.locator('[data-market-portal]').first();
+  const canvas = page.locator('canvas[data-market-portal-canvas]');
+  const portalTop = await portal.evaluate((node) => node.getBoundingClientRect().top + window.scrollY);
+  await page.evaluate((y) => window.scrollTo(0, y), portalTop - 720);
+  await page.waitForTimeout(650);
+  const firstProgress = Number(await canvas.getAttribute('data-progress'));
+  await page.evaluate((y) => window.scrollTo(0, y), portalTop - 300);
+  await page.waitForTimeout(650);
+  const forwardProgress = Number(await canvas.getAttribute('data-progress'));
+  expect(forwardProgress).toBeGreaterThan(firstProgress);
+  await page.evaluate((y) => window.scrollTo(0, y), portalTop - 620);
+  await page.waitForTimeout(650);
+  const reverseProgress = Number(await canvas.getAttribute('data-progress'));
+  expect(reverseProgress).toBeLessThan(forwardProgress);
+
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.waitForTimeout(650);
+  const settledCount = Number(await canvas.getAttribute('data-render-count'));
+  await page.waitForTimeout(500);
+  expect(Number(await canvas.getAttribute('data-render-count'))).toBe(settledCount);
 });
 
 test('mobile menu traps focus, closes with Escape and keeps actions reachable', async ({ page }) => {
@@ -236,7 +284,7 @@ test('capture required screenshots and reverse-scroll video', async ({ browser, 
   await videoPage.goto(`${baseURL}/Vanguard/`, { waitUntil: 'networkidle' });
   await videoPage.waitForTimeout(900);
   const video = videoPage.video();
-  for (const selector of ['.candle-bridge[data-chapter="01"]', '#demo', '.candle-bridge[data-chapter="03"]', '#pricing', '#faq']) {
+  for (const selector of ['[data-market-portal][data-chapter="01"]', '#demo', '[data-market-portal][data-chapter="03"]', '#pricing', '#faq']) {
     const targetY = await videoPage.locator(selector).evaluate((node) => node.getBoundingClientRect().top + window.scrollY - 80);
     while (await videoPage.evaluate(() => window.scrollY) < targetY - 40) {
       await videoPage.mouse.wheel(0, 420);

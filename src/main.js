@@ -187,17 +187,6 @@ async function startEnhancements() {
   } catch (error) {
     if (import.meta.env.DEV) console.warn('تعذر تحميل الحركة؛ بقيت الصفحة الثابتة متاحة.', error);
   }
-
-  const loadThree = async () => {
-    try {
-      const { initThreeScene } = await import('./components/three-scene.js');
-      await initThreeScene(document.querySelector('#three-scene'));
-    } catch (error) {
-      if (import.meta.env.DEV) console.warn('تعذر تحميل المشهد البصري؛ بقي البديل الثابت متاحًا.', error);
-    }
-  };
-  if ('requestIdleCallback' in window) window.requestIdleCallback(loadThree, { timeout: 1200 });
-  else window.setTimeout(loadThree, 500);
 }
 
 renderContent();

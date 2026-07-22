@@ -1,49 +1,30 @@
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 
 function showStaticContent(gsap) {
-  gsap.set('.motion-group, .candle-bridge, .candle-bridge__candles span, .candle-bridge__line, .candle-bridge__label', {
-    clearProps: 'all'
+  gsap.set('.hero-layout, .motion-section, .motion-group, [data-market-portal]', { clearProps: 'all' });
+  document.documentElement.dataset.motionMode = 'static';
+}
+
+function initHeroReveal(gsap) {
+  return gsap.fromTo('.hero-layout', { opacity: 0, y: 20 }, {
+    opacity: 1,
+    y: 0,
+    duration: .7,
+    ease: 'power3.out',
+    clearProps: 'opacity,transform'
   });
 }
 
-function initHeroMotion(gsap) {
-  const timeline = gsap.timeline({ defaults: { ease: 'power3.out' } });
-  timeline
-    .fromTo('.hero-copy > *', { opacity: 0, y: 20 }, {
-      opacity: 1,
-      y: 0,
-      duration: .68,
-      stagger: .055,
-      clearProps: 'opacity,transform'
-    })
-    .fromTo('.hero-visual', { opacity: 0, y: 18 }, {
-      opacity: 1,
-      y: 0,
-      duration: .82,
-      clearProps: 'opacity,transform'
-    }, .12);
-  return timeline;
-}
-
-function initSectionReveals(gsap, ScrollTrigger, distance) {
-  const selectors = [
-    '.problem-section .motion-group',
-    '#benefits .motion-group',
-    '#how-it-works .motion-group',
-    '#demo .motion-group',
-    '.bundle-section .motion-group',
-    '#pricing .motion-group',
-    '#faq .motion-group',
-    '.risk-section .motion-group'
-  ];
-
-  selectors.forEach((selector) => {
-    const target = document.querySelector(selector);
+function initSectionReveals(gsap, ScrollTrigger, portalSections) {
+  const triggers = [];
+  document.querySelectorAll('.motion-section').forEach((section) => {
+    if (portalSections.has(section)) return;
+    const target = section.querySelector('.motion-group') || section.querySelector('.container');
     if (!target) return;
-    gsap.fromTo(target, { opacity: 0, y: distance }, {
+    const tween = gsap.fromTo(target, { opacity: 0, y: 20 }, {
       opacity: 1,
       y: 0,
-      duration: .72,
+      duration: .7,
       ease: 'power3.out',
       clearProps: 'opacity,transform',
       scrollTrigger: {
@@ -52,34 +33,59 @@ function initSectionReveals(gsap, ScrollTrigger, distance) {
         once: true
       }
     });
+    if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
   });
+  return triggers;
 }
 
-function initCandleBridges(gsap, mobile) {
-  document.querySelectorAll('.candle-bridge').forEach((bridge) => {
-    const candles = bridge.querySelectorAll('.candle-bridge__candles span');
-    const line = bridge.querySelector('.candle-bridge__line');
-    const label = bridge.querySelector('.candle-bridge__label');
-    const timeline = gsap.timeline({
-      defaults: { ease: 'power3.out' },
-      scrollTrigger: {
-        trigger: bridge,
-        start: 'top 88%',
-        end: 'bottom 55%',
-        toggleActions: 'play none none reverse'
-      }
-    });
+async function initPortalTransitions(gsap, ScrollTrigger) {
+  const zones = [...document.querySelectorAll('[data-market-portal]')];
+  if (zones.length !== 4) return { triggers: [], portal: null, portalSections: new Set() };
 
-    timeline
-      .fromTo(line, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: .68 }, 0)
-      .fromTo(candles, { scaleY: .15, opacity: 0 }, {
-        scaleY: 1,
+  const { createMarketPortalSystem } = await import('./market-portal.js');
+  const portal = createMarketPortalSystem(zones);
+  if (!portal) return { triggers: [], portal: null, portalSections: new Set() };
+
+  const portalSections = new Set();
+  const triggers = zones.map((zone, index) => {
+    const nextSection = document.querySelector(zone.dataset.nextSection);
+    if (nextSection) portalSections.add(nextSection);
+    const state = { progress: 0 };
+    let trigger;
+    const timeline = gsap.timeline({ paused: true, defaults: { ease: 'none' } });
+    timeline.to(state, {
+      progress: 1,
+      duration: 1,
+      onUpdate: () => {
+        if (trigger?.isActive) portal.render(state.progress, index);
+      }
+    }, 0);
+    if (nextSection) {
+      timeline.fromTo(nextSection, { opacity: .84, y: 20 }, {
         opacity: 1,
-        duration: mobile ? .58 : .72,
-        stagger: mobile ? .045 : .06
-      }, .04)
-      .fromTo(label, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .42 }, .22);
+        y: 0,
+        duration: .3,
+        clearProps: 'opacity,transform'
+      }, .7);
+    }
+
+    trigger = ScrollTrigger.create({
+      id: `market-portal-${index + 1}`,
+      trigger: zone,
+      start: 'top 92%',
+      end: 'bottom 8%',
+      animation: timeline,
+      scrub: .45,
+      invalidateOnRefresh: true,
+      onEnter: (self) => portal.render(self.progress, index),
+      onEnterBack: (self) => portal.render(self.progress, index),
+      onLeave: () => portal.deactivate(index),
+      onLeaveBack: () => portal.deactivate(index)
+    });
+    return trigger;
   });
+
+  return { triggers, portal, portalSections };
 }
 
 export async function initMotionSystem() {
@@ -89,29 +95,41 @@ export async function initMotionSystem() {
   ]);
   gsap.registerPlugin(ScrollTrigger);
 
-  const context = gsap.context(() => {
-    const media = gsap.matchMedia();
-    media.add({
-      desktop: '(min-width: 621px)',
-      mobile: '(max-width: 620px)',
-      reduceMotion: REDUCED_MOTION
-    }, ({ conditions }) => {
-      if (conditions.reduceMotion) {
-        showStaticContent(gsap);
-        return undefined;
-      }
+  const reducedMotion = window.matchMedia(REDUCED_MOTION);
+  let cleanupCurrent = () => {};
 
-      if (conditions.desktop) initHeroMotion(gsap);
-      initSectionReveals(gsap, ScrollTrigger, conditions.mobile ? 16 : 24);
-      initCandleBridges(gsap, conditions.mobile);
-      return undefined;
-    });
-  });
+  const setup = async () => {
+    cleanupCurrent();
+    showStaticContent(gsap);
+    if (reducedMotion.matches) return;
 
-  if (document.fonts?.ready) await document.fonts.ready;
-  requestAnimationFrame(() => ScrollTrigger.refresh());
+    document.documentElement.dataset.motionMode = 'enhanced';
+    const context = gsap.context(() => {});
+    const heroTween = initHeroReveal(gsap);
+    const portalState = await initPortalTransitions(gsap, ScrollTrigger);
+    const revealTriggers = initSectionReveals(gsap, ScrollTrigger, portalState.portalSections);
+    const allTriggers = [...portalState.triggers, ...revealTriggers];
 
-  const cleanup = () => context.revert();
+    if (document.fonts?.ready) await document.fonts.ready;
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+
+    cleanupCurrent = () => {
+      heroTween.kill();
+      allTriggers.forEach((trigger) => trigger.kill(true));
+      portalState.portal?.dispose();
+      context.revert();
+      showStaticContent(gsap);
+    };
+  };
+
+  await setup();
+  const onPreferenceChange = () => { setup(); };
+  reducedMotion.addEventListener('change', onPreferenceChange);
+
+  const cleanup = () => {
+    reducedMotion.removeEventListener('change', onPreferenceChange);
+    cleanupCurrent();
+  };
   window.addEventListener('pagehide', cleanup, { once: true });
   return cleanup;
 }
