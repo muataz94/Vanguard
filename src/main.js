@@ -1,5 +1,5 @@
 import './styles.css';
-import { createIcons, ArrowLeft, BellRing, Bitcoin, ChartCandlestick, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } from 'lucide';
+import { createIcons, ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } from 'lucide';
 import { siteConfig, validateConfig } from './config.js';
 import { benefits, faqs, workflow } from './content.js';
 import { initAnalytics, trackEvent } from './analytics.js';
@@ -26,7 +26,7 @@ function renderContent() {
     benefitsGrid.append(card);
   });
 
-  const marketIcons = ['landmark', 'bitcoin', 'chart-candlestick', 'chart-spline'];
+  const marketIcons = ['landmark', 'bitcoin', 'chart-no-axes-combined', 'chart-spline'];
   const marketDescriptions = [
     'يمكن تنظيم قراءة أزواج العملات ضمن إعدادات يحددها المستخدم. يجب التحقق من ملاءمة كل إعداد قبل استخدامه.',
     'تساعد الواجهة على ترتيب متابعة الأصول الرقمية المتقلبة، مع ضرورة استخدام إدارة مخاطر صارمة.',
@@ -63,7 +63,7 @@ function renderContent() {
     ? `+${contactDigits.slice(0, 3)} ${contactDigits.slice(3, 6)} ${contactDigits.slice(6, 9)} ${contactDigits.slice(9)}`
     : `+${contactDigits}`;
 
-  createIcons({ icons: { ArrowLeft, BellRing, Bitcoin, ChartCandlestick, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } });
+  createIcons({ icons: { ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } });
 }
 
 function initNavigation() {
@@ -120,7 +120,7 @@ function initNavigation() {
 function initDemoWalkthrough() {
   const buttons = [...document.querySelectorAll('[data-demo-step]')];
   const copy = document.querySelector('#demo-step-copy');
-  const terminal = document.querySelector('.demo-terminal');
+  const terminal = document.querySelector('.abstract-stage');
   const status = terminal.querySelector('[data-demo-status]');
   const confirmation = terminal.querySelector('[data-demo-confirm]');
   const steps = {

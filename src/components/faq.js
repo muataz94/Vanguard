@@ -29,6 +29,7 @@ export function renderFaq(container, items) {
     button.addEventListener('click', () => {
       const open = button.getAttribute('aria-expanded') === 'true';
       button.setAttribute('aria-expanded', String(!open));
+      button.focus({ preventScroll: true });
       icon.textContent = open ? '+' : '−';
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (open) {

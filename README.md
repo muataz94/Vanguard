@@ -50,7 +50,7 @@ The visual source of truth is `public/assets/vanguard-logo.png`. Do not distort,
 
 ## Motion architecture
 
-Normal browser scrolling is preserved. Four in-flow transition zones share one WebGL canvas and one reusable Three.js scene. Their ScrollTriggers use `scrub: 0.45` without pinning, scroll-jacking, snap, or readable-content overlays. The portal uses 22 candles on desktop, 14 on tablet, and 8 on mobile; reduced-motion mode skips Three.js entirely and shows the static SVG/CSS candle-V fallback.
+Normal browser scrolling is preserved. One Three.js renderer powers the abstract Vanguard form in the visual-demo section. GSAP and ScrollTrigger provide restrained heading, card, mask, decorative-grid, pricing, FAQ, and CTA motion without pinning, snapping, scroll-jacking, or readable-content overlays. Reduced-motion mode skips Three.js and shows the static CSS Vanguard form immediately.
 
 See [docs/motion-architecture.md](docs/motion-architecture.md) for implementation details and [docs/motion-revamp-audit.md](docs/motion-revamp-audit.md) for the baseline audit.
 

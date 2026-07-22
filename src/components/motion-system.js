@@ -1,134 +1,123 @@
-const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
+const revealSelector = '.split-heading, .chapter-heading, .activation-head, .faq-intro, .final-cta .container';
+const cardSelector = '.feature-card, .benefit-card, .workflow-item, .market-pills > button, .bundle-features article, .price-card, .activation-steps li, .faq-item';
 
-function showStaticContent(gsap) {
-  gsap.set('.hero-layout, .motion-section, .motion-group, [data-market-portal]', { clearProps: 'all' });
+function clearMotion(gsap) {
+  gsap.set(`${revealSelector}, ${cardSelector}, .hero-copy > *, .hero-visual, .abstract-stage`, { clearProps: 'all' });
   document.documentElement.dataset.motionMode = 'static';
 }
 
-function initHeroReveal(gsap) {
-  return gsap.fromTo('.hero-layout', { opacity: 0, y: 20 }, {
-    opacity: 1,
-    y: 0,
-    duration: .7,
-    ease: 'power3.out',
-    clearProps: 'opacity,transform'
-  });
-}
-
-function initSectionReveals(gsap, ScrollTrigger, portalSections) {
+function createSectionReveals(gsap, ScrollTrigger) {
   const triggers = [];
-  document.querySelectorAll('.motion-section').forEach((section) => {
-    if (portalSections.has(section)) return;
-    const target = section.querySelector('.motion-group') || section.querySelector('.container');
-    if (!target) return;
-    const tween = gsap.fromTo(target, { opacity: 0, y: 20 }, {
+  gsap.utils.toArray(revealSelector).forEach((target) => {
+    const tween = gsap.fromTo(target, { opacity: 0, y: 18 }, {
       opacity: 1,
       y: 0,
-      duration: .7,
+      duration: .68,
       ease: 'power3.out',
-      clearProps: 'opacity,transform',
-      scrollTrigger: {
-        trigger: target,
-        start: 'top 86%',
-        once: true
-      }
+      clearProps: 'opacity,visibility,transform',
+      scrollTrigger: { trigger: target, start: 'top 87%', once: true }
     });
     if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
   });
   return triggers;
 }
 
-async function initPortalTransitions(gsap, ScrollTrigger) {
-  const zones = [...document.querySelectorAll('[data-market-portal]')];
-  if (zones.length !== 4) return { triggers: [], portal: null, portalSections: new Set() };
+function createCardReveals(gsap, ScrollTrigger) {
+  const cards = gsap.utils.toArray(cardSelector);
+  return ScrollTrigger.batch(cards, {
+    start: 'top 90%',
+    once: true,
+    onEnter: (batch) => gsap.fromTo(batch, { opacity: 0, y: 14, scale: .985 }, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: .56,
+      stagger: .06,
+      ease: 'power3.out',
+      clearProps: 'opacity,visibility,transform'
+    })
+  });
+}
 
-  const { createMarketPortalSystem } = await import('./market-portal.js');
-  const portal = createMarketPortalSystem(zones);
-  if (!portal) return { triggers: [], portal: null, portalSections: new Set() };
-
-  const portalSections = new Set();
-  const triggers = zones.map((zone, index) => {
-    const nextSection = document.querySelector(zone.dataset.nextSection);
-    if (nextSection) portalSections.add(nextSection);
-    const state = { progress: 0 };
-    let trigger;
-    const timeline = gsap.timeline({ paused: true, defaults: { ease: 'none' } });
-    timeline.to(state, {
-      progress: 1,
-      duration: 1,
-      onUpdate: () => {
-        if (trigger?.isActive) portal.render(state.progress, index);
+function createDecorativeMotion(gsap, ScrollTrigger) {
+  const triggers = [];
+  document.querySelectorAll('.motion-section').forEach((section, index) => {
+    const trigger = ScrollTrigger.create({
+      trigger: section,
+      start: 'top bottom',
+      end: 'bottom top',
+      onUpdate: (self) => {
+        const offset = Math.round((self.progress - .5) * 32);
+        section.style.setProperty('--grid-offset', `${offset}px`);
+        section.style.setProperty('--ornament-y', `${Math.round(offset * -.45)}px`);
+        section.style.setProperty('--ornament-rotate', `${(index % 2 ? -1 : 1) * Math.round(self.progress * 10)}deg`);
       }
-    }, 0);
-    if (nextSection) {
-      timeline.fromTo(nextSection, { opacity: .84, y: 20 }, {
-        opacity: 1,
-        y: 0,
-        duration: .3,
-        clearProps: 'opacity,transform'
-      }, .7);
-    }
-
-    trigger = ScrollTrigger.create({
-      id: `market-portal-${index + 1}`,
-      trigger: zone,
-      start: 'top 92%',
-      end: 'bottom 8%',
-      animation: timeline,
-      scrub: .45,
-      invalidateOnRefresh: true,
-      onEnter: (self) => portal.render(self.progress, index),
-      onEnterBack: (self) => portal.render(self.progress, index),
-      onLeave: () => portal.deactivate(index),
-      onLeaveBack: () => portal.deactivate(index)
     });
-    return trigger;
+    triggers.push(trigger);
   });
 
-  return { triggers, portal, portalSections };
+  ['.bundle-console', '.abstract-stage'].forEach((selector) => {
+    const target = document.querySelector(selector);
+    if (!target) return;
+    const tween = gsap.fromTo(target, { y: 10 }, {
+      y: -10,
+      ease: 'none',
+      scrollTrigger: { trigger: target, start: 'top bottom', end: 'bottom top', scrub: .45 }
+    });
+    if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
+  });
+  return triggers;
+}
+
+function createHeroMotion(gsap) {
+  return gsap.timeline({ defaults: { ease: 'power3.out' } })
+    .fromTo('.hero-copy > *', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .58, stagger: .055, clearProps: 'opacity,transform' })
+    .fromTo('.hero-visual', { opacity: 0, y: 18, scale: .99 }, { opacity: 1, y: 0, scale: 1, duration: .72, clearProps: 'opacity,transform' }, .1);
 }
 
 export async function initMotionSystem() {
-  const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([
-    import('gsap'),
-    import('gsap/ScrollTrigger')
-  ]);
+  const [{ default: gsap }, { ScrollTrigger }] = await Promise.all([import('gsap'), import('gsap/ScrollTrigger')]);
   gsap.registerPlugin(ScrollTrigger);
-
-  const reducedMotion = window.matchMedia(REDUCED_MOTION);
-  let cleanupCurrent = () => {};
+  const preference = window.matchMedia(reducedMotionQuery);
+  let stopCurrent = () => {};
 
   const setup = async () => {
-    cleanupCurrent();
-    showStaticContent(gsap);
-    if (reducedMotion.matches) return;
+    stopCurrent();
+    clearMotion(gsap);
+    if (preference.matches) return;
 
     document.documentElement.dataset.motionMode = 'enhanced';
     const context = gsap.context(() => {});
-    const heroTween = initHeroReveal(gsap);
-    const portalState = await initPortalTransitions(gsap, ScrollTrigger);
-    const revealTriggers = initSectionReveals(gsap, ScrollTrigger, portalState.portalSections);
-    const allTriggers = [...portalState.triggers, ...revealTriggers];
+    const hero = createHeroMotion(gsap);
+    const sections = createSectionReveals(gsap, ScrollTrigger);
+    const cards = createCardReveals(gsap, ScrollTrigger);
+    const decorative = createDecorativeMotion(gsap, ScrollTrigger);
+    const stage = document.querySelector('#vanguard-abstract-stage');
+    let stopAbstract = () => {};
+    if (stage) {
+      const { initAbstractVanguard } = await import('./abstract-vanguard.js');
+      stopAbstract = initAbstractVanguard(stage) || (() => {});
+    }
 
     if (document.fonts?.ready) await document.fonts.ready;
     requestAnimationFrame(() => ScrollTrigger.refresh());
-
-    cleanupCurrent = () => {
-      heroTween.kill();
-      allTriggers.forEach((trigger) => trigger.kill(true));
-      portalState.portal?.dispose();
+    stopCurrent = () => {
+      hero.kill();
+      [...sections, ...cards, ...decorative].forEach((trigger) => trigger.kill(true));
+      stopAbstract();
       context.revert();
-      showStaticContent(gsap);
+      document.querySelectorAll('.motion-section').forEach((section) => section.removeAttribute('style'));
+      clearMotion(gsap);
     };
   };
 
   await setup();
-  const onPreferenceChange = () => { setup(); };
-  reducedMotion.addEventListener('change', onPreferenceChange);
-
+  const onChange = () => { setup(); };
+  preference.addEventListener('change', onChange);
   const cleanup = () => {
-    reducedMotion.removeEventListener('change', onPreferenceChange);
-    cleanupCurrent();
+    preference.removeEventListener('change', onChange);
+    stopCurrent();
   };
   window.addEventListener('pagehide', cleanup, { once: true });
   return cleanup;

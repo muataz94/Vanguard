@@ -33,14 +33,9 @@ test('home, assets, navigation, pricing and WhatsApp are production-ready', asyn
   expect(await page.locator('.brand img').first().evaluate((image) => image.naturalWidth)).toBeGreaterThan(0);
   expect(await page.locator('.brand img').first().evaluate((image) => image.currentSrc)).not.toContain('/Vanguard/Vanguard/');
 
-  await expect(page.locator('[data-market-portal]')).toHaveCount(4);
-  await expect(page.locator('.market-portal__fallback')).toHaveCount(4);
-  await expect(page.locator('canvas[data-market-portal-canvas]')).toHaveCount(1);
-  await expect(page.locator('.candle-bridge, .section-candle-transition, .section-transition-host, .market-scroll-effect, .pin-spacer')).toHaveCount(0);
-  for (const portal of await page.locator('[data-market-portal]').all()) {
-    expect(await portal.evaluate((node) => getComputedStyle(node).position)).toBe('relative');
-    expect(await portal.evaluate((node) => getComputedStyle(node).position)).not.toBe('fixed');
-  }
+  await expect(page.locator('#vanguard-abstract-stage')).toBeVisible();
+  await expect(page.locator('canvas[data-vanguard-abstract]')).toHaveCount(1);
+  await expect(page.locator('.section-transition-host, .market-scroll-effect, .pin-spacer')).toHaveCount(0);
   expect(await page.locator('html').evaluate((node) => getComputedStyle(node).scrollSnapType)).toBe('none');
 
   await expect(page.locator('#pricing-grid .price-card')).toHaveCount(4);
@@ -107,52 +102,50 @@ test('reduced motion renders complete static content without canvas', async ({ b
   const page = await context.newPage();
   const diagnostics = watchPage(page);
   await openLanding(page);
-  await expect(page.locator('canvas[data-market-portal-canvas]')).toHaveCount(0);
+  await expect(page.locator('canvas[data-vanguard-abstract]')).toHaveCount(0);
   await expect(page.locator('html')).toHaveAttribute('data-motion-mode', 'static');
   await expect(page.locator('.scene-fallback')).toBeVisible();
-  await expect(page.locator('.market-portal__fallback')).toHaveCount(4);
-  const states = await page.locator('.motion-group, .market-portal').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
+  await expect(page.locator('.abstract-stage__fallback')).toBeVisible();
+  const states = await page.locator('.motion-group, .abstract-stage').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
   expect(states.every(({ opacity, transform }) => opacity === '1' && transform === 'none')).toBeTruthy();
   expect(diagnostics.errors).toEqual([]);
   expect(diagnostics.failures).toEqual([]);
   await context.close();
 });
 
-for (const [label, width, height, expectedCount] of [
-  ['mobile', 390, 844, 8],
-  ['tablet', 768, 1024, 14],
-  ['desktop', 1440, 900, 22]
+for (const [label, width, height, maxRatio] of [
+  ['mobile', 390, 844, 1.2],
+  ['tablet', 768, 1024, 1.5],
+  ['desktop', 1440, 900, 1.5]
 ]) {
-  test(`shared market portal uses the ${label} candle budget`, async ({ page }) => {
+  test(`abstract Vanguard scene uses the ${label} renderer budget`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     const diagnostics = watchPage(page);
     await openLanding(page);
-    await expect(page.locator('canvas[data-market-portal-canvas]')).toHaveCount(1);
-    await expect(page.locator('[data-market-portal]')).toHaveCount(4);
-    const counts = await page.locator('[data-market-portal]').evaluateAll((zones) => zones.map((zone) => Number(zone.dataset.candleCount)));
-    expect(counts).toEqual([expectedCount, expectedCount, expectedCount, expectedCount]);
+    const canvas = page.locator('canvas[data-vanguard-abstract]');
+    await expect(canvas).toHaveCount(1);
+    const ratio = await canvas.evaluate((node) => node.width / node.getBoundingClientRect().width);
+    expect(ratio).toBeLessThanOrEqual(maxRatio + .05);
     expect(diagnostics.errors).toEqual([]);
     expect(diagnostics.failures).toEqual([]);
   });
 }
 
-test('market portal scrubs in both directions and renders only while active', async ({ page }) => {
+test('abstract scene pauses off-screen while normal scrolling works in both directions', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await openLanding(page);
-  const portal = page.locator('[data-market-portal]').first();
-  const canvas = page.locator('canvas[data-market-portal-canvas]');
-  const portalTop = await portal.evaluate((node) => node.getBoundingClientRect().top + window.scrollY);
-  await page.evaluate((y) => window.scrollTo(0, y), portalTop - 720);
+  const stage = page.locator('#vanguard-abstract-stage');
+  const canvas = page.locator('canvas[data-vanguard-abstract]');
+  const stageTop = await stage.evaluate((node) => node.getBoundingClientRect().top + window.scrollY);
+  await page.evaluate((y) => window.scrollTo(0, y), stageTop - 480);
   await page.waitForTimeout(650);
-  const firstProgress = Number(await canvas.getAttribute('data-progress'));
-  await page.evaluate((y) => window.scrollTo(0, y), portalTop - 300);
+  const firstCount = Number(await canvas.getAttribute('data-render-count'));
+  await page.evaluate((y) => window.scrollTo(0, y), stageTop - 260);
   await page.waitForTimeout(650);
-  const forwardProgress = Number(await canvas.getAttribute('data-progress'));
-  expect(forwardProgress).toBeGreaterThan(firstProgress);
-  await page.evaluate((y) => window.scrollTo(0, y), portalTop - 620);
+  expect(Number(await canvas.getAttribute('data-render-count'))).toBeGreaterThan(firstCount);
+  await page.evaluate((y) => window.scrollTo(0, y), stageTop - 520);
   await page.waitForTimeout(650);
-  const reverseProgress = Number(await canvas.getAttribute('data-progress'));
-  expect(reverseProgress).toBeLessThan(forwardProgress);
+  await expect(stage).toBeInViewport();
 
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await page.waitForTimeout(650);
@@ -255,23 +248,23 @@ test('capture required screenshots and reverse-scroll video', async ({ browser, 
   const desktopPage = await desktop.newPage();
   await desktopPage.goto(`${baseURL}/Vanguard/`, { waitUntil: 'networkidle' });
   await desktopPage.waitForTimeout(1300);
-  await desktopPage.screenshot({ path: resolve('artifacts', 'revamp-desktop-top.png') });
+  await desktopPage.screenshot({ path: resolve('artifacts', 'v4-desktop-top.png') });
   await desktopPage.locator('#demo').scrollIntoViewIfNeeded();
   await desktopPage.waitForTimeout(850);
-  await desktopPage.screenshot({ path: resolve('artifacts', 'revamp-desktop-middle.png') });
+  await desktopPage.screenshot({ path: resolve('artifacts', 'v4-desktop-abstract.png') });
   await desktopPage.locator('#pricing').scrollIntoViewIfNeeded();
   await desktopPage.waitForTimeout(850);
-  await desktopPage.screenshot({ path: resolve('artifacts', 'revamp-desktop-pricing.png') });
+  await desktopPage.screenshot({ path: resolve('artifacts', 'v4-desktop-pricing.png') });
   await desktop.close();
 
   const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'ar-IQ', colorScheme: 'dark' });
   const mobilePage = await mobile.newPage();
   await mobilePage.goto(`${baseURL}/Vanguard/`, { waitUntil: 'networkidle' });
   await mobilePage.waitForTimeout(1300);
-  await mobilePage.screenshot({ path: resolve('artifacts', 'revamp-mobile-top.png') });
+  await mobilePage.screenshot({ path: resolve('artifacts', 'v4-mobile-top.png') });
   await mobilePage.locator('#pricing').scrollIntoViewIfNeeded();
   await mobilePage.waitForTimeout(700);
-  await mobilePage.screenshot({ path: resolve('artifacts', 'revamp-mobile-pricing.png') });
+  await mobilePage.screenshot({ path: resolve('artifacts', 'v4-mobile-pricing.png') });
   await mobile.close();
 
   const videoContext = await browser.newContext({
@@ -284,7 +277,7 @@ test('capture required screenshots and reverse-scroll video', async ({ browser, 
   await videoPage.goto(`${baseURL}/Vanguard/`, { waitUntil: 'networkidle' });
   await videoPage.waitForTimeout(900);
   const video = videoPage.video();
-  for (const selector of ['[data-market-portal][data-chapter="01"]', '#demo', '[data-market-portal][data-chapter="03"]', '#pricing', '#faq']) {
+  for (const selector of ['#benefits', '#demo', '#pricing', '#faq', '.final-cta']) {
     const targetY = await videoPage.locator(selector).evaluate((node) => node.getBoundingClientRect().top + window.scrollY - 80);
     while (await videoPage.evaluate(() => window.scrollY) < targetY - 40) {
       await videoPage.mouse.wheel(0, 420);
@@ -299,6 +292,6 @@ test('capture required screenshots and reverse-scroll video', async ({ browser, 
   await videoPage.waitForTimeout(650);
   await videoContext.close();
   const recordedPath = await video.path();
-  await copyFile(recordedPath, resolve('artifacts', 'revamp-scroll-test.webm'));
+  await copyFile(recordedPath, resolve('artifacts', 'v4-scroll-test.webm'));
   await rm(temporaryVideoDirectory, { recursive: true, force: true });
 });
