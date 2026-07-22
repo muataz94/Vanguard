@@ -6,6 +6,7 @@ import {
 
 export async function initThreeScene(container) {
   if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(max-width: 860px)').matches) return;
   if (!window.WebGLRenderingContext || navigator.hardwareConcurrency <= 2) return;
 
   const scene = new Scene();
