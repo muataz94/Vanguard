@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 const testUrl = process.env.TEST_BASE_URL || 'http://127.0.0.1:4173';
 const testCommand = process.env.TEST_COMMAND || 'npm run dev -- --host 127.0.0.1 --port 4173';
+const shouldManageServer = !process.env.TEST_BASE_URL || Boolean(process.env.TEST_COMMAND);
 
 export default defineConfig({
   testDir: './tests',
@@ -14,10 +15,10 @@ export default defineConfig({
     colorScheme: 'dark',
     trace: 'retain-on-failure'
   },
-  webServer: {
+  webServer: shouldManageServer ? {
     command: testCommand,
     url: testUrl,
     reuseExistingServer: true,
     timeout: 30000
-  }
+  } : undefined
 });

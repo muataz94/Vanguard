@@ -4,6 +4,8 @@ dist
 *.log
 test-results
 playwright-report
+artifacts/lighthouse-*.json
+artifacts/.video-temp/
 .env
 .env.*
 .DS_Store
