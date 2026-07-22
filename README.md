@@ -1,126 +1,90 @@
 # Vanguard Indicator landing page
 
-Production-oriented Arabic RTL landing page for **Vanguard Indicator — مؤشر فانگارد**, a TradingView analysis aid. The site is static: it has no backend, accounts, card collection, recurring billing, or fake checkout.
+Professional Arabic RTL landing page for **Vanguard Indicator — مؤشر فانگارد**, a TradingView analysis aid. The site is static: it has no backend, account system, card collection, recurring billing, or simulated checkout.
 
-Live URL: <https://muataz94.github.io/Vanguard/>
+Live site: <https://muataz94.github.io/Vanguard/>
 
-## Technology
+## Stack
 
-- Vite and vanilla JavaScript ES modules
-- Modern RTL CSS
-- Three.js hero visual with CSS and reduced-motion fallbacks
-- GSAP and ScrollTrigger
+- Vite and vanilla JavaScript modules
+- RTL CSS with Alexandria and Fustat typography
+- GSAP and ScrollTrigger for restrained section motion
+- Three.js desktop hero visual with static mobile/reduced-motion fallback
 - Lucide icons
 - Playwright browser tests
-- GitHub Pages deployment through GitHub Actions
+- GitHub Pages deployment through Actions
 
-Node.js 22 is used in CI. Use Node.js 22 or a compatible current LTS release locally.
+Use Node.js 22 or a compatible current LTS release.
 
-## Local setup
+## Commands
 
 ```bash
 npm install
 npm run dev
 npm run build
 npm run preview
-```
-
-Run the automated browser suite with:
-
-```bash
 npm run test:e2e
 ```
 
-Vite serves the project under `/Vanguard/`. The production build is written to the ignored `dist` directory.
+The Vite base is `/Vanguard/`. `dist` is generated and ignored; GitHub Actions owns deployment.
 
 ## Configuration
 
-Edit mutable business information only in `src/config.js`:
+Edit mutable contact, pricing, business, product, and deployment data only in `src/config.js`.
 
-- `contact.whatsappNumber`: international digits without `+`, spaces, or punctuation.
-- `contact.defaultMessage` and support email.
-- `business.legalName` and `business.physicalAddress`.
-- `pricing`: labels, durations, prices, availability, and review flags.
-- `product`: verified product claims and optional sections.
-- `media.youtubeVideoId`: real demonstration video when available.
-- `analytics`: disabled by default and limited to anonymous interaction events.
+- WhatsApp number: international digits without `+`, spaces, or punctuation.
+- Pricing: labels, durations, prices, and availability.
+- Business identity and support email: currently unresolved and therefore not rendered as raw placeholders.
+- Evidence and testimonials: disabled until real, permission-based content exists.
+- Analytics: disabled by default and limited to anonymous interaction events when enabled.
 
-The supplied logo source of truth is `public/assets/vanguard-logo.png`. Do not distort, recolor, rotate, crop, or replace its identity.
+The visual source of truth is `public/assets/vanguard-logo.png`. Do not distort, recolor, crop, or replace its identity.
 
-## WhatsApp and pricing
+## Current commercial safeguards
 
-WhatsApp URLs and package-specific Arabic messages are generated from `src/config.js`. A valid number is required before a click-to-chat link is created. Enabled plans include their configured name, duration, and price in the prefilled message. The site never collects payment-card information.
+- WhatsApp links use `9647717220578` and package-specific Arabic messages.
+- The one-month plan is disabled by configuration.
+- The six-month USD 450 price requires owner review because two three-month plans currently cost less.
+- Development warnings are emitted only in development and never displayed as public card content.
+- The site does not request or collect payment-card information.
 
-The six-month price is deliberately flagged for owner review because two three-month subscriptions currently cost less. The one-month plan is disabled by configuration. Do not remove these safeguards without confirmed commercial terms.
+## Motion architecture
 
-## Legal and owner-supplied content
+Normal browser scrolling is preserved. The page has exactly four in-flow candle bridges, eight one-time content reveal triggers, no pinning, no scroll-jacking, and no full-page scrub. Mobile skips the WebGL scene and hero entrance; reduced-motion mode shows the complete static page immediately.
 
-Direct static pages exist for privacy, terms, refund policy, and risk disclosure. Values marked `[يجب الاستكمال قبل النشر]` are factual placeholders and must not be presented as finalized legal information.
+See [docs/motion-architecture.md](docs/motion-architecture.md) for implementation details and [docs/motion-revamp-audit.md](docs/motion-revamp-audit.md) for the baseline audit.
 
-Before commercial launch, the owner must provide or confirm:
+## Browser evidence
+
+The Playwright suite covers the required desktop, tablet, and phone viewports; reverse scrolling; reduced motion; keyboard operation; direct legal routes; WhatsApp URLs; asset failures; console errors; horizontal overflow; and scroll long tasks. It also creates:
+
+- `artifacts/revamp-desktop-top.png`
+- `artifacts/revamp-desktop-middle.png`
+- `artifacts/revamp-desktop-pricing.png`
+- `artifacts/revamp-mobile-top.png`
+- `artifacts/revamp-mobile-pricing.png`
+- `artifacts/revamp-scroll-test.webm`
+
+Mobile Lighthouse on the local production preview measured Performance 78, Accessibility 100, Best Practices 100, and SEO 100 on 22 July 2026. These are measured results from this branch, not guarantees for every device or network.
+
+## Legal and owner inputs
+
+Direct pages exist for privacy, terms, refund information, and risk disclosure. They do not invent legal identity or expose developer bracket tokens. Before commercial launch, the owner still needs to provide or approve:
 
 - Legal business name and physical address
-- Real support email
-- Final pricing and refund policy
-- Verified balanced screenshots and their context
-- Non-repainting behavior, if it will be claimed
-- Supported markets and activation rules
-- Actual demonstration video
-- Permission-based testimonials before enabling that section
+- Support email
+- Final prices, especially the six-month plan
+- Final refund terms and applicable-law review
+- Verified product behavior before making any non-repainting claim
+- Confirmed supported-market and account-access rules
+- Real balanced examples with permission and context before enabling evidence
+- A real demonstration video if one will replace the visual simulation
+- Permission-based testimonials before enabling testimonials
 
-## GitHub Pages deployment
+## GitHub Pages
 
-The repository is deployed by `.github/workflows/deploy-pages.yml` whenever `main` is pushed. The workflow:
-
-1. Checks out the repository.
-2. Installs Node.js 22 and runs `npm ci`.
-3. Builds the Vite multi-page site.
-4. Uploads `dist` as a Pages artifact.
-5. Deploys the artifact to GitHub Pages.
-
-Repository setting required once:
-
-1. Open **Settings → Pages**.
-2. Under **Build and deployment**, choose **GitHub Actions** as the source.
-
-Do not commit or manually publish `dist`.
-
-## SEO and routing
-
-- Vite base: `/Vanguard/`
-- Canonical production origin: `https://muataz94.github.io/Vanguard/`
-- Static legal pages are included as Rollup inputs for direct loading.
-- `robots.txt`, `sitemap.xml`, favicon, logo, Open Graph image, and HTML assets use Pages-compatible paths.
-
-## Accessibility checklist
-
-- Arabic `lang` and RTL direction
-- Semantic landmarks and one page-level `h1`
-- Focus-visible skip link and controls
-- Mobile-menu focus trap, Escape handling, and focus restoration
-- Accessible FAQ accordion semantics
-- Touch-friendly controls and logical reading order
-- Reduced-motion fallback and nonessential canvas suppression
-- Tooltips supplement visible content; essential information is never hover-only
-- Verify keyboard navigation and 200% zoom after content changes
-
-## Performance checklist
-
-- Three.js is dynamically imported after critical content and browser idle time
-- Canvas pixel ratio is capped and rendering pauses when hidden/offscreen
-- Below-the-fold images are lazy-loaded with explicit dimensions
-- No external 3D models, large textures, autoplay media, or heavy UI framework
-- Scroll handlers are passive/frame-throttled
-- Run Lighthouse before reporting any score; do not invent results
-
-## Troubleshooting
-
-- Blank assets on Pages: confirm `base: '/Vanguard/'` and keep public assets and internal static-page links under `/Vanguard/`.
-- Legal page missing from `dist`: preserve its entry in `vite.config.js` under `build.rollupOptions.input`.
-- WhatsApp disabled: check `contact.whatsappNumber` contains 10–15 digits.
-- Stale local styles: stop the old Vite process, restart `npm run dev`, and hard-refresh once.
-- Pages workflow fails: inspect the Actions log and confirm Pages source is set to GitHub Actions.
+`.github/workflows/deploy-pages.yml` builds and deploys `dist` whenever `main` is pushed. Pages must be configured once under **Settings → Pages → Build and deployment → GitHub Actions**. Do not commit or manually publish `dist`.
 
 ## Compliance
 
-This product is described only as an analytical aid. Do not add guaranteed-profit language, fabricated results, fake urgency, testimonials without permission, regulatory claims, or claims of guaranteed advertising approval. Trading risk and the possibility of capital loss must remain visible.
+Vanguard is described only as an analytical aid. Do not add guaranteed-profit language, fabricated results, fake urgency, unapproved testimonials, regulatory claims, fixed returns, risk-free language, or guarantees of advertising approval. The visible capital-loss disclosure must remain.
