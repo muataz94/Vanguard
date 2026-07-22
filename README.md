@@ -50,7 +50,7 @@ The visual source of truth is `public/assets/vanguard-logo.png`. Do not distort,
 
 ## Motion architecture
 
-Normal browser scrolling is preserved. The page has exactly four in-flow candle bridges, eight one-time content reveal triggers, no pinning, no scroll-jacking, and no full-page scrub. Mobile skips the WebGL scene and hero entrance; reduced-motion mode shows the complete static page immediately.
+Normal browser scrolling is preserved. Four in-flow transition zones share one WebGL canvas and one reusable Three.js scene. Their ScrollTriggers use `scrub: 0.45` without pinning, scroll-jacking, snap, or readable-content overlays. The portal uses 22 candles on desktop, 14 on tablet, and 8 on mobile; reduced-motion mode skips Three.js entirely and shows the static SVG/CSS candle-V fallback.
 
 See [docs/motion-architecture.md](docs/motion-architecture.md) for implementation details and [docs/motion-revamp-audit.md](docs/motion-revamp-audit.md) for the baseline audit.
 

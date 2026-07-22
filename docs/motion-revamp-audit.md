@@ -71,13 +71,15 @@ The legal routes are separate Vite entry points: privacy, terms, refund, risk di
 
 ## Required replacement
 
-The repeated transition builder, fixed market rail, and revision override stylesheet will be removed. The replacement will use normal browser scrolling, grouped one-time reveals, four in-flow candle bridges authored in HTML, a single responsive GSAP context, a static reduced-motion fallback, and no animation of layout properties during scroll.
+The repeated transition builder, fixed market rail, and revision override stylesheet were replaced with normal browser scrolling, restrained one-time reveals, four in-flow market-portal zones, one shared Three.js canvas, a static reduced-motion fallback, and no animation of layout properties during scroll.
 
 ## Remediation completed
 
 - Removed `src/components/animations.js`, `public/revision.css`, the fixed market rail, dynamic transition builders, their CSS, tooltips, and associated scroll work.
-- Added `src/components/motion-system.js` with one scoped responsive motion system and 12 total ScrollTriggers.
-- Authored exactly four candle bridges in normal document flow.
+- Added `src/components/motion-system.js` with four scrubbed portal triggers and six one-time section reveals.
+- Added `src/components/market-portal.js`: one renderer, one canvas, two instanced candle meshes, reusable geometry/materials, one torus, and no continuous render loop.
+- Authored exactly four market-portal zones in normal document flow and one reusable SVG/CSS fallback symbol.
+- Removed the separate hero Three.js scene so the page now has a single WebGL canvas.
 - Rebuilt the Arabic RTL layout, visual demo, package presentation, pricing treatment, header, navigation, mobile menu, risk panel, footer, and responsive behavior.
 - Disabled evidence until real examples exist and removed public placeholder screenshots/video instructions.
 - Removed public support-email and legal-identity placeholders; unresolved values now remain owner inputs and development-only warnings.
@@ -90,8 +92,8 @@ The repeated transition builder, fixed market rail, and revision override styles
 - `npm install`: completed.
 - `npm audit`: zero vulnerabilities after the dependency update.
 - `npm run build`: completed with all six HTML outputs.
-- Development Playwright run: 23/23 passed.
-- Production preview Playwright run: 23/23 passed.
+- Development Playwright run: 27/27 passed for the shared portal implementation.
+- Production preview Playwright run: 27/27 passed after the final material and visibility fix.
 - Target widths from 320px through 1920px: no horizontal overflow.
 - Console errors and failed requests: none in the automated runs.
 - Reverse scrolling and reduced motion: all readable content remains visible.

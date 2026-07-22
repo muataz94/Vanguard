@@ -1,67 +1,74 @@
-# Vanguard motion architecture
+# Vanguard Market Portal motion architecture
 
 ## Goals
 
-The revamp uses motion to mark chapter changes without taking control of scrolling or covering content. Browser scrolling remains native; no smooth-scroll library, scroll snap, pinning, or fixed market rail is used.
+The page uses native browser scrolling. There is no smooth-scroll controller, page-level scroll interception, scroll snap, fixed transition overlay, or pinned section. Motion is contained inside four in-flow visual transition zones and never sits above readable content.
 
 ## Runtime structure
 
-`src/components/motion-system.js` owns all GSAP behavior. It creates one `gsap.context()` and one `gsap.matchMedia()` scope so animations can be reverted cleanly on page exit or responsive changes.
+`src/components/motion-system.js` owns GSAP and ScrollTrigger. `src/components/market-portal.js` owns one reusable Three.js scene and renderer. The system creates:
 
-The production page has 12 intentional ScrollTriggers:
+- Four scrubbed portal ScrollTriggers, one for each major chapter boundary.
+- Six one-time section reveals for ordinary content groups.
+- One non-scroll-triggered hero entrance.
 
-- Eight one-time group reveals: problem, benefits, workflow, demo, package contents, pricing, FAQ, and risk disclosure.
-- Four candle-bridge timelines.
+The four sections introduced by portals are faded upward by their portal timelines and are excluded from the ordinary reveal list, avoiding duplicate animation ownership.
 
-Markets, activation steps, the footer, legal content, and the final CTA remain immediately visible and do not consume ScrollTriggers.
+## Shared WebGL scene
 
-## Section reveals
+Only one `WebGLRenderer` and one canvas exist. When a transition becomes active, the canvas is moved into that zone's in-flow mount. The scene reuses:
 
-Each reveal targets a major `.motion-group`, not individual words or paragraphs. It uses opacity and `translateY` only:
+- One box geometry for every candle body and wick.
+- Two `InstancedMesh` objects for all candle bodies and wicks.
+- One candle material shared by both instanced meshes.
+- One torus geometry/material and one grid geometry/material.
 
-- Desktop distance: 24px.
-- Mobile distance: 16px.
-- Duration: 0.72 seconds.
-- Easing: `power3.out`.
-- Start: `top 86%`.
-- `once: true`, followed by clearing inline opacity and transform.
+There are no shadows, lights, post-processing passes, or animation loops. The renderer draws only from an active ScrollTrigger update or an active-zone resize. Device pixel ratio is capped at 1.5 on tablet/desktop and 1.15 on mobile.
 
-The hero entrance is desktop-only. Mobile renders the hero immediately so content visibility is never delayed on smaller devices.
+## Portal sequence
 
-## Candle bridges
+Each `.market-portal` is a normal-flow visual box between major chapters. Its ScrollTrigger uses `scrub: 0.45`, `start: "top 92%"`, and `end: "bottom 8%"`, with no pinning or snap.
 
-The four `.candle-bridge` components are authored directly in `index.html`. No bridge is injected at runtime. They sit between:
+As progress advances:
 
-1. Hero and problem.
-2. How it works and the visual demo.
-3. Package contents and evidence/pricing.
-4. FAQ and risk/final CTA.
+1. Candles grow vertically from the chart floor.
+2. Their instanced positions converge into a loose V based on the Vanguard logo geometry.
+3. A translucent green torus appears behind the V.
+4. Candles move away from the center while the camera advances through the torus.
+5. The next section moves from 20px below and partial opacity to its final position.
 
-Each bridge is a 132px in-flow box on desktop and an 88px box on mobile. Desktop shows seven candles; CSS hides the last two on mobile. Absolute positioning is confined to the divider itself. Each bridge timeline uses `toggleActions: "play none none reverse"`, no pinning, and no scrub. Candles move from `scaleY: 0.15` and opacity 0 to their authored size and opacity 1.
+Reverse scrolling drives the same state backward because the sequence is a scrubbed timeline rather than a one-way event animation.
 
-## Reduced motion and mobile
+## Responsive budgets
 
-When `prefers-reduced-motion: reduce` is active:
+- Desktop above 960px: 22 candles.
+- Tablet from 621px through 960px: 14 candles.
+- Mobile through 620px: 8 candles.
 
-- GSAP creates no ScrollTriggers.
-- All groups and bridges are shown immediately.
-- Three.js does not load.
-- CSS transitions and animations collapse to effectively zero duration.
+All three values stay inside the requested budgets. A resize updates the instance count without creating new meshes, materials, or renderers.
 
-At 860px and below, the Three.js module exits before renderer creation. The CSS fallback remains visible and the mobile hero is static. This reduced mobile JavaScript cost and improved measured Lighthouse Total Blocking Time from 1080ms on the baseline implementation to 160ms after the revamp optimizations.
+## Normal section reveals
 
-## Three.js lifecycle
+Ordinary motion sections use one reveal on a single major group: opacity plus `translateY(20px)`, 0.7 seconds, `power3.out`, starting at `top 86%`, with `once: true`. Inline opacity and transform are cleared on completion.
 
-Desktop Three.js is dynamically imported after page load and browser idle time. Rendering pauses outside the hero through `IntersectionObserver`, stops when the document is hidden, caps device pixel ratio at 1.5, and disposes geometry, materials, and the renderer during cleanup.
+## Fallback and reduced motion
 
-## Refresh and cleanup
+The HTML contains a reusable SVG symbol showing a candle V, grid, and portal. Every zone references that symbol, so a complete static visual exists before JavaScript and when WebGL is unavailable.
 
-`ScrollTrigger.refresh()` is called once after `document.fonts.ready` and a layout frame. The GSAP context is reverted on `pagehide`. There are no layout reads inside the scroll handler; the separate progress/header handler is passive and requestAnimationFrame-throttled.
+With `prefers-reduced-motion: reduce`:
 
-## CSS ownership
+- Three.js is not imported and no canvas is created.
+- No ScrollTriggers are created.
+- Camera and object motion are therefore completely absent.
+- All readable content is immediately visible with transforms removed.
+- The static SVG/CSS portal remains visible.
 
-GSAP owns only runtime opacity and transforms for motion groups and bridge children. CSS owns layout, color, hover states, and the reduced-motion static fallback. No CSS scroll timeline controls the same elements. No full section uses `overflow: clip`.
+The preference is observed at runtime; changing it rebuilds or removes the enhanced motion safely.
+
+## Cleanup
+
+After fonts are ready, one `ScrollTrigger.refresh()` aligns the four zones with the final layout. On `pagehide` or a reduced-motion preference change, triggers are killed, the shared renderer and reusable resources are disposed, inline motion state is cleared, and the page remains usable as a static document.
 
 ## Verification
 
-`tests/landing-page.spec.js` checks downward and upward scrolling, reduced motion, target viewport overflow, keyboard behavior, motion visibility, asset failures, and long tasks. The same 23-test suite was run against both Vite development and the production preview.
+`tests/landing-page.spec.js` verifies the single-canvas invariant, exactly four portal zones, 22/14/8 responsive candle budgets, forward and reverse scrub progress, render-idle behavior outside an active zone, reduced-motion canvas removal, desktop/mobile overflow, console and request failures, keyboard behavior, direct legal routes, and long tasks. The current suite contains 27 passing browser tests.

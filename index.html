@@ -66,7 +66,6 @@
           <div class="hero-visual" aria-label="محاكاة بصرية لواجهة المؤشر">
             <div class="hero-visual__grid" aria-hidden="true"></div>
             <div class="scene-fallback" aria-hidden="true"></div>
-            <div id="three-scene" class="three-scene" aria-hidden="true"></div>
             <div class="market-card">
               <div class="market-card__head"><span><i></i> محاكاة بصرية</span><small>VANGUARD / TV</small></div>
               <div class="market-card__quote"><b>منطقة متابعة</b><span dir="ltr">V · 01</span></div>
@@ -80,10 +79,21 @@
         <div class="hero-ticker" aria-hidden="true"><span>FOREX</span><i></i><span>CRYPTO</span><i></i><span>STOCKS</span><i></i><span>INDICES</span><i></i><span>TRADINGVIEW</span></div>
       </section>
 
-      <div class="candle-bridge" aria-hidden="true" data-chapter="01">
-        <div class="candle-bridge__grid"></div><div class="candle-bridge__line"></div>
-        <div class="candle-bridge__candles"><span style="--h:46%"></span><span style="--h:68%"></span><span class="is-down" style="--h:42%"></span><span style="--h:78%"></span><span style="--h:58%"></span><span class="is-down" style="--h:70%"></span><span style="--h:88%"></span></div>
-        <div class="candle-bridge__label"><span>VANGUARD / MARKET FLOW</span><span>CHAPTER 01</span></div>
+      <svg class="market-portal-symbols" aria-hidden="true" width="0" height="0">
+        <symbol id="market-portal-fallback" viewBox="0 0 960 260">
+          <defs><pattern id="portal-grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="currentColor" stroke-opacity=".12"/></pattern></defs>
+          <rect width="960" height="260" fill="url(#portal-grid)"/>
+          <circle cx="480" cy="126" r="78" fill="none" stroke="currentColor" stroke-width="3" stroke-opacity=".48"/>
+          <circle cx="480" cy="126" r="65" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity=".22"/>
+          <g fill="currentColor" stroke="currentColor">
+            <path d="M292 55v44m-6-29h12v20h-12zm34 6v44m-6-27h12v19h-12zm34 12v44m-6-25h12v17h-12zm34 12v44m-6-22h12v18h-12zm34 14v44m-6-23h12v17h-12zm34 13v44m-6-20h12v18h-12zm34 9v44m-6-24h12v20h-12z" stroke-width="3"/>
+            <path d="M668 55v44m-6-29h12v20h-12zm-34 6v44m-6-27h12v19h-12zm-34 12v44m-6-25h12v17h-12zm-34 12v44m-6-22h12v18h-12zm-34 14v44m-6-23h12v17h-12zm-34 13v44m-6-20h12v18h-12zm-34 9v44m-6-24h12v20h-12z" stroke-width="3"/>
+          </g>
+        </symbol>
+      </svg>
+
+      <div class="market-portal" aria-hidden="true" data-market-portal data-chapter="01" data-next-section=".problem-section">
+        <div class="market-portal__viewport"><svg class="market-portal__fallback" viewBox="0 0 960 260"><use href="#market-portal-fallback"></use></svg><div class="market-portal__canvas-mount"></div><div class="market-portal__meta"><span>VANGUARD / MARKET PORTAL</span><span>CHAPTER 01</span></div></div>
       </div>
 
       <section class="section problem-section motion-section" aria-labelledby="problem-title">
@@ -108,10 +118,8 @@
         <ol id="workflow-list" class="container workflow-list motion-group"></ol>
       </section>
 
-      <div class="candle-bridge candle-bridge--dark" aria-hidden="true" data-chapter="02">
-        <div class="candle-bridge__grid"></div><div class="candle-bridge__line"></div>
-        <div class="candle-bridge__candles"><span style="--h:72%"></span><span class="is-down" style="--h:44%"></span><span style="--h:58%"></span><span style="--h:86%"></span><span style="--h:66%"></span><span class="is-down" style="--h:52%"></span><span style="--h:78%"></span></div>
-        <div class="candle-bridge__label"><span>VANGUARD / MARKET FLOW</span><span>CHAPTER 02</span></div>
+      <div class="market-portal market-portal--dark" aria-hidden="true" data-market-portal data-chapter="02" data-next-section="#demo">
+        <div class="market-portal__viewport"><svg class="market-portal__fallback" viewBox="0 0 960 260"><use href="#market-portal-fallback"></use></svg><div class="market-portal__canvas-mount"></div><div class="market-portal__meta"><span>VANGUARD / MARKET PORTAL</span><span>CHAPTER 02</span></div></div>
       </div>
 
       <section id="demo" class="section demo-section motion-section" aria-labelledby="demo-title">
@@ -140,10 +148,8 @@
         </div>
       </section>
 
-      <div class="candle-bridge" aria-hidden="true" data-chapter="03">
-        <div class="candle-bridge__grid"></div><div class="candle-bridge__line"></div>
-        <div class="candle-bridge__candles"><span style="--h:52%"></span><span style="--h:76%"></span><span style="--h:64%"></span><span class="is-down" style="--h:48%"></span><span style="--h:84%"></span><span class="is-down" style="--h:60%"></span><span style="--h:72%"></span></div>
-        <div class="candle-bridge__label"><span>VANGUARD / MARKET FLOW</span><span>CHAPTER 03</span></div>
+      <div class="market-portal" aria-hidden="true" data-market-portal data-chapter="03" data-next-section="#pricing">
+        <div class="market-portal__viewport"><svg class="market-portal__fallback" viewBox="0 0 960 260"><use href="#market-portal-fallback"></use></svg><div class="market-portal__canvas-mount"></div><div class="market-portal__meta"><span>VANGUARD / MARKET PORTAL</span><span>CHAPTER 03</span></div></div>
       </div>
 
       <section id="evidence" class="section section--dark" hidden aria-labelledby="evidence-title"><div class="container"><h2 id="evidence-title">أمثلة تعليمية موثقة</h2><div id="evidence-grid"></div></div></section>
@@ -161,10 +167,8 @@
         <div class="container faq-layout motion-group"><div class="faq-intro"><p class="section-index">09 — الأسئلة الشائعة</p><h2 id="faq-title">ما تحتاج معرفته <em>قبل التواصل</em></h2><p>إجابات مباشرة عن طبيعة الأداة، الهاتف، التفعيل، وحدود الاستخدام.</p></div><div id="faq-list" class="faq-list"></div></div>
       </section>
 
-      <div class="candle-bridge candle-bridge--dark" aria-hidden="true" data-chapter="04">
-        <div class="candle-bridge__grid"></div><div class="candle-bridge__line"></div>
-        <div class="candle-bridge__candles"><span style="--h:66%"></span><span class="is-down" style="--h:50%"></span><span style="--h:82%"></span><span style="--h:58%"></span><span style="--h:74%"></span><span class="is-down" style="--h:46%"></span><span style="--h:88%"></span></div>
-        <div class="candle-bridge__label"><span>VANGUARD / MARKET FLOW</span><span>CHAPTER 04</span></div>
+      <div class="market-portal market-portal--dark" aria-hidden="true" data-market-portal data-chapter="04" data-next-section=".risk-section">
+        <div class="market-portal__viewport"><svg class="market-portal__fallback" viewBox="0 0 960 260"><use href="#market-portal-fallback"></use></svg><div class="market-portal__canvas-mount"></div><div class="market-portal__meta"><span>VANGUARD / MARKET PORTAL</span><span>CHAPTER 04</span></div></div>
       </div>
 
       <section class="section risk-section motion-section" aria-labelledby="risk-title"><div class="container risk-panel motion-group"><div class="risk-icon" aria-hidden="true">!</div><div><p class="section-index">تنبيه مخاطر مهم</p><h2 id="risk-title">لا توجد أداة تداول تضمن الربح</h2><p>التداول في الأسواق المالية ينطوي على مخاطر مرتفعة وقد يؤدي إلى خسارة جزء أو كامل رأس المال. مؤشر فانگارد أداة تحليلية مساعدة ولا يقدم ضمانًا للربح، ولا تشكل إشاراته نصيحة استثمارية شخصية. النتائج السابقة لا تضمن النتائج المستقبلية. يتحمل المستخدم المسؤولية الكاملة عن قراراته وإدارة رأس ماله.</p></div></div></section>
