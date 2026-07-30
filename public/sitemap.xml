@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://muataz94.github.io/Vanguard/</loc></url>
-  <url><loc>https://muataz94.github.io/Vanguard/privacy.html</loc></url>
-  <url><loc>https://muataz94.github.io/Vanguard/terms.html</loc></url>
-  <url><loc>https://muataz94.github.io/Vanguard/refund.html</loc></url>
-  <url><loc>https://muataz94.github.io/Vanguard/risk-disclosure.html</loc></url>
+  <url><loc>__VANGUARD_PRODUCTION_URL__</loc></url>
+  <url><loc>__VANGUARD_PRODUCTION_URL__privacy.html</loc></url>
+  <url><loc>__VANGUARD_PRODUCTION_URL__terms.html</loc></url>
+  <url><loc>__VANGUARD_PRODUCTION_URL__refund.html</loc></url>
+  <url><loc>__VANGUARD_PRODUCTION_URL__risk-disclosure.html</loc></url>
 </urlset>

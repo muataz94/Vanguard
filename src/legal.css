@@ -4,6 +4,7 @@
 .back-link { color: var(--green-300); font-weight: 700; }
 .legal-main { padding-block: 72px 120px; }
 .legal-intro { max-width: 850px; margin-block-end: 55px; }
+.error-index { margin-block-start: 60px; }
 .legal-intro h1 { font-size: clamp(2.4rem, 6vw, 4.8rem); }
 .legal-notice { padding: 18px 20px; border: 1px solid rgba(71,176,123,.35); border-radius: 10px; background: rgba(71,176,123,.07); color: var(--text-secondary); }
 .legal-content { max-width: 850px; }

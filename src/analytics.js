@@ -1,12 +1,17 @@
 import { siteConfig } from './config.js';
 
 const allowedEvents = new Set(['cta_click', 'pricing_plan_click', 'video_play', 'faq_open', 'whatsapp_click']);
+const allowedMetadata = new Set(['source_section', 'plan_id']);
+
+export function sanitizeAnalyticsMetadata(metadata = {}) {
+  return Object.fromEntries(
+    Object.entries(metadata).filter(([key]) => allowedMetadata.has(key))
+  );
+}
 
 export function trackEvent(name, metadata = {}) {
   if (!siteConfig.analytics.enabled || !allowedEvents.has(name)) return;
-  const safeMetadata = Object.fromEntries(
-    Object.entries(metadata).filter(([key]) => ['source_section', 'plan_id'].includes(key))
-  );
+  const safeMetadata = sanitizeAnalyticsMetadata(metadata);
   window.dispatchEvent(new CustomEvent('vanguard:analytics', { detail: { name, metadata: safeMetadata } }));
 }
 

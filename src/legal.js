@@ -1,16 +1,16 @@
 import './styles.css';
 import './legal.css';
 import { siteConfig, validateConfig } from './config.js';
-import { configureContactLink } from './components/contact.js';
+import { configureContactLink, getConfiguredEmail } from './components/contact.js';
 
 document.querySelectorAll('[data-brand-name]').forEach((node) => { node.textContent = siteConfig.brand.nameAr; });
 const neutralIdentity = 'تُزوَّد عبر قناة التواصل الرسمية';
 document.querySelectorAll('[data-business-name]').forEach((node) => { node.textContent = siteConfig.business.legalName || neutralIdentity; });
 document.querySelectorAll('[data-business-address]').forEach((node) => { node.textContent = siteConfig.business.physicalAddress || neutralIdentity; });
 document.querySelectorAll('[data-email]').forEach((node) => {
-  const configured = Boolean(siteConfig.contact.email) && !/example\.com$/i.test(siteConfig.contact.email);
-  node.textContent = configured ? siteConfig.contact.email : 'قناة التواصل الرسمية';
-  if (node.tagName === 'A' && configured) node.href = `mailto:${siteConfig.contact.email}`;
+  const configuredEmail = getConfiguredEmail();
+  node.textContent = configuredEmail || 'قناة التواصل الرسمية';
+  if (node.tagName === 'A' && configuredEmail) node.href = `mailto:${configuredEmail}`;
   else if (node.tagName === 'A') node.removeAttribute('href');
 });
 document.querySelectorAll('[data-year]').forEach((node) => { node.textContent = new Date().getFullYear(); });

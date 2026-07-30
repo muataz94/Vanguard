@@ -2,29 +2,29 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-4AwSWWaqZYXQHDLnbFNUjQW/GvNpGqqwGB3ptRut5aQ='; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مؤشر فانگارد | أداة تحليل وتنبيهات لمنصة TradingView</title>
     <meta name="description" content="مؤشر فانگارد أداة تحليلية لمنصة TradingView تساعد على تنظيم قراءة الإشارات ومناطق المتابعة والتنبيهات ضمن سير عمل واضح.">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#050706">
-    <link rel="canonical" href="https://muataz94.github.io/Vanguard/">
+    <link rel="canonical" href="__VANGUARD_PRODUCTION_URL__">
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=Fustat:wght@400;500;600;700;800&display=optional" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=Fustat:wght@400;500;600;700;800&display=optional" rel="stylesheet"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=Fustat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="preload" href="./assets/vanguard-logo.png" as="image" type="image/png">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ar_IQ">
     <meta property="og:title" content="مؤشر فانگارد — أداة تحليل وتنبيهات لمنصة TradingView">
     <meta property="og:description" content="نظّم قراءة الإشارات ومناطق المتابعة وتنبيهات الهاتف ضمن سير عمل أوضح.">
-    <meta property="og:url" content="https://muataz94.github.io/Vanguard/">
-    <meta property="og:image" content="https://muataz94.github.io/Vanguard/og-image.webp">
+    <meta property="og:url" content="__VANGUARD_PRODUCTION_URL__">
+    <meta property="og:image" content="__VANGUARD_OG_IMAGE_URL__">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="مؤشر فانگارد">
     <meta name="twitter:description" content="أداة تحليلية مساعدة لمنصة TradingView.">
-    <meta name="twitter:image" content="https://muataz94.github.io/Vanguard/og-image.webp">
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"مؤشر فانگارد — Vanguard Indicator","url":"https://muataz94.github.io/Vanguard/","inLanguage":"ar"}</script>
+    <meta name="twitter:image" content="__VANGUARD_OG_IMAGE_URL__">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"مؤشر فانگارد — Vanguard Indicator","url":"__VANGUARD_PRODUCTION_URL__","inLanguage":"ar"}</script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">انتقل إلى المحتوى الرئيسي</a>
@@ -82,6 +82,18 @@
           <div><p class="section-index">01 — التحدّي</p><h2 id="problem-title">المعلومة كثيرة. المطلوب هو <em>ترتيبها</em></h2></div>
           <p>عندما تتوزع المتابعة بين رسوم وأطر زمنية متعددة، يصبح الالتزام بخطة واحدة أصعب. المؤشر لا يقرر بدلًا عنك؛ بل يجمع ما تحتاج إلى مراجعته في واجهة أكثر تنظيمًا.</p>
         </div>
+        <div class="container problem-flow" aria-label="تصور توضيحي لتنظيم مدخلات المتابعة في واجهة مراجعة واحدة">
+          <div class="problem-flow__inputs" aria-hidden="true">
+            <span><b dir="ltr">EURUSD · 1h</b><i></i></span>
+            <span><b dir="ltr">BTCUSDT · 4h</b><i></i></span>
+            <span><b dir="ltr">XAUUSD · 15m</b><i></i></span>
+          </div>
+          <div class="problem-flow__lines" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="problem-flow__review">
+            <div><img src="./assets/vanguard-logo.png" alt="" width="30" height="30"><b>لوحة المراجعة</b><span>السياق · الشروط · التنبيهات</span></div>
+            <ul><li><span dir="ltr">EURUSD</span><b>قيد المراجعة</b></li><li><span dir="ltr">BTCUSDT</span><b>تنبيه مضبوط</b></li><li><span dir="ltr">XAUUSD</span><b>يتطلب تحققًا</b></li></ul>
+          </div>
+        </div>
         <div class="container problem-grid motion-group">
           <article class="feature-card"><span>01</span><h3>راقب أقل، راجع أفضل</h3><p>استخدم التنبيهات التي تضبطها داخل TradingView بدل مراقبة الرسم باستمرار.</p></article>
           <article class="feature-card"><span>02</span><h3>شروط أمامك</h3><p>راجع الإشارة والسياق ونقطة الإلغاء قبل اتخاذ قرار التنفيذ.</p></article>
@@ -101,7 +113,7 @@
 
       <section id="demo" class="section demo-section motion-section" aria-labelledby="demo-title">
         <div class="container demo-layout motion-group">
-          <div class="demo-copy"><p class="section-index">04 — عرض بصري</p><h2 id="demo-title">كيف تتحول الإشارة إلى <em>مراجعة منظّمة</em></h2><p>هذه محاكاة واجهة توضيحية وليست بيانات سوق حية أو دليل أداء. اختر خطوة لترى كيف يمكن ترتيب عملية المراجعة.</p><div class="demo-steps" role="tablist" aria-label="خطوات العرض"><button type="button" role="tab" aria-selected="true" data-demo-step="signal">01 الإشارة</button><button type="button" role="tab" aria-selected="false" data-demo-step="context">02 السياق</button><button type="button" role="tab" aria-selected="false" data-demo-step="alert">03 التنبيه</button></div><p id="demo-step-copy" class="demo-step-copy">تظهر منطقة المتابعة بصريًا لتبدأ منها المراجعة، لا لتنفذ الصفقة تلقائيًا.</p></div>
+            <div class="demo-copy"><p class="section-index">04 — عرض بصري</p><h2 id="demo-title">كيف تتحول الإشارة إلى <em>مراجعة منظّمة</em></h2><p>هذه محاكاة واجهة توضيحية وليست بيانات سوق حية أو دليل أداء. اختر خطوة لترى كيف يمكن ترتيب عملية المراجعة.</p><div class="demo-steps" role="tablist" aria-label="خطوات العرض"><button type="button" role="tab" aria-selected="true" aria-controls="demo-step-copy" data-demo-step="signal">01 الإشارة</button><button type="button" role="tab" aria-selected="false" aria-controls="demo-step-copy" data-demo-step="context">02 السياق</button><button type="button" role="tab" aria-selected="false" aria-controls="demo-step-copy" data-demo-step="alert">03 التنبيه</button></div><p id="demo-step-copy" class="demo-step-copy" role="tabpanel" tabindex="0">تظهر منطقة المتابعة بصريًا لتبدأ منها المراجعة، لا لتنفذ الصفقة تلقائيًا.</p></div>
           <div id="vanguard-abstract-stage" class="abstract-stage" aria-label="شكل فانگارد ثلاثي الأبعاد متحرك بشكل توضيحي">
             <div class="abstract-stage__grid" aria-hidden="true"></div>
             <div class="abstract-stage__fallback" aria-hidden="true"><i></i><i></i><span></span></div>
@@ -113,8 +125,15 @@
 
       <section class="section markets-section motion-section" aria-labelledby="markets-title">
         <div class="container chapter-heading"><p class="section-index">05 — الأسواق</p><h2 id="markets-title">واجهة واحدة، وسياق <em>يختلف بين الأسواق</em></h2><p>اختيار فئة لا يعني أن كل إعداد مناسب لكل أصل أو إطار زمني. اختبر الإعداد قبل استخدامه.</p></div>
-        <div id="markets-list" class="container market-pills motion-group"></div>
-        <div id="market-detail" class="container market-detail" role="region" aria-live="polite" aria-labelledby="market-detail-title"><span class="market-detail__icon" aria-hidden="true"><i data-lucide="chart-no-axes-combined"></i></span><div><p class="section-index">الفئة المحددة</p><h3 id="market-detail-title">الفوركس</h3><p id="market-detail-copy">يمكن تنظيم قراءة أزواج العملات ضمن إعدادات يحددها المستخدم. يجب التحقق من ملاءمة كل إعداد قبل استخدامه.</p></div></div>
+        <div id="markets-list" class="container market-pills motion-group" role="tablist" aria-label="فئات الأسواق"></div>
+        <div id="market-detail" class="container market-detail" role="tabpanel" aria-live="polite" aria-labelledby="market-tab-0">
+          <div class="market-detail__copy"><span class="market-detail__icon" aria-hidden="true"><i data-lucide="chart-no-axes-combined"></i></span><div><p class="section-index">الفئة المحددة</p><h3 id="market-detail-title">الفوركس</h3><p id="market-detail-copy">يمكن تنظيم قراءة أزواج العملات ضمن إعدادات يحددها المستخدم. يجب التحقق من ملاءمة كل إعداد قبل استخدامه.</p><p class="market-detail__notice">الملاءمة تعتمد على الأصل والإطار والإعداد الذي تختبره.</p></div></div>
+          <div class="market-detail__preview" aria-label="معاينة واجهة تعليمية وليست بيانات سوق حية">
+            <div class="market-detail__toolbar"><span>معاينة تعليمية</span><b id="market-preview-label" dir="ltr">FOREX / REVIEW</b></div>
+            <div class="market-detail__chart" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><span></span></div>
+            <div class="market-detail__settings"><span>السياق <b>يراجعه المستخدم</b></span><span>التنبيه <b>وفق الإعداد</b></span></div>
+          </div>
+        </div>
       </section>
 
       <section class="section bundle-section motion-section" aria-labelledby="bundle-title">
@@ -132,16 +151,16 @@
       </section>
 
       <section class="section activation-section motion-section" aria-labelledby="activation-title">
-        <div class="container activation-layout motion-group"><div class="activation-head"><p class="section-index">08 — التفعيل</p><h2 id="activation-title">من اختيار الباقة إلى الوصول</h2><p>لا يجمع الموقع بيانات بطاقات الدفع. يؤكد البائع التفاصيل والتفعيل يدويًا عبر قناة التواصل الرسمية.</p></div><ol class="activation-steps"><li><b>01</b><span>اختر الباقة</span></li><li><b>02</b><span>تواصل عبر واتساب</span></li><li><b>03</b><span>استلم تفاصيل الدفع</span></li><li><b>04</b><span>أرسل اسم TradingView بشكل خاص</span></li><li><b>05</b><span>استلم التفعيل ودليل الإعداد</span></li></ol></div>
+        <div class="container activation-layout motion-group"><div class="activation-head"><p class="section-index">08 — التفعيل</p><h2 id="activation-title">من اختيار الباقة إلى الوصول</h2><p>لا يجمع الموقع بيانات بطاقات الدفع. يؤكد البائع التفاصيل والتفعيل يدويًا عبر قناة التواصل الرسمية.</p><p class="activation-privacy"><i data-lucide="shield-check" aria-hidden="true"></i> لا ترسل بيانات بطاقة أو معلومات مالية حساسة عبر الرسائل.</p></div><ol class="activation-steps"><li><b>01</b><span>اختر الباقة</span></li><li><b>02</b><span>تواصل عبر واتساب</span></li><li><b>03</b><span>استلم تفاصيل الدفع</span></li><li><b>04</b><span>أرسل اسم TradingView بشكل خاص</span></li><li><b>05</b><span>استلم التفعيل ودليل الإعداد</span></li></ol></div>
       </section>
 
       <section id="faq" class="section faq-section motion-section" aria-labelledby="faq-title">
         <div class="container faq-layout motion-group"><div class="faq-intro"><p class="section-index">09 — الأسئلة الشائعة</p><h2 id="faq-title">ما تحتاج معرفته <em>قبل التواصل</em></h2><p>إجابات مباشرة عن طبيعة الأداة، الهاتف، التفعيل، وحدود الاستخدام.</p></div><div id="faq-list" class="faq-list"></div></div>
       </section>
 
-      <section class="section risk-section motion-section" aria-labelledby="risk-title"><div class="container risk-panel motion-group"><div class="risk-icon" aria-hidden="true">!</div><div><p class="section-index">تنبيه مخاطر مهم</p><h2 id="risk-title">لا توجد أداة تداول تضمن الربح</h2><p>التداول في الأسواق المالية ينطوي على مخاطر مرتفعة وقد يؤدي إلى خسارة جزء أو كامل رأس المال. مؤشر فانگارد أداة تحليلية مساعدة ولا يقدم ضمانًا للربح، ولا تشكل إشاراته نصيحة استثمارية شخصية. النتائج السابقة لا تضمن النتائج المستقبلية. يتحمل المستخدم المسؤولية الكاملة عن قراراته وإدارة رأس ماله.</p></div></div></section>
+      <section class="section risk-section motion-section" aria-labelledby="risk-title"><div class="container risk-panel motion-group"><div class="risk-icon" aria-hidden="true">!</div><div><p class="section-index">تنبيه مخاطر مهم</p><h2 id="risk-title">لا توجد أداة تداول تضمن الربح</h2><p>التداول في الأسواق المالية ينطوي على مخاطر مرتفعة وقد يؤدي إلى خسارة جزء أو كامل رأس المال. مؤشر فانگارد أداة تحليلية مساعدة ولا يقدم ضمانًا للربح، ولا تشكل إشاراته نصيحة استثمارية شخصية. النتائج السابقة لا تضمن النتائج المستقبلية. يتحمل المستخدم المسؤولية الكاملة عن قراراته وإدارة رأس ماله.</p><a class="risk-link" href="/Vanguard/risk-disclosure.html">اقرأ إفصاح المخاطر كاملًا <i data-lucide="arrow-left" aria-hidden="true"></i></a></div></div></section>
 
-      <section class="final-cta" aria-labelledby="final-title"><div class="container"><p class="section-index">ابدأ بخطوة واضحة</p><h2 id="final-title">راجع الباقات، ثم <em>تواصل مباشرة</em></h2><p>سنرسل لك تفاصيل الدفع والتفعيل عبر واتساب قبل بدء الوصول.</p><div class="button-row centered-row"><a class="button button--primary" href="#pricing">اختر باقتك</a><a class="button button--secondary" data-whatsapp data-source="final_cta" aria-label="تواصل معنا عبر واتساب">تواصل عبر واتساب</a></div></div></section>
+      <section class="final-cta" aria-labelledby="final-title"><div class="container final-cta__panel"><div class="final-cta__visual" aria-hidden="true"><span></span><img src="./assets/vanguard-logo-transparent.png" alt="" width="220" height="220"></div><div class="final-cta__copy"><p class="section-index">ابدأ بخطوة واضحة</p><h2 id="final-title">راجع الباقات، ثم <em>تواصل مباشرة</em></h2><p>سنرسل لك تفاصيل الدفع والتفعيل عبر واتساب قبل بدء الوصول.</p><div class="button-row"><a class="button button--primary" href="#pricing">اختر باقتك</a><a class="button button--secondary" data-whatsapp data-source="final_cta" aria-label="تواصل معنا عبر واتساب">تواصل عبر واتساب</a></div></div></div></section>
     </main>
 
     <footer class="site-footer"><div class="container footer-grid"><div class="footer-brand"><a class="brand" href="#top"><img src="./assets/vanguard-logo.png" alt="شعار مؤشر فانگارد" width="52" height="52"><span><b>Vanguard</b><small>Indicator</small></span></a><p>أداة تحليلية مساعدة لمنصة TradingView لتنظيم قراءة الإشارات والتنبيهات، ولا تضمن النتائج المستقبلية.</p></div><div><h2>روابط مهمة</h2><a href="#benefits">المزايا</a><a href="#demo">العرض البصري</a><a href="#pricing">الباقات</a><a href="#faq">الأسئلة الشائعة</a></div><div><h2>السياسات</h2><a href="/Vanguard/privacy.html">سياسة الخصوصية</a><a href="/Vanguard/terms.html">الشروط والأحكام</a><a href="/Vanguard/refund.html">سياسة الاسترجاع</a><a href="/Vanguard/risk-disclosure.html">إفصاح المخاطر</a></div><div><h2>التواصل</h2><a data-whatsapp data-source="footer" aria-label="تواصل معنا عبر واتساب">واتساب</a><p id="whatsapp-number" class="footer-phone" dir="ltr"></p><p id="business-identity" class="footer-neutral">بيانات الناشر متاحة عبر قناة التواصل الرسمية.</p></div></div><div class="container footer-bottom"><p>© <span id="current-year"></span> مؤشر فانگارد. جميع الحقوق محفوظة.</p><p>النتائج السابقة لا تضمن النتائج المستقبلية.</p></div></footer>

@@ -1,20 +1,59 @@
 import './styles.css';
-import { createIcons, ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } from 'lucide';
+import { createIcons, ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Play, ScanLine, ShieldCheck, Smartphone, TimerReset, BetweenHorizontalStart } from 'lucide';
 import { siteConfig, validateConfig } from './config.js';
 import { benefits, faqs, workflow } from './content.js';
 import { initAnalytics, trackEvent } from './analytics.js';
 import { renderPricing } from './components/pricing.js';
 import { renderFaq } from './components/faq.js';
 import { renderEvidence } from './components/evidence.js';
-import { initContactLinks } from './components/contact.js';
+import { initContactLinks, isWhatsAppConfigured } from './components/contact.js';
 import { initMobileCta } from './components/mobile-cta.js';
+
+function element(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function createBenefitPreview(index) {
+  const preview = element('div', `benefit-preview benefit-preview--${index + 1}`);
+  preview.setAttribute('aria-hidden', 'true');
+
+  if (index === 0) {
+    preview.append(...[0, 1, 2].map((line) => {
+      return element('span', `preview-line preview-line--${line + 1}`);
+    }));
+  } else if (index === 1) {
+    preview.append(element('span', 'preview-zone', 'منطقة متابعة'), element('span', 'preview-zone', 'نقطة إلغاء'));
+  } else if (index === 2) {
+    preview.append(element('span', 'preview-toggle', 'TradingView'), element('span', 'preview-toggle', 'تنبيه الهاتف'));
+  } else if (index === 3) {
+    siteConfig.markets.forEach((market) => preview.append(element('span', 'preview-pill', market)));
+  } else if (index === 4) {
+    preview.append(element('span', 'preview-clock', '09:00 — 22:00'), element('span', 'preview-days', 'أحد  اثنين  ثلاثاء  أربعاء  خميس'));
+  } else {
+    const phone = element('span', 'preview-phone');
+    phone.append(element('i'), element('i'), element('i'));
+    preview.append(phone);
+  }
+
+  return preview;
+}
 
 function renderContent() {
   const workflowList = document.querySelector('#workflow-list');
   workflow.forEach(([number, title, copy]) => {
     const item = document.createElement('li');
     item.className = 'workflow-item';
-    item.innerHTML = `<span>${number}</span><div><h3>${title}</h3><p>${copy}</p></div>`;
+    const numberNode = element('span', '', number);
+    const content = element('div');
+    content.append(element('h3', '', title), element('p', '', copy));
+    const preview = element('div', 'workflow-item__preview');
+    preview.setAttribute('aria-hidden', 'true');
+    preview.append(element('i'), element('i'), element('i'));
+    content.append(preview);
+    item.append(numberNode, content);
     workflowList.append(item);
   });
 
@@ -22,7 +61,12 @@ function renderContent() {
   benefits.forEach(([icon, title, copy], index) => {
     const card = document.createElement('article');
     card.className = 'benefit-card';
-    card.innerHTML = `<div class="benefit-top"><i data-lucide="${icon}" aria-hidden="true"></i><span>0${index + 1}</span></div><h3>${title}</h3><p>${copy}</p>`;
+    const top = element('div', 'benefit-top');
+    const iconNode = element('i');
+    iconNode.dataset.lucide = icon;
+    iconNode.setAttribute('aria-hidden', 'true');
+    top.append(iconNode, element('span', '', `0${index + 1}`));
+    card.append(top, element('h3', '', title), element('p', '', copy), createBenefitPreview(index));
     benefitsGrid.append(card);
   });
 
@@ -33,23 +77,51 @@ function renderContent() {
     'يمكن مراجعة إشارات الأسهم ضمن ساعات السوق والسيولة المتاحة بعد اختبار الإعداد المناسب.',
     'تتيح البنية متابعة مؤشرات السوق بصريًا عبر أطر زمنية مختلفة وفق خطة المستخدم.'
   ];
+  const marketLabels = ['FOREX / REVIEW', 'CRYPTO / REVIEW', 'STOCKS / REVIEW', 'INDICES / REVIEW'];
   const marketsList = document.querySelector('#markets-list');
+  const marketDetail = document.querySelector('#market-detail');
+  const previewLabel = document.querySelector('#market-preview-label');
+  const marketButtons = [];
+  const activateMarket = (item, index, focus = false) => {
+    marketButtons.forEach((button) => {
+      const active = button === item;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
+    document.querySelector('#market-detail-title').textContent = siteConfig.markets[index];
+    document.querySelector('#market-detail-copy').textContent = marketDescriptions[index];
+    previewLabel.textContent = marketLabels[index];
+    marketDetail.setAttribute('aria-labelledby', item.id);
+    marketDetail.dataset.market = String(index);
+    if (focus) item.focus();
+  };
   siteConfig.markets.forEach((market, index) => {
     const item = document.createElement('button');
     item.type = 'button';
-    item.setAttribute('aria-pressed', String(index === 0));
+    item.id = `market-tab-${index}`;
+    item.setAttribute('role', 'tab');
+    item.setAttribute('aria-selected', String(index === 0));
     item.setAttribute('aria-controls', 'market-detail');
+    item.tabIndex = index === 0 ? 0 : -1;
     item.classList.toggle('is-active', index === 0);
-    item.innerHTML = `<span><i data-lucide="${marketIcons[index]}" aria-hidden="true"></i><b>0${index + 1}</b></span><strong>${market}</strong><small>عرض التفاصيل</small>`;
-    item.addEventListener('click', () => {
-      marketsList.querySelectorAll('button').forEach((button) => {
-        const active = button === item;
-        button.classList.toggle('is-active', active);
-        button.setAttribute('aria-pressed', String(active));
-      });
-      document.querySelector('#market-detail-title').textContent = market;
-      document.querySelector('#market-detail-copy').textContent = marketDescriptions[index];
+    const top = element('span');
+    const iconNode = element('i');
+    iconNode.dataset.lucide = marketIcons[index];
+    iconNode.setAttribute('aria-hidden', 'true');
+    top.append(iconNode, element('b', '', `0${index + 1}`));
+    item.append(top, element('strong', '', market), element('small', '', 'عرض التفاصيل'));
+    item.addEventListener('click', () => activateMarket(item, index));
+    item.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      let nextIndex = index;
+      if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = marketButtons.length - 1;
+      else nextIndex = (index + (event.key === 'ArrowLeft' ? 1 : -1) + marketButtons.length) % marketButtons.length;
+      activateMarket(marketButtons[nextIndex], nextIndex, true);
     });
+    marketButtons.push(item);
     marketsList.append(item);
   });
 
@@ -58,23 +130,37 @@ function renderContent() {
   renderEvidence(document.querySelector('#evidence'), siteConfig.evidenceExamples);
   document.querySelector('#current-year').textContent = new Date().getFullYear();
 
-  const contactDigits = siteConfig.contact.whatsappNumber.replace(/\D/g, '');
-  document.querySelector('#whatsapp-number').textContent = contactDigits.length === 13
-    ? `+${contactDigits.slice(0, 3)} ${contactDigits.slice(3, 6)} ${contactDigits.slice(6, 9)} ${contactDigits.slice(9)}`
-    : `+${contactDigits}`;
+  const contactNode = document.querySelector('#whatsapp-number');
+  if (isWhatsAppConfigured()) {
+    const contactDigits = siteConfig.contact.whatsappNumber;
+    contactNode.textContent = contactDigits.length === 13
+      ? `+${contactDigits.slice(0, 3)} ${contactDigits.slice(3, 6)} ${contactDigits.slice(6, 9)} ${contactDigits.slice(9)}`
+      : `+${contactDigits}`;
+  } else {
+    contactNode.hidden = true;
+  }
 
-  createIcons({ icons: { ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Play, ScanLine, Smartphone, TimerReset, BetweenHorizontalStart } });
+  createIcons({ icons: { ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Play, ScanLine, ShieldCheck, Smartphone, TimerReset, BetweenHorizontalStart } });
 }
 
 function initNavigation() {
   const toggle = document.querySelector('.menu-toggle');
   const nav = document.querySelector('.primary-nav');
+  const backgroundRegions = [
+    document.querySelector('main'),
+    document.querySelector('footer'),
+    document.querySelector('.whatsapp-float'),
+    document.querySelector('.scroll-top'),
+    document.querySelector('.mobile-action-bar')
+  ].filter(Boolean);
   const focusables = () => [...nav.querySelectorAll('a[href]')];
+  const setBackgroundInert = (inert) => backgroundRegions.forEach((region) => { region.inert = inert; });
   const closeMenu = (restoreFocus = false) => {
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', 'فتح قائمة التنقل');
     nav.classList.remove('is-open');
     document.body.classList.remove('menu-open');
+    setBackgroundInert(false);
     if (restoreFocus) toggle.focus();
   };
 
@@ -86,8 +172,12 @@ function initNavigation() {
       toggle.setAttribute('aria-label', 'إغلاق قائمة التنقل');
       nav.classList.add('is-open');
       document.body.classList.add('menu-open');
+      setBackgroundInert(true);
       focusables()[0]?.focus();
     }
+  });
+  window.matchMedia('(min-width: 861px)').addEventListener('change', (event) => {
+    if (event.matches) closeMenu();
   });
   nav.addEventListener('click', (event) => { if (event.target.closest('a')) closeMenu(); });
   document.addEventListener('keydown', (event) => {
@@ -130,9 +220,14 @@ function initDemoWalkthrough() {
   };
 
   const activate = (button) => {
-    buttons.forEach((candidate) => candidate.setAttribute('aria-selected', String(candidate === button)));
+    buttons.forEach((candidate) => {
+      const active = candidate === button;
+      candidate.setAttribute('aria-selected', String(active));
+      candidate.setAttribute('tabindex', active ? '0' : '-1');
+    });
     const [message, state, confirm] = steps[button.dataset.demoStep];
     copy.textContent = message;
+    copy.setAttribute('aria-labelledby', button.id);
     status.textContent = state;
     confirmation.textContent = confirm;
     terminal.dataset.mode = button.dataset.demoStep;
@@ -142,30 +237,29 @@ function initDemoWalkthrough() {
     button.id = `demo-tab-${index}`;
     button.setAttribute('tabindex', index === 0 ? '0' : '-1');
     button.addEventListener('click', () => {
-      buttons.forEach((candidate) => candidate.setAttribute('tabindex', candidate === button ? '0' : '-1'));
       activate(button);
       trackEvent('video_play', { source_section: 'demo' });
     });
     button.addEventListener('keydown', (event) => {
-      if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
       event.preventDefault();
-      const direction = event.key === 'ArrowLeft' ? 1 : -1;
-      const next = buttons[(index + direction + buttons.length) % buttons.length];
+      let nextIndex = index;
+      if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = buttons.length - 1;
+      else nextIndex = (index + (event.key === 'ArrowLeft' ? 1 : -1) + buttons.length) % buttons.length;
+      const next = buttons[nextIndex];
       next.click();
       next.focus();
     });
   });
+  copy.setAttribute('aria-labelledby', buttons[0].id);
 }
 
 function initScrollUi() {
   const header = document.querySelector('.site-header');
-  const progress = document.querySelector('.scroll-progress span');
   const topButton = document.querySelector('.scroll-top');
   let queued = false;
   const update = () => {
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    const ratio = max > 0 ? Math.min(1, window.scrollY / max) : 0;
-    progress.style.transform = `scaleX(${ratio})`;
     header.classList.toggle('is-scrolled', window.scrollY > 18);
     topButton.classList.toggle('is-visible', window.scrollY > 700);
   };

@@ -50,9 +50,11 @@ The visual source of truth is `public/assets/vanguard-logo.png`. Do not distort,
 
 ## Motion architecture
 
-Normal browser scrolling is preserved. One Three.js renderer powers the abstract Vanguard form in the visual-demo section. GSAP and ScrollTrigger provide restrained heading, card, mask, decorative-grid, pricing, FAQ, and CTA motion without pinning, snapping, scroll-jacking, or readable-content overlays. Reduced-motion mode skips Three.js and shows the static CSS Vanguard form immediately.
+Normal browser scrolling is preserved. One Three.js renderer powers the abstract Vanguard form in the visual-demo section. GSAP registers ScrollTrigger for one-time, class-driven section reveals; CSS performs the restrained transitions without CSP-blocked inline styles. There is no pinning, snapping, scroll-jacking, or readable-content overlay. Reduced-motion mode skips Three.js and shows the static CSS Vanguard form immediately.
 
 See [docs/motion-architecture.md](docs/motion-architecture.md) for implementation details and [docs/motion-revamp-audit.md](docs/motion-revamp-audit.md) for the baseline audit.
+
+Static-host security controls and GitHub Pages limitations are documented in [docs/security.md](docs/security.md).
 
 ## Browser evidence
 
@@ -65,7 +67,7 @@ The Playwright suite covers the required desktop, tablet, and phone viewports; r
 - `artifacts/revamp-mobile-pricing.png`
 - `artifacts/revamp-scroll-test.webm`
 
-Mobile Lighthouse on the local production preview measured Performance 78, Accessibility 100, Best Practices 100, and SEO 100 on 22 July 2026. These are measured results from this branch, not guarantees for every device or network.
+Local screenshots and automated checks are implementation evidence only; they are not performance guarantees for every device, network, browser, or deployed response.
 
 ## Legal and owner inputs
 

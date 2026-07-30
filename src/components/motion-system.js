@@ -1,79 +1,37 @@
 const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
-const revealSelector = '.split-heading, .chapter-heading, .activation-head, .faq-intro, .final-cta .container';
+const revealSelector = '.split-heading, .chapter-heading, .activation-head, .faq-intro, .final-cta__panel';
 const cardSelector = '.feature-card, .benefit-card, .workflow-item, .market-pills > button, .bundle-features article, .price-card, .activation-steps li, .faq-item';
 
-function clearMotion(gsap) {
-  gsap.set(`${revealSelector}, ${cardSelector}, .hero-copy > *, .hero-visual, .abstract-stage`, { clearProps: 'all' });
+function revealEverything() {
   document.documentElement.dataset.motionMode = 'static';
+  document.querySelectorAll('.motion-reveal-target').forEach((target) => target.classList.add('is-revealed'));
 }
 
-function createSectionReveals(gsap, ScrollTrigger) {
+function prepareTargets() {
+  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .hero-copy > *, .hero-visual, .abstract-stage, .bundle-console`)
+    .forEach((target) => target.classList.add('motion-reveal-target'));
+}
+
+function createRevealTriggers(ScrollTrigger) {
   const triggers = [];
-  gsap.utils.toArray(revealSelector).forEach((target) => {
-    const tween = gsap.fromTo(target, { opacity: 0, y: 18 }, {
-      opacity: 1,
-      y: 0,
-      duration: .68,
-      ease: 'power3.out',
-      clearProps: 'opacity,visibility,transform',
-      scrollTrigger: { trigger: target, start: 'top 87%', once: true }
-    });
-    if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
-  });
-  return triggers;
-}
-
-function createCardReveals(gsap, ScrollTrigger) {
-  const cards = gsap.utils.toArray(cardSelector);
-  return ScrollTrigger.batch(cards, {
-    start: 'top 90%',
-    once: true,
-    onEnter: (batch) => gsap.fromTo(batch, { opacity: 0, y: 14, scale: .985 }, {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      duration: .56,
-      stagger: .06,
-      ease: 'power3.out',
-      clearProps: 'opacity,visibility,transform'
-    })
-  });
-}
-
-function createDecorativeMotion(gsap, ScrollTrigger) {
-  const triggers = [];
-  document.querySelectorAll('.motion-section').forEach((section, index) => {
+  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .abstract-stage, .bundle-console`).forEach((target) => {
     const trigger = ScrollTrigger.create({
-      trigger: section,
-      start: 'top bottom',
-      end: 'bottom top',
-      onUpdate: (self) => {
-        const offset = Math.round((self.progress - .5) * 32);
-        section.style.setProperty('--grid-offset', `${offset}px`);
-        section.style.setProperty('--ornament-y', `${Math.round(offset * -.45)}px`);
-        section.style.setProperty('--ornament-rotate', `${(index % 2 ? -1 : 1) * Math.round(self.progress * 10)}deg`);
-      }
+      trigger: target,
+      start: 'top 90%',
+      once: true,
+      onEnter: () => target.classList.add('is-revealed')
     });
     triggers.push(trigger);
   });
-
-  ['.bundle-console', '.abstract-stage'].forEach((selector) => {
-    const target = document.querySelector(selector);
-    if (!target) return;
-    const tween = gsap.fromTo(target, { y: 10 }, {
-      y: -10,
-      ease: 'none',
-      scrollTrigger: { trigger: target, start: 'top bottom', end: 'bottom top', scrub: .45 }
-    });
-    if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
-  });
   return triggers;
 }
 
-function createHeroMotion(gsap) {
-  return gsap.timeline({ defaults: { ease: 'power3.out' } })
-    .fromTo('.hero-copy > *', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .58, stagger: .055, clearProps: 'opacity,transform' })
-    .fromTo('.hero-visual', { opacity: 0, y: 18, scale: .99 }, { opacity: 1, y: 0, scale: 1, duration: .72, clearProps: 'opacity,transform' }, .1);
+function revealHero() {
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.hero-copy > *, .hero-visual').forEach((target, index) => {
+      window.setTimeout(() => target.classList.add('is-revealed'), index * 45);
+    });
+  });
 }
 
 export async function initMotionSystem() {
@@ -84,15 +42,16 @@ export async function initMotionSystem() {
 
   const setup = async () => {
     stopCurrent();
-    clearMotion(gsap);
-    if (preference.matches) return;
+    prepareTargets();
+    if (preference.matches) {
+      revealEverything();
+      return;
+    }
 
     document.documentElement.dataset.motionMode = 'enhanced';
-    const context = gsap.context(() => {});
-    const hero = createHeroMotion(gsap);
-    const sections = createSectionReveals(gsap, ScrollTrigger);
-    const cards = createCardReveals(gsap, ScrollTrigger);
-    const decorative = createDecorativeMotion(gsap, ScrollTrigger);
+    document.querySelectorAll('.motion-reveal-target').forEach((target) => target.classList.remove('is-revealed'));
+    revealHero();
+    const triggers = createRevealTriggers(ScrollTrigger);
     const stage = document.querySelector('#vanguard-abstract-stage');
     let stopAbstract = () => {};
     if (stage) {
@@ -103,12 +62,9 @@ export async function initMotionSystem() {
     if (document.fonts?.ready) await document.fonts.ready;
     requestAnimationFrame(() => ScrollTrigger.refresh());
     stopCurrent = () => {
-      hero.kill();
-      [...sections, ...cards, ...decorative].forEach((trigger) => trigger.kill(true));
+      triggers.forEach((trigger) => trigger.kill(true));
       stopAbstract();
-      context.revert();
-      document.querySelectorAll('.motion-section').forEach((section) => section.removeAttribute('style'));
-      clearMotion(gsap);
+      revealEverything();
     };
   };
 

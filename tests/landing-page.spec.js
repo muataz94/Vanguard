@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { copyFile, mkdir, rm } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const targetViewports = [
   [320, 568], [360, 800], [390, 844], [430, 932], [768, 1024],
-  [1024, 768], [1366, 768], [1440, 900], [1920, 1080]
+  [1024, 768], [1280, 800], [1366, 768], [1440, 900], [1920, 1080]
 ];
 
 function watchPage(page) {
@@ -48,12 +48,31 @@ test('home, assets, navigation, pricing and WhatsApp are production-ready', asyn
   expect(await whatsappLinks.count()).toBeGreaterThanOrEqual(5);
   for (const link of await whatsappLinks.all()) await expect(link).toHaveAttribute('href', /^https:\/\/wa\.me\/9647717220578\?text=/);
 
+  const benefitsLink = page.locator('.primary-nav a[href="#benefits"]');
+  await benefitsLink.click();
+  await expect(page).toHaveURL(/#benefits$/);
+  await expect(page.locator('#benefits-title')).toBeInViewport();
+  await expect(benefitsLink).toHaveAttribute('aria-current', 'location');
+
   await page.locator('.hero a[href="#demo"]').click();
   await expect(page).toHaveURL(/#demo$/);
   await expect(page.locator('#demo-title')).toBeInViewport();
   await page.locator('[data-demo-step="context"]').click();
   await expect(page.locator('[data-demo-step="context"]')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('[data-demo-step="context"]')).toHaveAttribute('aria-controls', 'demo-step-copy');
+  await expect(page.locator('#demo-step-copy')).toHaveAttribute('role', 'tabpanel');
   await expect(page.locator('[data-demo-confirm]')).toHaveText('يتطلب تحققًا');
+  await page.locator('[data-demo-step="context"]').focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.locator('[data-demo-step="alert"]')).toHaveAttribute('aria-selected', 'true');
+
+  const market = page.locator('[role="tab"][id="market-tab-1"]');
+  await market.click();
+  await expect(market).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#market-detail')).toHaveAttribute('aria-labelledby', 'market-tab-1');
+  await expect(page.locator('#market-detail-title')).toHaveText('العملات الرقمية');
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.locator('#market-tab-2')).toHaveAttribute('aria-selected', 'true');
 
   expect(diagnostics.errors).toEqual([]);
   expect(diagnostics.failures).toEqual([]);
@@ -175,11 +194,12 @@ test('keyboard landmarks and FAQ ARIA behavior work', async ({ page }) => {
   await expect(page.locator('.skip-link')).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.locator('#main-content')).toBeFocused();
-  const question = page.locator('.faq-question').first();
+  await expect(page.locator('.faq-question').first()).toHaveAttribute('aria-expanded', 'true');
+  const question = page.locator('.faq-question').nth(1);
   await question.focus();
   await page.keyboard.press('Enter');
   await expect(question).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.locator('.faq-answer').first()).toBeVisible();
+  await expect(page.locator('.faq-answer').nth(1)).toBeVisible();
   await page.keyboard.press('Enter');
   await expect(question).toHaveAttribute('aria-expanded', 'false');
   const levels = await page.locator('h1, h2, h3').evaluateAll((headings) => headings.filter((heading) => !heading.closest('[hidden]')).map((heading) => Number(heading.tagName[1])));
@@ -205,6 +225,14 @@ test('layout remains usable at a 200% zoom equivalent', async ({ page }) => {
   await expect(page.locator('h1')).toBeVisible();
 });
 
+test('scroll-to-top control returns focusable content to the page start', async ({ page }) => {
+  await openLanding(page);
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect(page.locator('.scroll-top')).toBeVisible();
+  await page.locator('.scroll-top').click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(2);
+});
+
 for (const route of ['privacy.html', 'terms.html', 'refund.html', 'risk-disclosure.html', '404.html']) {
   test(`${route} opens directly with valid project-base assets`, async ({ page }) => {
     const diagnostics = watchPage(page);
@@ -214,6 +242,7 @@ for (const route of ['privacy.html', 'terms.html', 'refund.html', 'risk-disclosu
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
     expect((await page.locator('body').innerText())).not.toContain('[يجب الاستكمال قبل النشر]');
     if (route !== '404.html') await expect(page.locator('[data-whatsapp]').first()).toHaveAttribute('href', /^https:\/\/wa\.me\/9647717220578\?text=/);
+    else await expect(page.getByRole('link', { name: 'العودة إلى الصفحة الرئيسية' })).toBeVisible();
     expect(diagnostics.errors).toEqual([]);
     expect(diagnostics.failures).toEqual([]);
   });
@@ -221,6 +250,9 @@ for (const route of ['privacy.html', 'terms.html', 'refund.html', 'risk-disclosu
 
 test('normal scroll avoids long blocking tasks', async ({ page }) => {
   await openLanding(page);
+  await page.locator('canvas[data-vanguard-abstract]').waitFor({ state: 'attached' });
+  await page.evaluate(() => document.fonts?.ready);
+  await page.waitForTimeout(500);
   await page.evaluate(() => {
     window.__vanguardLongTasks = [];
     if ('PerformanceObserver' in window) {
@@ -237,61 +269,35 @@ test('normal scroll avoids long blocking tasks', async ({ page }) => {
   expect(Math.max(0, ...durations)).toBeLessThan(200);
 });
 
-test('capture required screenshots and reverse-scroll video', async ({ browser, baseURL }) => {
+test('capture required responsive section screenshots', async ({ browser, baseURL }) => {
   test.setTimeout(120_000);
   const artifactDirectory = resolve('artifacts');
-  const temporaryVideoDirectory = resolve('artifacts', '.video-temp');
   await mkdir(artifactDirectory, { recursive: true });
-  await mkdir(temporaryVideoDirectory, { recursive: true });
 
-  const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'ar-IQ', colorScheme: 'dark' });
-  const desktopPage = await desktop.newPage();
-  await desktopPage.goto(`${baseURL}/Vanguard/`, { waitUntil: 'networkidle' });
-  await desktopPage.waitForTimeout(1300);
-  await desktopPage.screenshot({ path: resolve('artifacts', 'v4-desktop-top.png') });
-  await desktopPage.locator('#demo').scrollIntoViewIfNeeded();
-  await desktopPage.waitForTimeout(850);
-  await desktopPage.screenshot({ path: resolve('artifacts', 'v4-desktop-abstract.png') });
-  await desktopPage.locator('#pricing').scrollIntoViewIfNeeded();
-  await desktopPage.waitForTimeout(850);
-  await desktopPage.screenshot({ path: resolve('artifacts', 'v4-desktop-pricing.png') });
-  await desktop.close();
+  const captures = [
+    ['hero', '.hero'],
+    ['benefits', '#benefits'],
+    ['workflow', '#how-it-works'],
+    ['demo', '#demo'],
+    ['pricing', '#pricing'],
+    ['faq', '#faq'],
+    ['final-cta', '.final-cta'],
+    ['footer', '.site-footer']
+  ];
 
-  const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: 'ar-IQ', colorScheme: 'dark' });
-  const mobilePage = await mobile.newPage();
-  await mobilePage.goto(`${baseURL}/Vanguard/`, { waitUntil: 'networkidle' });
-  await mobilePage.waitForTimeout(1300);
-  await mobilePage.screenshot({ path: resolve('artifacts', 'v4-mobile-top.png') });
-  await mobilePage.locator('#pricing').scrollIntoViewIfNeeded();
-  await mobilePage.waitForTimeout(700);
-  await mobilePage.screenshot({ path: resolve('artifacts', 'v4-mobile-pricing.png') });
-  await mobile.close();
-
-  const videoContext = await browser.newContext({
-    viewport: { width: 1366, height: 768 },
-    locale: 'ar-IQ',
-    colorScheme: 'dark',
-    recordVideo: { dir: temporaryVideoDirectory, size: { width: 1366, height: 768 } }
-  });
-  const videoPage = await videoContext.newPage();
-  await videoPage.goto(`${baseURL}/Vanguard/`, { waitUntil: 'networkidle' });
-  await videoPage.waitForTimeout(900);
-  const video = videoPage.video();
-  for (const selector of ['#benefits', '#demo', '#pricing', '#faq', '.final-cta']) {
-    const targetY = await videoPage.locator(selector).evaluate((node) => node.getBoundingClientRect().top + window.scrollY - 80);
-    while (await videoPage.evaluate(() => window.scrollY) < targetY - 40) {
-      await videoPage.mouse.wheel(0, 420);
-      await videoPage.waitForTimeout(85);
+  for (const [device, viewport] of [
+    ['desktop', { width: 1440, height: 900 }],
+    ['mobile', { width: 390, height: 844 }]
+  ]) {
+    const context = await browser.newContext({ viewport, locale: 'ar-IQ', colorScheme: 'dark', reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(`${baseURL}/Vanguard/`, { waitUntil: 'networkidle' });
+    for (const [name, selector] of captures) {
+      const target = page.locator(selector);
+      await target.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(120);
+      await target.screenshot({ path: resolve('artifacts', `security-revamp-${device}-${name}.png`) });
     }
-    await videoPage.waitForTimeout(450);
+    await context.close();
   }
-  for (let step = 0; step < 7; step += 1) {
-    await videoPage.mouse.wheel(0, -520);
-    await videoPage.waitForTimeout(100);
-  }
-  await videoPage.waitForTimeout(650);
-  await videoContext.close();
-  const recordedPath = await video.path();
-  await copyFile(recordedPath, resolve('artifacts', 'v4-scroll-test.webm'));
-  await rm(temporaryVideoDirectory, { recursive: true, force: true });
 });

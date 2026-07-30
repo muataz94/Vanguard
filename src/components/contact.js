@@ -2,17 +2,38 @@ import { siteConfig } from '../config.js';
 import { trackEvent } from '../analytics.js';
 
 export function isWhatsAppConfigured() {
-  return /^\d{10,15}$/.test(siteConfig.contact.whatsappNumber);
+  return typeof siteConfig.contact.whatsappNumber === 'string'
+    && /^\d{10,15}$/.test(siteConfig.contact.whatsappNumber);
 }
 
 export function createWhatsAppUrl(message = siteConfig.contact.defaultMessage) {
   if (!isWhatsAppConfigured()) return null;
-  const number = siteConfig.contact.whatsappNumber.replace(/\D/g, '');
-  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+  const safeMessage = typeof message === 'string' && message.length <= 1200
+    ? message
+    : siteConfig.contact.defaultMessage;
+  const url = new URL(`https://wa.me/${siteConfig.contact.whatsappNumber}`);
+  url.searchParams.set('text', safeMessage);
+  return url.toString();
 }
 
 export function buildPlanMessage(plan) {
-  return `مرحباً، أرغب بالاشتراك في ${siteConfig.brand.nameAr}.\n\nالباقة: ${plan.labelAr}\nالمدة: ${plan.months} ${plan.months === 1 ? 'شهر' : 'أشهر'}\nالسعر: ${plan.priceUsd} دولار\n\nيرجى تزويدي بتفاصيل الدفع والتفعيل.`;
+  const configuredPlan = siteConfig.pricing.find((candidate) => candidate.id === plan?.id);
+  if (!configuredPlan) return siteConfig.contact.defaultMessage;
+  return `مرحباً، أرغب بالاشتراك في ${siteConfig.brand.nameAr}.\n\nالباقة: ${configuredPlan.labelAr}\nالمدة: ${configuredPlan.months} ${configuredPlan.months === 1 ? 'شهر' : 'أشهر'}\nالسعر: ${configuredPlan.priceUsd} دولار\n\nيرجى تزويدي بتفاصيل الدفع والتفعيل.`;
+}
+
+export function getConfiguredEmail() {
+  const email = typeof siteConfig.contact.email === 'string' ? siteConfig.contact.email.trim() : '';
+  if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || /example\.com$/i.test(email)) return null;
+  return email;
+}
+
+export function getContactDestination(message = siteConfig.contact.defaultMessage) {
+  const whatsappUrl = createWhatsAppUrl(message);
+  if (whatsappUrl) return { kind: 'whatsapp', url: whatsappUrl };
+  const email = getConfiguredEmail();
+  if (email) return { kind: 'email', email };
+  return { kind: 'disabled' };
 }
 
 function element(tag, className, text) {
@@ -60,15 +81,15 @@ export function ensureContactDialog() {
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   const note = element('p', 'contact-dialog__note');
-  const emailIsConfigured = Boolean(siteConfig.contact.email) && !/example\.com$/i.test(siteConfig.contact.email);
-  note.textContent = emailIsConfigured
+  const configuredEmail = getConfiguredEmail();
+  note.textContent = configuredEmail
     ? 'يمكنك أيضًا العودة واختيار إحدى الباقات لإرسال تفاصيلها تلقائيًا.'
     : 'استخدم قناة التواصل الرسمية الظاهرة في الصفحة للاستفسار عن التفعيل.';
 
   close.addEventListener('click', () => dialog.close());
-  copyEmail.addEventListener('click', () => copyText(siteConfig.contact.email, status));
+  copyEmail.addEventListener('click', () => copyText(configuredEmail, status));
   dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
-  if (emailIsConfigured) actions.append(email, copyEmail);
+  if (configuredEmail) actions.append(email, copyEmail);
   shell.append(accent, close, eyebrow, title, copy, selection, actions, status, note);
   dialog.append(shell);
   document.body.append(dialog);
@@ -76,11 +97,16 @@ export function ensureContactDialog() {
 }
 
 function openContactFallback({ message = siteConfig.contact.defaultMessage, sourceSection, planId } = {}) {
+  const configuredEmail = getConfiguredEmail();
+  if (!configuredEmail) return;
   const dialog = ensureContactDialog();
   const selection = dialog.querySelector('.contact-dialog__selection');
   const email = dialog.querySelector('[data-contact-email]');
   const subject = planId ? `طلب باقة ${siteConfig.brand.nameAr}` : `استفسار عن ${siteConfig.brand.nameAr}`;
-  email.href = `mailto:${siteConfig.contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+  const mailUrl = new URL(`mailto:${configuredEmail}`);
+  mailUrl.searchParams.set('subject', subject);
+  mailUrl.searchParams.set('body', message);
+  email.href = mailUrl.toString();
   selection.textContent = planId ? message : '';
   selection.hidden = !planId;
   dialog.querySelector('.contact-dialog__status').textContent = '';
@@ -89,19 +115,28 @@ function openContactFallback({ message = siteConfig.contact.defaultMessage, sour
 }
 
 export function configureContactLink(link, { message, sourceSection, planId } = {}) {
-  const url = createWhatsAppUrl(message);
-  if (!url) {
-    link.removeAttribute('aria-disabled');
-    link.setAttribute('href', '#contact-dialog');
-    link.removeAttribute('tabindex');
-    link.title = 'فتح خيارات التواصل';
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
-      openContactFallback({ message, sourceSection, planId });
-    });
+  const destination = getContactDestination(message);
+  if (destination.kind !== 'whatsapp') {
+    link.removeAttribute('target');
+    link.removeAttribute('rel');
+    if (destination.kind === 'email') {
+      link.removeAttribute('aria-disabled');
+      link.setAttribute('href', '#contact-dialog');
+      link.removeAttribute('tabindex');
+      link.title = 'فتح خيارات التواصل';
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        openContactFallback({ message, sourceSection, planId });
+      });
+    } else {
+      link.removeAttribute('href');
+      link.setAttribute('aria-disabled', 'true');
+      link.setAttribute('tabindex', '-1');
+      link.title = 'قناة التواصل غير متاحة مؤقتًا';
+    }
     return;
   }
-  link.href = url;
+  link.href = destination.url;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   link.addEventListener('click', () => trackEvent('whatsapp_click', {

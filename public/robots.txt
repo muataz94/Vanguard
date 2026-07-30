@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://muataz94.github.io/Vanguard/sitemap.xml
+Sitemap: __VANGUARD_PRODUCTION_URL__sitemap.xml

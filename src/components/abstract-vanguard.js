@@ -40,7 +40,8 @@ export function initAbstractVanguard(stage) {
   const camera = new PerspectiveCamera(35, 1, .1, 100);
   camera.position.set(0, .05, 7.2);
 
-  const renderer = new WebGLRenderer({ alpha: true, antialias: false, powerPreference: 'low-power' });
+  const canvas = document.createElement('canvas');
+  const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'low-power' });
   renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth <= 620 ? 1.2 : 1.5));
   renderer.shadowMap.enabled = false;

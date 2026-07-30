@@ -12,7 +12,7 @@
 
 The hero is free of market-bar graphics and uses only a static analytical matrix. The visual-demo section contains the one shared continuously animated Three.js abstract Vanguard form. Its fallback is a static CSS V form and ring.
 
-GSAP motion is limited to section-local reveals, card staggers, two small parallax effects, and decorative grid progress. Native scroll remains in charge and no readable content is positioned beneath a transition overlay.
+GSAP registers ScrollTrigger, which adds classes for section-local reveals. CSS performs the short opacity/transform transitions without runtime inline styles, allowing the strict CSP to remain free of `unsafe-inline`. Native scroll remains in charge and no readable content is positioned beneath a transition overlay.
 
 ## Before and after evidence
 
@@ -20,7 +20,7 @@ GSAP motion is limited to section-local reveals, card staggers, two small parall
 | --- | --- |
 | Four in-flow transition zones and a chart-shaped visual treatment. | No transition zones or chart-shaped decorative graphics. |
 | A renderer dedicated to zone-to-zone travel. | One renderer dedicated to the visible abstract Vanguard form. |
-| Scroll-linked transition state around chapter boundaries. | Section-local reveals, small parallax, and progress accents while browser scrolling remains native. |
+| Scroll-linked transition state around chapter boundaries. | One-time class-driven section reveals and a CSS scroll progress accent while browser scrolling remains native. |
 | No continuously animated brand form in the visual demo. | A low-density V-inspired form with light rotation, float, pulse, and off-screen pause. |
 
 The Playwright evidence run writes desktop, mobile, pricing, abstract-form, and reverse-scroll video artifacts under `artifacts/v4-*`. These remain local verification outputs and are not part of the production source tree.

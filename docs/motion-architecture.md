@@ -14,18 +14,14 @@ Animation is intentionally slow: a gentle rotation, small vertical float, core-s
 
 ## Scroll motion
 
-`src/components/motion-system.js` uses GSAP and ScrollTrigger only for local, content-safe effects:
+`src/components/motion-system.js` registers GSAP and uses ScrollTrigger only to add reveal classes at local section boundaries. CSS owns the short opacity/transform transitions so the strict static-site CSP does not require inline styles:
 
 - hero entrance with a small upward reveal;
-- section-heading opacity/18px reveals;
-- staggered card and pricing entrances with a 14px movement;
-- a clipped/masked abstract-stage entrance;
-- short controlled parallax on the package console and abstract form;
-- progress-linked background grid and decorative-outline accents;
-- FAQ item entrances while FAQ open/close remains accessible native JavaScript;
-- final CTA entrance.
+- section-heading, card, pricing, FAQ, abstract-stage, and final-CTA reveals;
+- a CSS scroll-timeline progress bar where supported;
+- FAQ open/close animation through the Web Animations API.
 
-There is no full-page scrub. The two parallax effects use only `scrub: 0.45` over their own element ranges. Every reveal uses `once: true` and clears inline transforms after it completes, so reverse scrolling never leaves content hidden.
+There is no full-page scrub, parallax, pin, snap point, or runtime style attribute. Every ScrollTrigger reveal uses `once: true`, so reverse scrolling never leaves content hidden.
 
 ## Reduced motion
 
