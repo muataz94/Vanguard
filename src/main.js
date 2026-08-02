@@ -9,7 +9,7 @@ import { renderEvidence } from './components/evidence.js';
 import { initContactLinks, isWhatsAppConfigured } from './components/contact.js';
 import { initMobileCta } from './components/mobile-cta.js';
 import { initThemeToggle } from './components/theme.js';
-import { initVanguardChart } from './components/vanguard-chart.js';
+import { initVanguardChartDemo } from './components/vanguard-chart-demo.js';
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -287,7 +287,7 @@ async function startEnhancements() {
 
 renderContent();
 const cleanupTheme = initThemeToggle();
-const cleanupChart = initVanguardChart(document.querySelector('[data-vanguard-chart]'));
+const cleanupChart = initVanguardChartDemo(document.querySelector('[data-vanguard-chart-demo]'));
 initNavigation();
 initContactLinks();
 initMobileCta();

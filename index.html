@@ -70,13 +70,20 @@
             <p class="risk-note"><strong>تنبيه مخاطر:</strong> فانگارد أداة تحليلية مساعدة ولا يضمن الربح. التداول قد يؤدي إلى خسارة جزء أو كامل رأس المال.</p>
           </div>
 
-          <div class="hero-chart" data-vanguard-chart aria-label="رسم مالي توضيحي متحرك ببيانات اصطناعية">
+          <div class="hero-chart" data-vanguard-chart-demo data-demo-mode="poster" aria-label="عرض توضيحي لمؤشر فانگارد على رسم XAUUSD داخل TradingView">
             <div class="hero-chart__toolbar">
-              <span class="hero-chart__brand"><i></i> VANGUARD</span>
-              <span class="hero-chart__market" dir="ltr"><b>EUR/USD</b><small>4H</small></span>
+              <span class="hero-chart__brand"><i aria-hidden="true"></i> VANGUARD INDICATOR</span>
+              <span class="hero-chart__market" dir="ltr"><b>XAUUSD</b><small>1H</small></span>
             </div>
-            <canvas data-vanguard-chart-canvas aria-hidden="true"></canvas>
-            <p class="hero-chart__disclaimer">عرض توضيحي — ليست بيانات سوق حية</p>
+            <video class="hero-chart__media" data-vanguard-demo-video autoplay muted loop playsinline preload="metadata" poster="./media/vanguard-chart-poster.webp" aria-label="محاكاة توضيحية لواجهة مؤشر فانگارد وليست بيانات سوق حية">
+              <p>متصفحك لا يدعم عرض الفيديو. تظهر صورة توضيحية ثابتة لمؤشر فانگارد.</p>
+            </video>
+            <template data-vanguard-video-sources>
+              <source data-src="./media/vanguard-chart-demo.webm" type="video/webm">
+              <source data-src="./media/vanguard-chart-demo.mp4" type="video/mp4">
+            </template>
+            <span class="hero-chart__badge"><i aria-hidden="true"></i> عرض توضيحي</span>
+            <p class="hero-chart__disclaimer">ليست بيانات سوق حية ولا توصية مالية</p>
           </div>
         </div>
         <div class="hero-ticker" aria-hidden="true"><span>FOREX</span><i></i><span>CRYPTO</span><i></i><span>STOCKS</span><i></i><span>INDICES</span><i></i><span>TRADINGVIEW</span></div>

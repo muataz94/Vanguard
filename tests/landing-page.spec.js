@@ -123,11 +123,12 @@ test('reduced motion renders complete static content without animated WebGL', as
   await openLanding(page);
   await expect(page.locator('canvas[data-vanguard-abstract]')).toHaveCount(0);
   await expect(page.locator('html')).toHaveAttribute('data-motion-mode', 'static');
-  const chart = page.locator('canvas[data-vanguard-chart-canvas]');
-  await expect(chart).toBeVisible();
-  const staticRenderCount = Number(await chart.getAttribute('data-render-count'));
-  await page.waitForTimeout(250);
-  expect(Number(await chart.getAttribute('data-render-count'))).toBe(staticRenderCount);
+  const demo = page.locator('[data-vanguard-chart-demo]');
+  const video = page.locator('[data-vanguard-demo-video]');
+  await expect(video).toBeVisible();
+  await expect(demo).toHaveAttribute('data-playback-state', 'poster');
+  expect(await video.evaluate((node) => node.paused)).toBe(true);
+  await expect(video).toHaveAttribute('poster', /vanguard-chart-poster\.webp$/);
   await expect(page.locator('.abstract-stage__fallback')).toBeVisible();
   const states = await page.locator('.motion-group, .abstract-stage').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
   expect(states.every(({ opacity, transform }) => opacity === '1' && transform === 'none')).toBeTruthy();
@@ -151,23 +152,30 @@ test('theme follows the system, toggles accessibly and persists', async ({ brows
   await context.close();
 });
 
-test('hero chart is sharp, deterministic and pauses outside the viewport', async ({ page }) => {
+test('hero demo uses the authentic poster fallback without requesting missing videos', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
+  const diagnostics = watchPage(page);
   await openLanding(page);
-  const chart = page.locator('canvas[data-vanguard-chart-canvas]');
-  await expect(chart).toBeVisible();
-  const firstCount = Number(await chart.getAttribute('data-render-count'));
-  await page.waitForTimeout(180);
-  expect(Number(await chart.getAttribute('data-render-count'))).toBeGreaterThan(firstCount);
-  const ratio = await chart.evaluate((node) => node.width / node.getBoundingClientRect().width);
-  expect(ratio).toBeGreaterThanOrEqual(1);
-  expect(ratio).toBeLessThanOrEqual(2.05);
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await page.waitForTimeout(300);
-  const settledCount = Number(await chart.getAttribute('data-render-count'));
-  await page.waitForTimeout(250);
-  expect(Number(await chart.getAttribute('data-render-count'))).toBe(settledCount);
-  await expect(page.locator('.hero-chart__disclaimer')).toHaveText('عرض توضيحي — ليست بيانات سوق حية');
+  const demo = page.locator('[data-vanguard-chart-demo]');
+  const video = page.locator('[data-vanguard-demo-video]');
+  await expect(demo).toHaveAttribute('data-demo-mode', 'poster');
+  await expect(demo).toHaveAttribute('data-playback-state', 'poster');
+  await expect(video).toHaveAttribute('autoplay', '');
+  await expect(video).toHaveAttribute('muted', '');
+  await expect(video).toHaveAttribute('loop', '');
+  await expect(video).toHaveAttribute('playsinline', '');
+  await expect(video).toHaveAttribute('preload', 'metadata');
+  await expect(video.locator('source')).toHaveCount(0);
+  const sourceOrder = await page.locator('[data-vanguard-video-sources]').evaluate((template) => [...template.content.querySelectorAll('source')].map((source) => [source.dataset.src, source.type]));
+  expect(sourceOrder).toEqual([
+    ['./media/vanguard-chart-demo.webm', 'video/webm'],
+    ['./media/vanguard-chart-demo.mp4', 'video/mp4']
+  ]);
+  await expect(page.locator('.hero-chart__badge')).toContainText('عرض توضيحي');
+  await expect(page.locator('.hero-chart__disclaimer')).toHaveText('ليست بيانات سوق حية ولا توصية مالية');
+  await expect(page.locator('canvas[data-vanguard-chart-canvas]')).toHaveCount(0);
+  expect(diagnostics.errors).toEqual([]);
+  expect(diagnostics.failures).toEqual([]);
 });
 
 for (const [label, width, height, maxRatio] of [
