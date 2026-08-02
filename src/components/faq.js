@@ -1,4 +1,5 @@
 import { trackEvent } from '../analytics.js';
+import { t, translateElement } from '../i18n.js';
 
 export function renderFaq(container, items) {
   container.replaceChildren();
@@ -31,7 +32,7 @@ export function renderFaq(container, items) {
     ).finished.then(() => { panel.hidden = true; }).catch(() => {});
   };
 
-  items.forEach(([question, answer], index) => {
+  items.forEach(([questionKey, answerKey], index) => {
     const item = document.createElement('div');
     item.className = 'faq-item';
     const button = document.createElement('button');
@@ -41,7 +42,7 @@ export function renderFaq(container, items) {
     button.setAttribute('aria-expanded', String(index === 0));
     button.setAttribute('aria-controls', `faq-answer-${index}`);
     const label = document.createElement('span');
-    label.textContent = question;
+    translateElement(label, questionKey);
     const icon = document.createElement('span');
     icon.className = 'faq-symbol';
     icon.textContent = index === 0 ? '−' : '+';
@@ -54,7 +55,7 @@ export function renderFaq(container, items) {
     panel.setAttribute('aria-labelledby', button.id);
     panel.hidden = index !== 0;
     const copy = document.createElement('p');
-    copy.textContent = answer;
+    translateElement(copy, answerKey);
     panel.append(copy);
     button.addEventListener('click', () => {
       const open = button.getAttribute('aria-expanded') === 'true';

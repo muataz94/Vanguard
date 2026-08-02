@@ -10,12 +10,18 @@ import { initContactLinks, isWhatsAppConfigured } from './components/contact.js'
 import { initMobileCta } from './components/mobile-cta.js';
 import { initThemeToggle } from './components/theme.js';
 import { initTradingViewHeroChart } from './components/tradingview-hero-chart.js';
+import { initLanguageSystem, subscribeLanguage, t, translateElement } from './i18n.js';
+import { renderMarketExplorer } from './components/market-explorer.js';
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
+}
+
+function translatedElement(tag, className, key) {
+  return translateElement(element(tag, className), key);
 }
 
 function createBenefitPreview(index) {
@@ -27,13 +33,13 @@ function createBenefitPreview(index) {
       return element('span', `preview-line preview-line--${line + 1}`);
     }));
   } else if (index === 1) {
-    preview.append(element('span', 'preview-zone', 'منطقة متابعة'), element('span', 'preview-zone', 'نقطة إلغاء'));
+    preview.append(translatedElement('span', 'preview-zone', 'benefits.zone'), translatedElement('span', 'preview-zone', 'benefits.invalidation'));
   } else if (index === 2) {
-    preview.append(element('span', 'preview-toggle', 'TradingView'), element('span', 'preview-toggle', 'تنبيه الهاتف'));
+    preview.append(element('span', 'preview-toggle', 'TradingView'), translatedElement('span', 'preview-toggle', 'benefits.mobileAlert'));
   } else if (index === 3) {
-    siteConfig.markets.forEach((market) => preview.append(element('span', 'preview-pill', market)));
+    ['forex', 'crypto', 'stocks', 'indicators'].forEach((market) => preview.append(translatedElement('span', 'preview-pill', `markets.${market}.label`)));
   } else if (index === 4) {
-    preview.append(element('span', 'preview-clock', '09:00 — 22:00'), element('span', 'preview-days', 'أحد  اثنين  ثلاثاء  أربعاء  خميس'));
+    preview.append(element('span', 'preview-clock', '09:00 — 22:00'), translatedElement('span', 'preview-days', 'benefits.days'));
   } else {
     const phone = element('span', 'preview-phone');
     phone.append(element('i'), element('i'), element('i'));
@@ -45,12 +51,12 @@ function createBenefitPreview(index) {
 
 function renderContent() {
   const workflowList = document.querySelector('#workflow-list');
-  workflow.forEach(([number, title, copy]) => {
+  workflow.forEach(([number, titleKey, copyKey]) => {
     const item = document.createElement('li');
     item.className = 'workflow-item';
     const numberNode = element('span', '', number);
     const content = element('div');
-    content.append(element('h3', '', title), element('p', '', copy));
+    content.append(translatedElement('h3', '', titleKey), translatedElement('p', '', copyKey));
     const preview = element('div', 'workflow-item__preview');
     preview.setAttribute('aria-hidden', 'true');
     preview.append(element('i'), element('i'), element('i'));
@@ -60,7 +66,7 @@ function renderContent() {
   });
 
   const benefitsGrid = document.querySelector('#benefits-grid');
-  benefits.forEach(([icon, title, copy], index) => {
+  benefits.forEach(([icon, titleKey, copyKey], index) => {
     const card = document.createElement('article');
     card.className = 'benefit-card';
     const top = element('div', 'benefit-top');
@@ -68,63 +74,8 @@ function renderContent() {
     iconNode.dataset.lucide = icon;
     iconNode.setAttribute('aria-hidden', 'true');
     top.append(iconNode, element('span', '', `0${index + 1}`));
-    card.append(top, element('h3', '', title), element('p', '', copy), createBenefitPreview(index));
+    card.append(top, translatedElement('h3', '', titleKey), translatedElement('p', '', copyKey), createBenefitPreview(index));
     benefitsGrid.append(card);
-  });
-
-  const marketIcons = ['landmark', 'bitcoin', 'chart-no-axes-combined', 'chart-spline'];
-  const marketDescriptions = [
-    'يمكن تنظيم قراءة أزواج العملات ضمن إعدادات يحددها المستخدم. يجب التحقق من ملاءمة كل إعداد قبل استخدامه.',
-    'تساعد الواجهة على ترتيب متابعة الأصول الرقمية المتقلبة، مع ضرورة استخدام إدارة مخاطر صارمة.',
-    'يمكن مراجعة إشارات الأسهم ضمن ساعات السوق والسيولة المتاحة بعد اختبار الإعداد المناسب.',
-    'تتيح البنية متابعة مؤشرات السوق بصريًا عبر أطر زمنية مختلفة وفق خطة المستخدم.'
-  ];
-  const marketLabels = ['FOREX / REVIEW', 'CRYPTO / REVIEW', 'STOCKS / REVIEW', 'INDICES / REVIEW'];
-  const marketsList = document.querySelector('#markets-list');
-  const marketDetail = document.querySelector('#market-detail');
-  const previewLabel = document.querySelector('#market-preview-label');
-  const marketButtons = [];
-  const activateMarket = (item, index, focus = false) => {
-    marketButtons.forEach((button) => {
-      const active = button === item;
-      button.classList.toggle('is-active', active);
-      button.setAttribute('aria-selected', String(active));
-      button.tabIndex = active ? 0 : -1;
-    });
-    document.querySelector('#market-detail-title').textContent = siteConfig.markets[index];
-    document.querySelector('#market-detail-copy').textContent = marketDescriptions[index];
-    previewLabel.textContent = marketLabels[index];
-    marketDetail.setAttribute('aria-labelledby', item.id);
-    marketDetail.dataset.market = String(index);
-    if (focus) item.focus();
-  };
-  siteConfig.markets.forEach((market, index) => {
-    const item = document.createElement('button');
-    item.type = 'button';
-    item.id = `market-tab-${index}`;
-    item.setAttribute('role', 'tab');
-    item.setAttribute('aria-selected', String(index === 0));
-    item.setAttribute('aria-controls', 'market-detail');
-    item.tabIndex = index === 0 ? 0 : -1;
-    item.classList.toggle('is-active', index === 0);
-    const top = element('span');
-    const iconNode = element('i');
-    iconNode.dataset.lucide = marketIcons[index];
-    iconNode.setAttribute('aria-hidden', 'true');
-    top.append(iconNode, element('b', '', `0${index + 1}`));
-    item.append(top, element('strong', '', market), element('small', '', 'عرض التفاصيل'));
-    item.addEventListener('click', () => activateMarket(item, index));
-    item.addEventListener('keydown', (event) => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      event.preventDefault();
-      let nextIndex = index;
-      if (event.key === 'Home') nextIndex = 0;
-      else if (event.key === 'End') nextIndex = marketButtons.length - 1;
-      else nextIndex = (index + (event.key === 'ArrowLeft' ? 1 : -1) + marketButtons.length) % marketButtons.length;
-      activateMarket(marketButtons[nextIndex], nextIndex, true);
-    });
-    marketButtons.push(item);
-    marketsList.append(item);
   });
 
   renderPricing(document.querySelector('#pricing-grid'));
@@ -159,7 +110,7 @@ function initNavigation() {
   const setBackgroundInert = (inert) => backgroundRegions.forEach((region) => { region.inert = inert; });
   const closeMenu = (restoreFocus = false) => {
     toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-label', 'فتح قائمة التنقل');
+    toggle.setAttribute('aria-label', t('nav.menuOpen'));
     nav.classList.remove('is-open');
     document.body.classList.remove('menu-open');
     setBackgroundInert(false);
@@ -171,7 +122,7 @@ function initNavigation() {
     if (open) closeMenu();
     else {
       toggle.setAttribute('aria-expanded', 'true');
-      toggle.setAttribute('aria-label', 'إغلاق قائمة التنقل');
+      toggle.setAttribute('aria-label', t('nav.menuClose'));
       nav.classList.add('is-open');
       document.body.classList.add('menu-open');
       setBackgroundInert(true);
@@ -207,16 +158,16 @@ function initNavigation() {
     });
   }, { rootMargin: '-24% 0px -68%', threshold: 0 });
   sections.forEach((section) => observer.observe(section));
+  const unsubscribe = subscribeLanguage(() => {
+    toggle.setAttribute('aria-label', t(toggle.getAttribute('aria-expanded') === 'true' ? 'nav.menuClose' : 'nav.menuOpen'));
+  });
+  return unsubscribe;
 }
 
 function initDemoWalkthrough() {
   const buttons = [...document.querySelectorAll('[data-demo-step]')];
   const copy = document.querySelector('#demo-step-copy');
-  const steps = {
-    signal: 'تظهر منطقة المتابعة بصريًا لتبدأ منها المراجعة، لا لتنفذ الصفقة تلقائيًا.',
-    context: 'راجع اتجاه السوق والإطار الزمني ونقطة الإلغاء قبل تقييم الإشارة.',
-    alert: 'بعد ضبط شروطك في TradingView، يمكن أن يصلك التنبيه على الهاتف لتعود إلى الرسم.'
-  };
+  const steps = { signal: 'demo.signalCopy', context: 'demo.contextCopy', alert: 'demo.alertCopy' };
 
   const activate = (button) => {
     buttons.forEach((candidate) => {
@@ -224,7 +175,7 @@ function initDemoWalkthrough() {
       candidate.setAttribute('aria-selected', String(active));
       candidate.setAttribute('tabindex', active ? '0' : '-1');
     });
-    copy.textContent = steps[button.dataset.demoStep];
+    translateElement(copy, steps[button.dataset.demoStep]);
     copy.setAttribute('aria-labelledby', button.id);
   };
 
@@ -248,6 +199,7 @@ function initDemoWalkthrough() {
     });
   });
   copy.setAttribute('aria-labelledby', buttons[0].id);
+  return subscribeLanguage(() => translateElement(copy, steps[document.querySelector('[data-demo-step][aria-selected="true"]')?.dataset.demoStep || 'signal']));
 }
 
 function initScrollUi() {
@@ -279,12 +231,14 @@ async function startEnhancements() {
 }
 
 renderContent();
+const cleanupLanguage = initLanguageSystem();
 const cleanupTheme = initThemeToggle();
 const cleanupChart = initTradingViewHeroChart(document.querySelector('[data-tradingview-hero]'));
-initNavigation();
-initContactLinks();
+const cleanupNavigation = initNavigation();
+const cleanupContact = initContactLinks();
 initMobileCta();
-initDemoWalkthrough();
+const cleanupDemo = initDemoWalkthrough();
+const cleanupMarkets = renderMarketExplorer(document.querySelector('#market-explorer'));
 initScrollUi();
 initAnalytics();
 document.querySelectorAll('[data-track]').forEach((link) => link.addEventListener('click', () => trackEvent('cta_click', { source_section: link.dataset.track })));
@@ -295,4 +249,9 @@ else window.addEventListener('load', startEnhancements, { once: true });
 window.addEventListener('pagehide', () => {
   cleanupTheme();
   cleanupChart();
+  cleanupLanguage();
+  cleanupNavigation();
+  cleanupContact?.();
+  cleanupDemo();
+  cleanupMarkets();
 }, { once: true });

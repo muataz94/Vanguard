@@ -1,16 +1,20 @@
 import { siteConfig } from '../config.js';
 import { trackEvent } from '../analytics.js';
+import { getLanguage, subscribeLanguage, t, translateElement } from '../i18n.js';
+
+const linkOptions = new WeakMap();
+const initializedLinks = new WeakSet();
 
 export function isWhatsAppConfigured() {
   return typeof siteConfig.contact.whatsappNumber === 'string'
     && /^\d{10,15}$/.test(siteConfig.contact.whatsappNumber);
 }
 
-export function createWhatsAppUrl(message = siteConfig.contact.defaultMessage) {
+export function createWhatsAppUrl(message = t('contact.defaultMessage')) {
   if (!isWhatsAppConfigured()) return null;
   const safeMessage = typeof message === 'string' && message.length <= 1200
     ? message
-    : siteConfig.contact.defaultMessage;
+    : t('contact.defaultMessage');
   const url = new URL(`https://wa.me/${siteConfig.contact.whatsappNumber}`);
   url.searchParams.set('text', safeMessage);
   return url.toString();
@@ -18,8 +22,12 @@ export function createWhatsAppUrl(message = siteConfig.contact.defaultMessage) {
 
 export function buildPlanMessage(plan) {
   const configuredPlan = siteConfig.pricing.find((candidate) => candidate.id === plan?.id);
-  if (!configuredPlan) return siteConfig.contact.defaultMessage;
-  return `مرحباً، أرغب بالاشتراك في ${siteConfig.brand.nameAr}.\n\nالباقة: ${configuredPlan.labelAr}\nالمدة: ${configuredPlan.months} ${configuredPlan.months === 1 ? 'شهر' : 'أشهر'}\nالسعر: ${configuredPlan.priceUsd} دولار\n\nيرجى تزويدي بتفاصيل الدفع والتفعيل.`;
+  if (!configuredPlan) return t('contact.defaultMessage');
+  const planLabel = t(`pricing.plan.${configuredPlan.id}`);
+  if (getLanguage() === 'en') {
+    return `Hello, I would like to subscribe to ${siteConfig.brand.nameEn}.\n\nPlan: ${planLabel}\nDuration: ${configuredPlan.months} ${configuredPlan.months === 1 ? 'month' : 'months'}\nPrice: $${configuredPlan.priceUsd}\n\nPlease send me the payment and activation details.`;
+  }
+  return `مرحباً، أرغب بالاشتراك في ${siteConfig.brand.nameAr}.\n\nالباقة: ${planLabel}\nالمدة: ${configuredPlan.months} ${configuredPlan.months === 1 ? 'شهر' : 'أشهر'}\nالسعر: ${configuredPlan.priceUsd} دولار\n\nيرجى تزويدي بتفاصيل الدفع والتفعيل.`;
 }
 
 export function getConfiguredEmail() {
@@ -28,7 +36,7 @@ export function getConfiguredEmail() {
   return email;
 }
 
-export function getContactDestination(message = siteConfig.contact.defaultMessage) {
+export function getContactDestination(message = t('contact.defaultMessage')) {
   const whatsappUrl = createWhatsAppUrl(message);
   if (whatsappUrl) return { kind: 'whatsapp', url: whatsappUrl };
   const email = getConfiguredEmail();
@@ -46,11 +54,11 @@ function element(tag, className, text) {
 function copyText(value, status) {
   if (navigator.clipboard?.writeText) {
     navigator.clipboard.writeText(value)
-      .then(() => { status.textContent = 'تم نسخ البريد الإلكتروني.'; })
-      .catch(() => { status.textContent = 'تعذر النسخ. حدّد البريد وانسخه يدوياً.'; });
+      .then(() => { status.textContent = t('contact.copied'); })
+      .catch(() => { status.textContent = t('contact.copyFailed'); });
     return;
   }
-  status.textContent = 'حدّد البريد الإلكتروني وانسخه يدوياً.';
+  status.textContent = t('contact.copyManual');
 }
 
 export function ensureContactDialog() {
@@ -65,26 +73,24 @@ export function ensureContactDialog() {
   accent.setAttribute('aria-hidden', 'true');
   const close = element('button', 'contact-dialog__close', '×');
   close.type = 'button';
-  close.setAttribute('aria-label', 'إغلاق نافذة التواصل');
-  const eyebrow = element('p', 'section-index', 'تواصل مباشر');
-  const title = element('h2', '', 'كيف تفضّل التواصل؟');
+  translateElement(close, 'contact.dialogClose', 'aria-label');
+  const eyebrow = translateElement(element('p', 'section-index'), 'contact.eyebrow');
+  const title = translateElement(element('h2'), 'contact.title');
   title.id = 'contact-dialog-title';
-  const copy = element('p', 'contact-dialog__copy', 'اختر القناة المناسبة. لن يطلب منك الموقع أي بيانات دفع أو معلومات مالية.');
+  const copy = translateElement(element('p', 'contact-dialog__copy'), 'contact.copy');
   const selection = element('p', 'contact-dialog__selection');
   selection.hidden = true;
   const actions = element('div', 'contact-dialog__actions');
-  const email = element('a', 'button button--primary', 'إرسال بريد إلكتروني');
+  const email = translateElement(element('a', 'button button--primary'), 'contact.email');
   email.dataset.contactEmail = '';
-  const copyEmail = element('button', 'button button--secondary', 'نسخ البريد');
+  const copyEmail = translateElement(element('button', 'button button--secondary'), 'contact.copyEmail');
   copyEmail.type = 'button';
   const status = element('p', 'contact-dialog__status');
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   const note = element('p', 'contact-dialog__note');
   const configuredEmail = getConfiguredEmail();
-  note.textContent = configuredEmail
-    ? 'يمكنك أيضًا العودة واختيار إحدى الباقات لإرسال تفاصيلها تلقائيًا.'
-    : 'استخدم قناة التواصل الرسمية الظاهرة في الصفحة للاستفسار عن التفعيل.';
+  translateElement(note, configuredEmail ? 'contact.noteEmail' : 'contact.noteNoEmail');
 
   close.addEventListener('click', () => dialog.close());
   copyEmail.addEventListener('click', () => copyText(configuredEmail, status));
@@ -96,13 +102,15 @@ export function ensureContactDialog() {
   return dialog;
 }
 
-function openContactFallback({ message = siteConfig.contact.defaultMessage, sourceSection, planId } = {}) {
+function openContactFallback({ message = t('contact.defaultMessage'), sourceSection, planId } = {}) {
   const configuredEmail = getConfiguredEmail();
   if (!configuredEmail) return;
   const dialog = ensureContactDialog();
   const selection = dialog.querySelector('.contact-dialog__selection');
   const email = dialog.querySelector('[data-contact-email]');
-  const subject = planId ? `طلب باقة ${siteConfig.brand.nameAr}` : `استفسار عن ${siteConfig.brand.nameAr}`;
+  const subject = getLanguage() === 'en'
+    ? (planId ? `Vanguard Indicator plan request` : `Vanguard Indicator enquiry`)
+    : (planId ? `طلب باقة ${siteConfig.brand.nameAr}` : `استفسار عن ${siteConfig.brand.nameAr}`);
   const mailUrl = new URL(`mailto:${configuredEmail}`);
   mailUrl.searchParams.set('subject', subject);
   mailUrl.searchParams.set('body', message);
@@ -114,8 +122,14 @@ function openContactFallback({ message = siteConfig.contact.defaultMessage, sour
   trackEvent('cta_click', { source_section: sourceSection, plan_id: planId });
 }
 
-export function configureContactLink(link, { message, sourceSection, planId } = {}) {
-  const destination = getContactDestination(message);
+function resolveMessage(options = {}) {
+  if (options.planId) return buildPlanMessage({ id: options.planId });
+  return options.message || t('contact.defaultMessage');
+}
+
+function updateContactLink(link) {
+  const options = linkOptions.get(link) || {};
+  const destination = getContactDestination(resolveMessage(options));
   if (destination.kind !== 'whatsapp') {
     link.removeAttribute('target');
     link.removeAttribute('rel');
@@ -123,26 +137,40 @@ export function configureContactLink(link, { message, sourceSection, planId } = 
       link.removeAttribute('aria-disabled');
       link.setAttribute('href', '#contact-dialog');
       link.removeAttribute('tabindex');
-      link.title = 'فتح خيارات التواصل';
-      link.addEventListener('click', (event) => {
-        event.preventDefault();
-        openContactFallback({ message, sourceSection, planId });
-      });
+      link.title = t('contact.openOptions');
     } else {
       link.removeAttribute('href');
       link.setAttribute('aria-disabled', 'true');
       link.setAttribute('tabindex', '-1');
-      link.title = 'قناة التواصل غير متاحة مؤقتًا';
+      link.title = t('contact.unavailable');
     }
     return;
   }
   link.href = destination.url;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
-  link.addEventListener('click', () => trackEvent('whatsapp_click', {
-    source_section: sourceSection,
-    plan_id: planId
-  }));
+  link.removeAttribute('aria-disabled');
+  link.removeAttribute('tabindex');
+  link.removeAttribute('title');
+}
+
+export function configureContactLink(link, options = {}) {
+  linkOptions.set(link, options);
+  link.dataset.contactLink = '';
+  if (!initializedLinks.has(link)) {
+    link.addEventListener('click', (event) => {
+      const current = linkOptions.get(link) || {};
+      const destination = getContactDestination(resolveMessage(current));
+      if (destination.kind === 'whatsapp') {
+        trackEvent('whatsapp_click', { source_section: current.sourceSection, plan_id: current.planId });
+        return;
+      }
+      event.preventDefault();
+      if (destination.kind === 'email') openContactFallback({ message: resolveMessage(current), ...current });
+    });
+    initializedLinks.add(link);
+  }
+  updateContactLink(link);
 }
 
 export function initContactLinks() {
@@ -150,4 +178,6 @@ export function initContactLinks() {
   document.querySelectorAll('[data-whatsapp]').forEach((link) => configureContactLink(link, {
     sourceSection: link.dataset.source
   }));
+  const refresh = () => document.querySelectorAll('[data-contact-link]').forEach(updateContactLink);
+  return subscribeLanguage(refresh);
 }

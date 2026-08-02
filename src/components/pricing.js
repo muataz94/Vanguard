@@ -1,6 +1,7 @@
 import { siteConfig } from '../config.js';
-import { buildPlanMessage, configureContactLink } from './contact.js';
+import { configureContactLink } from './contact.js';
 import { trackEvent } from '../analytics.js';
+import { translateElement } from '../i18n.js';
 
 function createElement(tag, className, text) {
   const node = document.createElement(tag);
@@ -15,28 +16,28 @@ export function renderPricing(container) {
   siteConfig.pricing.forEach((plan) => {
     const card = createElement('article', `price-card${plan.id === 'annual' ? ' price-card--featured' : ''}`);
     card.dataset.plan = plan.id;
-    card.append(createElement('p', 'eyebrow', plan.enabled ? 'متاح للتفعيل اليدوي' : 'غير متاح حالياً'));
-    card.append(createElement('h3', '', plan.labelAr));
+    card.append(translateElement(createElement('p', 'eyebrow'), plan.enabled ? 'pricing.available' : 'pricing.unavailable'));
+    card.append(translateElement(createElement('h3'), `pricing.plan.${plan.id}`));
     const price = createElement('p', 'price');
     const amount = createElement('strong', '', `$${plan.priceUsd}`);
     amount.dir = 'ltr';
-    price.append(amount, createElement('span', '', 'إجمالي الباقة بالدولار الأمريكي'));
+    price.append(amount, translateElement(createElement('span'), 'pricing.total'));
     card.append(price);
 
     const list = createElement('ul', 'check-list');
-    ['المؤشر الرئيسي', 'مؤشرا Smart Money والتأكيد', 'إرشادات الإعداد والتفعيل', 'قناة دعم'].forEach((feature) => {
+    ['pricing.feature.1', 'pricing.feature.2', 'pricing.feature.3', 'pricing.feature.4'].forEach((featureKey) => {
       const item = createElement('li');
       const icon = createElement('i');
       icon.dataset.lucide = 'check';
       icon.setAttribute('aria-hidden', 'true');
-      item.append(icon, createElement('span', '', feature));
+      item.append(icon, translateElement(createElement('span'), featureKey));
       list.append(item);
     });
     card.append(list);
 
-    const action = createElement(plan.enabled ? 'a' : 'button', 'button button--primary price-action', plan.enabled ? 'اطلب تفاصيل التفعيل' : 'غير متاح حالياً');
+    const action = translateElement(createElement(plan.enabled ? 'a' : 'button', 'button button--primary price-action'), plan.enabled ? 'pricing.action' : 'pricing.unavailable');
     if (plan.enabled) {
-      configureContactLink(action, { message: buildPlanMessage(plan), sourceSection: 'pricing', planId: plan.id });
+      configureContactLink(action, { sourceSection: 'pricing', planId: plan.id });
       action.addEventListener('click', () => trackEvent('pricing_plan_click', { plan_id: plan.id, source_section: 'pricing' }));
     } else {
       action.disabled = true;

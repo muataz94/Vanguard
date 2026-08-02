@@ -1,5 +1,6 @@
 const storageKey = 'vanguard-theme';
 const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+import { subscribeLanguage, t } from '../i18n.js';
 
 function readStoredTheme() {
   try {
@@ -27,8 +28,8 @@ export function initThemeToggle() {
   const syncToggle = () => {
     const isDark = document.documentElement.dataset.theme === 'dark';
     toggle.setAttribute('aria-pressed', String(isDark));
-    toggle.setAttribute('aria-label', isDark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن');
-    toggle.title = isDark ? 'الوضع الفاتح' : 'الوضع الداكن';
+    toggle.setAttribute('aria-label', t(isDark ? 'theme.enableLight' : 'theme.enableDark'));
+    toggle.title = t(isDark ? 'theme.light' : 'theme.dark');
   };
   const onToggle = () => {
     const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
@@ -44,10 +45,12 @@ export function initThemeToggle() {
 
   toggle.addEventListener('click', onToggle);
   colorScheme.addEventListener('change', onSystemChange);
+  const unsubscribeLanguage = subscribeLanguage(syncToggle);
   syncToggle();
 
   return () => {
     toggle.removeEventListener('click', onToggle);
     colorScheme.removeEventListener('change', onSystemChange);
+    unsubscribeLanguage();
   };
 }
