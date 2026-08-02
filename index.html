@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-4AwSWWaqZYXQHDLnbFNUjQW/GvNpGqqwGB3ptRut5aQ='; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-4AwSWWaqZYXQHDLnbFNUjQW/GvNpGqqwGB3ptRut5aQ=' https://s3.tradingview.com; style-src 'self' 'unsafe-hashes' 'sha256-JyHF32z4Ou/Ujas95CX3WgBqlTt7Dxzo/fQG5/5oBo8=' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src https://s.tradingview.com https://www.tradingview.com https://www.tradingview-widget.com; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مؤشر فانگارد | أداة تحليل وتنبيهات لمنصة TradingView</title>
     <meta name="description" content="مؤشر فانگارد أداة تحليلية لمنصة TradingView تساعد على تنظيم قراءة الإشارات ومناطق المتابعة والتنبيهات ضمن سير عمل واضح.">
@@ -70,21 +70,44 @@
             <p class="risk-note"><strong>تنبيه مخاطر:</strong> فانگارد أداة تحليلية مساعدة ولا يضمن الربح. التداول قد يؤدي إلى خسارة جزء أو كامل رأس المال.</p>
           </div>
 
-          <div class="hero-chart" data-vanguard-chart-demo data-demo-mode="poster" aria-label="عرض توضيحي لمؤشر فانگارد على رسم XAUUSD داخل TradingView">
-            <div class="hero-chart__toolbar">
-              <span class="hero-chart__brand"><i aria-hidden="true"></i> VANGUARD INDICATOR</span>
-              <span class="hero-chart__market" dir="ltr"><b>XAUUSD</b><small>1H</small></span>
+          <section class="hero-chart" data-tradingview-hero aria-labelledby="hero-chart-title" aria-describedby="hero-chart-clarification hero-chart-risk">
+            <div class="hero-chart__heading">
+              <div>
+                <p>رسم السوق التفاعلي</p>
+                <h2 id="hero-chart-title">حركة الذهب مقابل الدولار</h2>
+              </div>
+              <span dir="ltr"><b>XAUUSD</b><small>1m</small></span>
             </div>
-            <video class="hero-chart__media" data-vanguard-demo-video autoplay muted loop playsinline preload="metadata" poster="./media/vanguard-chart-poster.webp" aria-label="محاكاة توضيحية لواجهة مؤشر فانگارد وليست بيانات سوق حية">
-              <p>متصفحك لا يدعم عرض الفيديو. تظهر صورة توضيحية ثابتة لمؤشر فانگارد.</p>
-            </video>
-            <template data-vanguard-video-sources>
-              <source data-src="./media/vanguard-chart-demo.webm" type="video/webm">
-              <source data-src="./media/vanguard-chart-demo.mp4" type="video/mp4">
-            </template>
-            <span class="hero-chart__badge"><i aria-hidden="true"></i> عرض توضيحي</span>
-            <p class="hero-chart__disclaimer">ليست بيانات سوق حية ولا توصية مالية</p>
-          </div>
+
+            <div class="hero-chart__viewport" data-tradingview-viewport>
+              <div class="hero-chart__skeleton" data-tradingview-loading role="status" aria-live="polite">
+                <span>جارٍ تحميل الرسم التفاعلي…</span>
+                <i aria-hidden="true"></i><i aria-hidden="true"></i><i aria-hidden="true"></i>
+              </div>
+
+              <div class="tradingview-widget-container hero-chart__widget" data-tradingview-widget>
+                <div class="tradingview-widget-container__widget" data-tradingview-mount></div>
+                <div class="tradingview-widget-copyright">
+                  <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener noreferrer nofollow" target="_blank"><span class="blue-text">XAUUSD chart</span></a><span class="trademark"> by TradingView</span>
+                </div>
+              </div>
+
+              <div class="hero-chart__fallback" data-tradingview-error role="status" hidden>
+                <strong>تعذر تحميل الرسم التفاعلي حالياً.</strong>
+                <p>يمكنك متابعة السوق وفتح مؤشر Vanguard مباشرة على TradingView.</p>
+                <a href="https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/" target="_blank" rel="noopener noreferrer">فتح المؤشر على TradingView</a>
+              </div>
+            </div>
+
+            <div class="hero-chart__footer">
+              <p id="hero-chart-clarification">الرسم التفاعلي لعرض حركة السوق — افتح المؤشر على TradingView لعرض إشارات Vanguard.</p>
+              <a class="hero-chart__action" href="https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/" target="_blank" rel="noopener noreferrer">
+                افتح مؤشر Vanguard على TradingView
+                <i data-lucide="external-link" aria-hidden="true"></i>
+              </a>
+              <p id="hero-chart-risk" class="hero-chart__risk">أداة تحليلية مساعدة وليست توصية مالية أو ضماناً للنتائج.</p>
+            </div>
+          </section>
         </div>
         <div class="hero-ticker" aria-hidden="true"><span>FOREX</span><i></i><span>CRYPTO</span><i></i><span>STOCKS</span><i></i><span>INDICES</span><i></i><span>TRADINGVIEW</span></div>
       </section>

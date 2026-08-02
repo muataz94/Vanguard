@@ -1,5 +1,5 @@
 import './styles.css';
-import { createIcons, ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } from 'lucide';
+import { createIcons, ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, ExternalLink, Landmark, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } from 'lucide';
 import { siteConfig, validateConfig } from './config.js';
 import { benefits, faqs, workflow } from './content.js';
 import { initAnalytics, trackEvent } from './analytics.js';
@@ -9,7 +9,7 @@ import { renderEvidence } from './components/evidence.js';
 import { initContactLinks, isWhatsAppConfigured } from './components/contact.js';
 import { initMobileCta } from './components/mobile-cta.js';
 import { initThemeToggle } from './components/theme.js';
-import { initVanguardChartDemo } from './components/vanguard-chart-demo.js';
+import { initTradingViewHeroChart } from './components/tradingview-hero-chart.js';
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -142,7 +142,7 @@ function renderContent() {
     contactNode.hidden = true;
   }
 
-  createIcons({ icons: { ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } });
+  createIcons({ icons: { ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, ExternalLink, Landmark, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } });
 }
 
 function initNavigation() {
@@ -287,7 +287,7 @@ async function startEnhancements() {
 
 renderContent();
 const cleanupTheme = initThemeToggle();
-const cleanupChart = initVanguardChartDemo(document.querySelector('[data-vanguard-chart-demo]'));
+const cleanupChart = initTradingViewHeroChart(document.querySelector('[data-tradingview-hero]'));
 initNavigation();
 initContactLinks();
 initMobileCta();

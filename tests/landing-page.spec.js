@@ -6,6 +6,28 @@ const targetViewports = [
   [320, 568], [360, 800], [390, 844], [430, 932], [768, 1024],
   [1024, 768], [1280, 800], [1366, 768], [1440, 900], [1920, 1080]
 ];
+const tradingViewScriptUrl = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+const mockedTradingViewPages = new WeakSet();
+
+async function mockTradingView(page) {
+  if (mockedTradingViewPages.has(page)) return;
+  mockedTradingViewPages.add(page);
+  await page.route(tradingViewScriptUrl, async (route) => {
+    await route.fulfill({
+      contentType: 'application/javascript',
+      body: `(() => {
+        const script = document.currentScript;
+        const config = JSON.parse(script.textContent);
+        window.__tradingViewConfigs = [...(window.__tradingViewConfigs || []), config];
+        const iframe = document.createElement('iframe');
+        iframe.title = 'Mock TradingView advanced chart';
+        iframe.src = 'about:blank';
+        script.parentElement.insertBefore(iframe, script);
+        setTimeout(() => iframe.dispatchEvent(new Event('load')), 0);
+      })();`
+    });
+  });
+}
 
 function watchPage(page) {
   const errors = [];
@@ -17,6 +39,7 @@ function watchPage(page) {
 }
 
 async function openLanding(page) {
+  await mockTradingView(page);
   const response = await page.goto('/Vanguard/', { waitUntil: 'networkidle' });
   expect(response?.status()).toBe(200);
   await page.waitForTimeout(700);
@@ -123,12 +146,9 @@ test('reduced motion renders complete static content without animated WebGL', as
   await openLanding(page);
   await expect(page.locator('canvas[data-vanguard-abstract]')).toHaveCount(0);
   await expect(page.locator('html')).toHaveAttribute('data-motion-mode', 'static');
-  const demo = page.locator('[data-vanguard-chart-demo]');
-  const video = page.locator('[data-vanguard-demo-video]');
-  await expect(video).toBeVisible();
-  await expect(demo).toHaveAttribute('data-playback-state', 'poster');
-  expect(await video.evaluate((node) => node.paused)).toBe(true);
-  await expect(video).toHaveAttribute('poster', /vanguard-chart-poster\.webp$/);
+  await expect(page.locator('[data-tradingview-hero]')).toHaveAttribute('data-widget-state', 'ready');
+  await expect(page.locator('[data-tradingview-widget] iframe')).toHaveCount(1);
+  await expect(page.locator('video')).toHaveCount(0);
   await expect(page.locator('.abstract-stage__fallback')).toBeVisible();
   const states = await page.locator('.motion-group, .abstract-stage').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
   expect(states.every(({ opacity, transform }) => opacity === '1' && transform === 'none')).toBeTruthy();
@@ -152,30 +172,51 @@ test('theme follows the system, toggles accessibly and persists', async ({ brows
   await context.close();
 });
 
-test('hero demo uses the authentic poster fallback without requesting missing videos', async ({ page }) => {
+test('hero uses the official TradingView configuration and reinitializes once per theme', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const diagnostics = watchPage(page);
   await openLanding(page);
-  const demo = page.locator('[data-vanguard-chart-demo]');
-  const video = page.locator('[data-vanguard-demo-video]');
-  await expect(demo).toHaveAttribute('data-demo-mode', 'poster');
-  await expect(demo).toHaveAttribute('data-playback-state', 'poster');
-  await expect(video).toHaveAttribute('autoplay', '');
-  await expect(video).toHaveAttribute('muted', '');
-  await expect(video).toHaveAttribute('loop', '');
-  await expect(video).toHaveAttribute('playsinline', '');
-  await expect(video).toHaveAttribute('preload', 'metadata');
-  await expect(video.locator('source')).toHaveCount(0);
-  const sourceOrder = await page.locator('[data-vanguard-video-sources]').evaluate((template) => [...template.content.querySelectorAll('source')].map((source) => [source.dataset.src, source.type]));
-  expect(sourceOrder).toEqual([
-    ['./media/vanguard-chart-demo.webm', 'video/webm'],
-    ['./media/vanguard-chart-demo.mp4', 'video/mp4']
-  ]);
-  await expect(page.locator('.hero-chart__badge')).toContainText('عرض توضيحي');
-  await expect(page.locator('.hero-chart__disclaimer')).toHaveText('ليست بيانات سوق حية ولا توصية مالية');
-  await expect(page.locator('canvas[data-vanguard-chart-canvas]')).toHaveCount(0);
+  const chart = page.locator('[data-tradingview-hero]');
+  await expect(chart).toHaveAttribute('data-widget-state', 'ready');
+  await expect(page.locator('[data-tradingview-widget] iframe')).toHaveCount(1);
+  await expect(page.locator('[data-tradingview-widget] script')).toHaveCount(1);
+  const config = await page.evaluate(() => window.__tradingViewConfigs[0]);
+  expect(config).toEqual(expect.objectContaining({
+    autosize: true,
+    symbol: 'OANDA:XAUUSD',
+    interval: '1',
+    timezone: 'Etc/UTC',
+    style: '1',
+    locale: 'en',
+    withdateranges: true,
+    allow_symbol_change: false,
+    save_image: false,
+    calendar: false,
+    hide_side_toolbar: false,
+    hide_top_toolbar: false,
+    support_host: 'https://www.tradingview.com'
+  }));
+  expect(config.studies).toBeUndefined();
+  const initialTheme = await chart.getAttribute('data-widget-theme');
+  await page.locator('[data-theme-toggle]').click();
+  await expect(chart).not.toHaveAttribute('data-widget-theme', initialTheme);
+  await expect(chart).toHaveAttribute('data-widget-init-count', '2');
+  await expect(page.locator('[data-tradingview-widget] iframe')).toHaveCount(1);
+  await expect(page.locator('[data-tradingview-widget] script')).toHaveCount(1);
+  await expect(page.locator('.hero-chart__action')).toHaveAttribute('href', 'https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/');
+  await expect(page.locator('#hero-chart-clarification')).toHaveText('الرسم التفاعلي لعرض حركة السوق — افتح المؤشر على TradingView لعرض إشارات Vanguard.');
+  await expect(page.locator('#hero-chart-risk')).toHaveText('أداة تحليلية مساعدة وليست توصية مالية أو ضماناً للنتائج.');
   expect(diagnostics.errors).toEqual([]);
   expect(diagnostics.failures).toEqual([]);
+});
+
+test('hero chart exposes a useful fallback when TradingView is unavailable', async ({ page }) => {
+  await page.route(tradingViewScriptUrl, (route) => route.abort('failed'));
+  await page.goto('/Vanguard/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('[data-tradingview-hero]')).toHaveAttribute('data-widget-state', 'error');
+  await expect(page.locator('[data-tradingview-error]')).toBeVisible();
+  await expect(page.locator('[data-tradingview-error] a')).toHaveAttribute('href', 'https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/');
+  await expect(page.locator('h1')).toBeVisible();
 });
 
 for (const [label, width, height, maxRatio] of [
