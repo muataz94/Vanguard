@@ -212,13 +212,10 @@ function initNavigation() {
 function initDemoWalkthrough() {
   const buttons = [...document.querySelectorAll('[data-demo-step]')];
   const copy = document.querySelector('#demo-step-copy');
-  const terminal = document.querySelector('.abstract-stage');
-  const status = terminal.querySelector('[data-demo-status]');
-  const confirmation = terminal.querySelector('[data-demo-confirm]');
   const steps = {
-    signal: ['تظهر منطقة المتابعة بصريًا لتبدأ منها المراجعة، لا لتنفذ الصفقة تلقائيًا.', 'منطقة متابعة', 'قيد المراجعة'],
-    context: ['راجع اتجاه السوق والإطار الزمني ونقطة الإلغاء قبل تقييم الإشارة.', 'السياق مفتوح', 'يتطلب تحققًا'],
-    alert: ['بعد ضبط شروطك في TradingView، يمكن أن يصلك التنبيه على الهاتف لتعود إلى الرسم.', 'تنبيه مضبوط', 'قرار المستخدم']
+    signal: 'تظهر منطقة المتابعة بصريًا لتبدأ منها المراجعة، لا لتنفذ الصفقة تلقائيًا.',
+    context: 'راجع اتجاه السوق والإطار الزمني ونقطة الإلغاء قبل تقييم الإشارة.',
+    alert: 'بعد ضبط شروطك في TradingView، يمكن أن يصلك التنبيه على الهاتف لتعود إلى الرسم.'
   };
 
   const activate = (button) => {
@@ -227,12 +224,8 @@ function initDemoWalkthrough() {
       candidate.setAttribute('aria-selected', String(active));
       candidate.setAttribute('tabindex', active ? '0' : '-1');
     });
-    const [message, state, confirm] = steps[button.dataset.demoStep];
-    copy.textContent = message;
+    copy.textContent = steps[button.dataset.demoStep];
     copy.setAttribute('aria-labelledby', button.id);
-    status.textContent = state;
-    confirmation.textContent = confirm;
-    terminal.dataset.mode = button.dataset.demoStep;
   };
 
   buttons.forEach((button, index) => {

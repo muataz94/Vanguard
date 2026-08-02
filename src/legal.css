@@ -9,10 +9,10 @@
 .legal-notice { padding: 18px 20px; border: 1px solid rgba(71,176,123,.35); border-radius: 10px; background: rgba(71,176,123,.07); color: var(--text-secondary); }
 .legal-content { max-width: 850px; }
 .legal-content section { padding-block: 26px; border-block-end: 1px solid var(--border-subtle); }
-.legal-content h2 { font-size: 1.35rem; }.legal-content h3 { font-size: 1rem; }
+.legal-content h2 { font-size: clamp(1.5rem, 2vw, 1.85rem); }.legal-content h3 { font-size: 1.25rem; }
 .legal-content p, .legal-content li { color: var(--text-secondary); }
 .legal-content a { color: var(--green-300); text-decoration: underline; text-underline-offset: 3px; }
 .legal-content li { margin-block: 8px; }
 .legal-risk-box { padding: 24px; border-inline-start: 3px solid var(--warning); background: var(--surface-850); }
-.legal-footer { padding-block: 32px 110px; border-block-start: 1px solid var(--border-subtle); }.legal-footer p { font-size: .78rem; }
+.legal-footer { padding-block: 32px 110px; border-block-start: 1px solid var(--border-subtle); }.legal-footer p { font-size: max(.875rem, 14px); }
 @media (max-width:720px) { .legal-header .brand span { display:none; }.legal-main { padding-block-start: 48px; }.legal-header .header-inner { min-height: 66px; }.legal-body .whatsapp-float { display:flex; inset-block-end: calc(16px + env(safe-area-inset-bottom)); inset-inline-end: 16px; }.legal-body .whatsapp-float > span { display:none; } }

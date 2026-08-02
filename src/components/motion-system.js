@@ -1,6 +1,6 @@
 const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
 const revealSelector = '.split-heading, .chapter-heading, .activation-head, .faq-intro, .final-cta__panel';
-const cardSelector = '.feature-card, .benefit-card, .workflow-item, .market-pills > button, .bundle-features article, .price-card, .activation-steps li, .faq-item';
+const cardSelector = '.benefit-card, .workflow-item, .market-pills > button, .bundle-features article, .price-card, .activation-steps li, .faq-item';
 
 function revealEverything() {
   document.documentElement.dataset.motionMode = 'static';
@@ -8,13 +8,13 @@ function revealEverything() {
 }
 
 function prepareTargets() {
-  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .hero-copy > *, .hero-chart, .abstract-stage, .bundle-console`)
+  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .hero-copy > *, .hero-chart, .indicator-preview, .bundle-console`)
     .forEach((target) => target.classList.add('motion-reveal-target'));
 }
 
 function createRevealTriggers(ScrollTrigger) {
   const triggers = [];
-  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .abstract-stage, .bundle-console`).forEach((target) => {
+  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .indicator-preview, .bundle-console`).forEach((target) => {
     const trigger = ScrollTrigger.create({
       trigger: target,
       start: 'top 90%',
@@ -52,18 +52,10 @@ export async function initMotionSystem() {
     document.querySelectorAll('.motion-reveal-target').forEach((target) => target.classList.remove('is-revealed'));
     revealHero();
     const triggers = createRevealTriggers(ScrollTrigger);
-    const stage = document.querySelector('#vanguard-abstract-stage');
-    let stopAbstract = () => {};
-    if (stage) {
-      const { initAbstractVanguard } = await import('./abstract-vanguard.js');
-      stopAbstract = initAbstractVanguard(stage) || (() => {});
-    }
-
     if (document.fonts?.ready) await document.fonts.ready;
     requestAnimationFrame(() => ScrollTrigger.refresh());
     stopCurrent = () => {
       triggers.forEach((trigger) => trigger.kill(true));
-      stopAbstract();
       revealEverything();
     };
   };

@@ -56,8 +56,10 @@ test('home, assets, navigation, pricing and WhatsApp are production-ready', asyn
   expect(await page.locator('.brand img').first().evaluate((image) => image.naturalWidth)).toBeGreaterThan(0);
   expect(await page.locator('.brand img').first().evaluate((image) => image.currentSrc)).not.toContain('/Vanguard/Vanguard/');
 
-  await expect(page.locator('#vanguard-abstract-stage')).toBeVisible();
-  await expect(page.locator('canvas[data-vanguard-abstract]')).toHaveCount(1);
+  await expect(page.locator('.indicator-preview img')).toBeVisible();
+  await expect(page.locator('.indicator-preview img')).toHaveAttribute('src', /images\/vanguard-indicator-preview\.png$/);
+  await expect(page.locator('canvas[data-vanguard-abstract]')).toHaveCount(0);
+  await expect(page.getByText('المعلومة كثيرة. المطلوب هو ترتيبها', { exact: true })).toHaveCount(0);
   await expect(page.locator('.section-transition-host, .market-scroll-effect, .pin-spacer')).toHaveCount(0);
   expect(await page.locator('html').evaluate((node) => getComputedStyle(node).scrollSnapType)).toBe('none');
 
@@ -84,7 +86,7 @@ test('home, assets, navigation, pricing and WhatsApp are production-ready', asyn
   await expect(page.locator('[data-demo-step="context"]')).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('[data-demo-step="context"]')).toHaveAttribute('aria-controls', 'demo-step-copy');
   await expect(page.locator('#demo-step-copy')).toHaveAttribute('role', 'tabpanel');
-  await expect(page.locator('[data-demo-confirm]')).toHaveText('يتطلب تحققًا');
+  await expect(page.locator('#demo-step-copy')).toHaveText('راجع اتجاه السوق والإطار الزمني ونقطة الإلغاء قبل تقييم الإشارة.');
   await page.locator('[data-demo-step="context"]').focus();
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('[data-demo-step="alert"]')).toHaveAttribute('aria-selected', 'true');
@@ -115,6 +117,31 @@ test('no visitor-facing placeholder or unverified evidence content is exposed', 
   await expect(page.locator('#risk-title')).toBeVisible();
 });
 
+test('typography uses the three-font system without undersized meaningful text', async ({ page }) => {
+  await openLanding(page);
+  await page.evaluate(() => document.fonts?.ready);
+  const families = await page.evaluate(() => ({
+    body: getComputedStyle(document.body).fontFamily,
+    heading: getComputedStyle(document.querySelector('h1')).fontFamily,
+    cardTitle: getComputedStyle(document.querySelector('.benefit-card h3')).fontFamily,
+    navigation: getComputedStyle(document.querySelector('.primary-nav')).fontFamily
+  }));
+  expect(families.body).toContain('Fustat');
+  expect(families.heading).toContain('Alexandria');
+  expect(families.cardTitle).toContain('Alexandria');
+  expect(families.navigation).toContain('Readex Pro');
+
+  const undersized = await page.locator('body *:not([data-tradingview-widget] *)').evaluateAll((nodes) => nodes
+    .filter((node) => [...node.childNodes].some((child) => child.nodeType === Node.TEXT_NODE && child.textContent.trim()))
+    .filter((node) => {
+      const style = getComputedStyle(node);
+      return style.display !== 'none' && style.visibility !== 'hidden';
+    })
+    .map((node) => ({ tag: node.tagName, className: node.className, text: node.textContent.trim().slice(0, 80), size: parseFloat(getComputedStyle(node).fontSize) }))
+    .filter(({ size }) => size < 13.9));
+  expect(undersized).toEqual([]);
+});
+
 test('downward and reverse scrolling leave every revealed group usable', async ({ page }) => {
   await openLanding(page);
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
@@ -139,7 +166,7 @@ test('downward and reverse scrolling leave every revealed group usable', async (
   await expect(page.locator('h1')).toBeVisible();
 });
 
-test('reduced motion renders complete static content without animated WebGL', async ({ browser }) => {
+test('reduced motion renders complete static content without WebGL', async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   const diagnostics = watchPage(page);
@@ -149,8 +176,8 @@ test('reduced motion renders complete static content without animated WebGL', as
   await expect(page.locator('[data-tradingview-hero]')).toHaveAttribute('data-widget-state', 'ready');
   await expect(page.locator('[data-tradingview-widget] iframe')).toHaveCount(1);
   await expect(page.locator('video')).toHaveCount(0);
-  await expect(page.locator('.abstract-stage__fallback')).toBeVisible();
-  const states = await page.locator('.motion-group, .abstract-stage').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
+  await expect(page.locator('.indicator-preview img')).toBeVisible();
+  const states = await page.locator('.motion-group, .indicator-preview').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
   expect(states.every(({ opacity, transform }) => opacity === '1' && transform === 'none')).toBeTruthy();
   expect(diagnostics.errors).toEqual([]);
   expect(diagnostics.failures).toEqual([]);
@@ -217,47 +244,6 @@ test('hero chart exposes a useful fallback when TradingView is unavailable', asy
   await expect(page.locator('[data-tradingview-error]')).toBeVisible();
   await expect(page.locator('[data-tradingview-error] a')).toHaveAttribute('href', 'https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/');
   await expect(page.locator('h1')).toBeVisible();
-});
-
-for (const [label, width, height, maxRatio] of [
-  ['mobile', 390, 844, 1.2],
-  ['tablet', 768, 1024, 1.5],
-  ['desktop', 1440, 900, 1.5]
-]) {
-  test(`abstract Vanguard scene uses the ${label} renderer budget`, async ({ page }) => {
-    await page.setViewportSize({ width, height });
-    const diagnostics = watchPage(page);
-    await openLanding(page);
-    const canvas = page.locator('canvas[data-vanguard-abstract]');
-    await expect(canvas).toHaveCount(1);
-    const ratio = await canvas.evaluate((node) => node.width / node.getBoundingClientRect().width);
-    expect(ratio).toBeLessThanOrEqual(maxRatio + .05);
-    expect(diagnostics.errors).toEqual([]);
-    expect(diagnostics.failures).toEqual([]);
-  });
-}
-
-test('abstract scene pauses off-screen while normal scrolling works in both directions', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await openLanding(page);
-  const stage = page.locator('#vanguard-abstract-stage');
-  const canvas = page.locator('canvas[data-vanguard-abstract]');
-  const stageTop = await stage.evaluate((node) => node.getBoundingClientRect().top + window.scrollY);
-  await page.evaluate((y) => window.scrollTo(0, y), stageTop - 480);
-  await page.waitForTimeout(650);
-  const firstCount = Number(await canvas.getAttribute('data-render-count'));
-  await page.evaluate((y) => window.scrollTo(0, y), stageTop - 260);
-  await page.waitForTimeout(650);
-  expect(Number(await canvas.getAttribute('data-render-count'))).toBeGreaterThan(firstCount);
-  await page.evaluate((y) => window.scrollTo(0, y), stageTop - 520);
-  await page.waitForTimeout(650);
-  await expect(stage).toBeInViewport();
-
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-  await page.waitForTimeout(650);
-  const settledCount = Number(await canvas.getAttribute('data-render-count'));
-  await page.waitForTimeout(500);
-  expect(Number(await canvas.getAttribute('data-render-count'))).toBe(settledCount);
 });
 
 test('mobile menu traps focus, closes with Escape and keeps actions reachable', async ({ page }) => {
@@ -337,7 +323,7 @@ for (const route of ['privacy.html', 'terms.html', 'refund.html', 'risk-disclosu
 
 test('normal scroll avoids long blocking tasks', async ({ page }) => {
   await openLanding(page);
-  await page.locator('canvas[data-vanguard-abstract]').waitFor({ state: 'attached' });
+  await page.locator('.indicator-preview img').waitFor({ state: 'attached' });
   await page.evaluate(() => document.fonts?.ready);
   await page.waitForTimeout(500);
   await page.evaluate(() => {
