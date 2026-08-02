@@ -1,5 +1,5 @@
 import './styles.css';
-import { createIcons, ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Play, ScanLine, ShieldCheck, Smartphone, TimerReset, BetweenHorizontalStart } from 'lucide';
+import { createIcons, ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } from 'lucide';
 import { siteConfig, validateConfig } from './config.js';
 import { benefits, faqs, workflow } from './content.js';
 import { initAnalytics, trackEvent } from './analytics.js';
@@ -8,6 +8,8 @@ import { renderFaq } from './components/faq.js';
 import { renderEvidence } from './components/evidence.js';
 import { initContactLinks, isWhatsAppConfigured } from './components/contact.js';
 import { initMobileCta } from './components/mobile-cta.js';
+import { initThemeToggle } from './components/theme.js';
+import { initVanguardChart } from './components/vanguard-chart.js';
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -140,7 +142,7 @@ function renderContent() {
     contactNode.hidden = true;
   }
 
-  createIcons({ icons: { ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Play, ScanLine, ShieldCheck, Smartphone, TimerReset, BetweenHorizontalStart } });
+  createIcons({ icons: { ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, Landmark, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } });
 }
 
 function initNavigation() {
@@ -284,6 +286,8 @@ async function startEnhancements() {
 }
 
 renderContent();
+const cleanupTheme = initThemeToggle();
+const cleanupChart = initVanguardChart(document.querySelector('[data-vanguard-chart]'));
 initNavigation();
 initContactLinks();
 initMobileCta();
@@ -295,3 +299,7 @@ if (import.meta.env.DEV) validateConfig().forEach((warning) => console.warn(`[Va
 
 if (document.readyState === 'complete') startEnhancements();
 else window.addEventListener('load', startEnhancements, { once: true });
+window.addEventListener('pagehide', () => {
+  cleanupTheme();
+  cleanupChart();
+}, { once: true });

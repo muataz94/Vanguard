@@ -116,20 +116,58 @@ test('downward and reverse scrolling leave every revealed group usable', async (
   await expect(page.locator('h1')).toBeVisible();
 });
 
-test('reduced motion renders complete static content without canvas', async ({ browser }) => {
+test('reduced motion renders complete static content without animated WebGL', async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   const diagnostics = watchPage(page);
   await openLanding(page);
   await expect(page.locator('canvas[data-vanguard-abstract]')).toHaveCount(0);
   await expect(page.locator('html')).toHaveAttribute('data-motion-mode', 'static');
-  await expect(page.locator('.scene-fallback')).toBeVisible();
+  const chart = page.locator('canvas[data-vanguard-chart-canvas]');
+  await expect(chart).toBeVisible();
+  const staticRenderCount = Number(await chart.getAttribute('data-render-count'));
+  await page.waitForTimeout(250);
+  expect(Number(await chart.getAttribute('data-render-count'))).toBe(staticRenderCount);
   await expect(page.locator('.abstract-stage__fallback')).toBeVisible();
   const states = await page.locator('.motion-group, .abstract-stage').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
   expect(states.every(({ opacity, transform }) => opacity === '1' && transform === 'none')).toBeTruthy();
   expect(diagnostics.errors).toEqual([]);
   expect(diagnostics.failures).toEqual([]);
   await context.close();
+});
+
+test('theme follows the system, toggles accessibly and persists', async ({ browser }) => {
+  const context = await browser.newContext({ colorScheme: 'light' });
+  const page = await context.newPage();
+  await openLanding(page);
+  const toggle = page.locator('[data-theme-toggle]');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(toggle).toHaveAttribute('aria-label', 'تفعيل الوضع الداكن');
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await page.reload({ waitUntil: 'networkidle' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await context.close();
+});
+
+test('hero chart is sharp, deterministic and pauses outside the viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openLanding(page);
+  const chart = page.locator('canvas[data-vanguard-chart-canvas]');
+  await expect(chart).toBeVisible();
+  const firstCount = Number(await chart.getAttribute('data-render-count'));
+  await page.waitForTimeout(180);
+  expect(Number(await chart.getAttribute('data-render-count'))).toBeGreaterThan(firstCount);
+  const ratio = await chart.evaluate((node) => node.width / node.getBoundingClientRect().width);
+  expect(ratio).toBeGreaterThanOrEqual(1);
+  expect(ratio).toBeLessThanOrEqual(2.05);
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.waitForTimeout(300);
+  const settledCount = Number(await chart.getAttribute('data-render-count'));
+  await page.waitForTimeout(250);
+  expect(Number(await chart.getAttribute('data-render-count'))).toBe(settledCount);
+  await expect(page.locator('.hero-chart__disclaimer')).toHaveText('عرض توضيحي — ليست بيانات سوق حية');
 });
 
 for (const [label, width, height, maxRatio] of [

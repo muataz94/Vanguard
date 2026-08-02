@@ -8,6 +8,7 @@
     <meta name="description" content="مؤشر فانگارد أداة تحليلية لمنصة TradingView تساعد على تنظيم قراءة الإشارات ومناطق المتابعة والتنبيهات ضمن سير عمل واضح.">
     <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#050706">
+    <script src="/theme-init.js"></script>
     <link rel="canonical" href="__VANGUARD_PRODUCTION_URL__">
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,10 +33,16 @@
 
     <header class="site-header" id="top">
       <div class="container header-inner">
-        <a class="brand" href="#top" aria-label="Vanguard Indicator — مؤشر فانگارد — الصفحة الرئيسية">
-          <img src="./assets/vanguard-logo.png" alt="" width="48" height="48">
-          <span><b>Vanguard</b><small>Indicator</small></span>
-        </a>
+        <div class="header-brand-group">
+          <a class="brand" href="#top" aria-label="Vanguard Indicator — مؤشر فانگارد — الصفحة الرئيسية">
+            <img src="./assets/vanguard-logo.png" alt="" width="48" height="48">
+            <span><b>Vanguard</b><small>Indicator</small></span>
+          </a>
+          <button class="theme-toggle" type="button" data-theme-toggle aria-label="تفعيل الوضع الفاتح" aria-pressed="false">
+            <i class="theme-toggle__sun" data-lucide="sun" aria-hidden="true"></i>
+            <i class="theme-toggle__moon" data-lucide="moon" aria-hidden="true"></i>
+          </button>
+        </div>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" aria-label="فتح قائمة التنقل"><span></span><span></span><span></span></button>
         <nav id="primary-navigation" class="primary-nav" aria-label="التنقل الرئيسي">
           <a href="#benefits">المزايا</a>
@@ -63,15 +70,13 @@
             <p class="risk-note"><strong>تنبيه مخاطر:</strong> فانگارد أداة تحليلية مساعدة ولا يضمن الربح. التداول قد يؤدي إلى خسارة جزء أو كامل رأس المال.</p>
           </div>
 
-          <div class="hero-visual" aria-label="محاكاة بصرية لواجهة المؤشر">
-            <div class="hero-visual__grid" aria-hidden="true"></div>
-            <div class="scene-fallback" aria-hidden="true"></div>
-            <div class="market-card">
-              <div class="market-card__head"><span><i></i> منظومة تحليل منظمة</span><small>VANGUARD / FLOW</small></div>
-              <div class="market-card__quote"><b>قرار أكثر وضوحًا</b><span dir="ltr">V · 01</span></div>
-              <div class="market-card__matrix" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-              <div class="market-card__foot"><span>المراجعة</span><b>بيد المستخدم</b></div>
+          <div class="hero-chart" data-vanguard-chart aria-label="رسم مالي توضيحي متحرك ببيانات اصطناعية">
+            <div class="hero-chart__toolbar">
+              <span class="hero-chart__brand"><i></i> VANGUARD</span>
+              <span class="hero-chart__market" dir="ltr"><b>EUR/USD</b><small>4H</small></span>
             </div>
+            <canvas data-vanguard-chart-canvas aria-hidden="true"></canvas>
+            <p class="hero-chart__disclaimer">عرض توضيحي — ليست بيانات سوق حية</p>
           </div>
         </div>
         <div class="hero-ticker" aria-hidden="true"><span>FOREX</span><i></i><span>CRYPTO</span><i></i><span>STOCKS</span><i></i><span>INDICES</span><i></i><span>TRADINGVIEW</span></div>
