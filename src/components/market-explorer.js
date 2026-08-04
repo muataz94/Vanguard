@@ -1,6 +1,6 @@
-import { createIcons, Bitcoin, ChartNoAxesCombined, ChartSpline, Landmark } from 'lucide';
 import { marketCategories } from '../data/market-categories.js';
 import { subscribeLanguage, t, translateElement } from '../i18n.js';
+import { createMarketCategoryIcon } from './market-category-icons.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -17,31 +17,48 @@ function svgElement(tag, attributes = {}) {
   return node;
 }
 
+function pointAt(values, index, width = 420, height = 112) {
+  return {
+    x: Math.round(index * (width / (values.length - 1))),
+    y: Math.round((values[index] / 72) * height)
+  };
+}
+
 function linePath(values, width = 420, height = 112) {
-  const step = width / (values.length - 1);
-  return values.map((value, index) => `${index ? 'L' : 'M'} ${Math.round(index * step)} ${Math.round((value / 72) * height)}`).join(' ');
+  return values.map((_, index) => {
+    const point = pointAt(values, index, width, height);
+    return `${index ? 'L' : 'M'} ${point.x} ${point.y}`;
+  }).join(' ');
 }
 
 function chartShell(className = '') {
   const svg = svgElement('svg', { viewBox: '0 0 420 112', preserveAspectRatio: 'none', 'aria-hidden': 'true', focusable: 'false' });
   svg.classList.add('market-visual__svg');
-  if (className) svg.classList.add(className);
+  if (className) svg.classList.add(...className.split(/\s+/).filter(Boolean));
   [28, 56, 84].forEach((y) => svg.append(svgElement('line', { x1: 0, y1: y, x2: 420, y2: y, class: 'market-grid-line' })));
   return svg;
 }
 
-function renderPaths(category, selectedId) {
+function renderForex(category, selectedId) {
   const wrapper = element('div', 'market-paths');
-  const svg = chartShell();
+  const svg = chartShell('market-forex');
   category.instruments.forEach((instrument) => {
     svg.append(svgElement('path', {
       d: linePath(instrument.values),
-      class: `market-line${instrument.id === selectedId ? ' is-selected' : ''}`,
+      class: `market-line market-line--draw${instrument.id === selectedId ? ' is-selected' : ''}`,
       'data-series': instrument.id,
       pathLength: 1
     }));
+    if (instrument.id === selectedId) {
+      const focus = pointAt(instrument.values, 7);
+      svg.append(svgElement('circle', { cx: focus.x, cy: focus.y, r: 5, class: 'market-focus-point' }));
+    }
   });
-  wrapper.append(svg);
+  wrapper.append(svg, renderLegend(category, selectedId));
+  return wrapper;
+}
+
+function renderLegend(category, selectedId) {
   const legend = element('div', 'market-paths__legend');
   category.instruments.forEach((instrument) => {
     const item = element('span', instrument.id === selectedId ? 'is-selected' : '');
@@ -49,22 +66,45 @@ function renderPaths(category, selectedId) {
     item.append(element('i'), document.createTextNode(instrument.symbol));
     legend.append(item);
   });
-  wrapper.append(legend);
-  return wrapper;
+  return legend;
 }
 
-function renderCandles(instrument) {
+function volatilityBand(values) {
+  const upper = values.map((value) => Math.max(8, value - 9));
+  const lower = values.map((value) => Math.min(68, value + 11));
+  const top = upper.map((_, index) => {
+    const point = pointAt(upper, index);
+    return `${index ? 'L' : 'M'} ${point.x} ${point.y}`;
+  }).join(' ');
+  const bottom = lower.map((_, reverseIndex) => {
+    const index = lower.length - reverseIndex - 1;
+    const point = pointAt(lower, index);
+    return `L ${point.x} ${point.y}`;
+  }).join(' ');
+  return `${top} ${bottom} Z`;
+}
+
+function renderCrypto(instrument) {
+  const wrapper = element('div', 'market-crypto');
   const svg = chartShell('market-candles');
+  svg.prepend(svgElement('path', { d: volatilityBand(instrument.values), class: 'market-volatility-band' }));
+  [[56, 19, 3], [344, 25, 4], [386, 86, 3], [96, 91, 2.5]].forEach(([cx, cy, r]) => {
+    svg.append(svgElement('circle', { cx, cy, r, class: 'market-network-node' }));
+  });
   instrument.values.slice(0, 9).forEach((value, index) => {
     const next = instrument.values[index + 1];
     const x = 22 + index * 45;
     const top = Math.min(value, next);
     const height = Math.max(8, Math.abs(next - value));
     const rising = next < value;
-    svg.append(svgElement('line', { x1: x + 8, y1: Math.max(5, top - 9), x2: x + 8, y2: Math.min(106, top + height + 10), class: rising ? 'candle-up' : 'candle-down' }));
-    svg.append(svgElement('rect', { x, y: top, width: 16, height, rx: 2, class: rising ? 'candle-up' : 'candle-down' }));
+    const candleClass = `${rising ? 'candle-up' : 'candle-down'} market-candle`;
+    svg.append(svgElement('line', { x1: x + 8, y1: Math.max(5, top - 9), x2: x + 8, y2: Math.min(106, top + height + 10), class: candleClass }));
+    svg.append(svgElement('rect', { x, y: top, width: 16, height, rx: 2, class: candleClass }));
   });
-  return svg;
+  const label = element('span', 'market-visual-label', instrument.symbol);
+  label.dir = 'ltr';
+  wrapper.append(svg, label);
+  return wrapper;
 }
 
 function renderSparklines(category, selectedId) {
@@ -83,26 +123,66 @@ function renderSparklines(category, selectedId) {
   return rows;
 }
 
-function renderOscillator(instrument) {
-  const shell = element('div', 'market-oscillator');
-  const svg = chartShell();
-  svg.append(svgElement('rect', { x: 0, y: 8, width: 420, height: 18, class: 'market-zone' }));
-  svg.append(svgElement('rect', { x: 0, y: 86, width: 420, height: 18, class: 'market-zone' }));
-  svg.append(svgElement('path', { d: linePath(instrument.values), class: 'market-line is-selected', pathLength: 1 }));
-  [2, 5, 8].forEach((index) => {
-    const x = Math.round(index * (420 / (instrument.values.length - 1)));
-    const y = Math.round((instrument.values[index] / 72) * 112);
-    svg.append(svgElement('circle', { cx: x, cy: y, r: 5, class: 'market-signal-dot' }));
+function renderVanguard(instrument) {
+  const svg = chartShell('market-indicator market-indicator--vanguard');
+  svg.append(
+    svgElement('rect', { x: 35, y: 18, width: 125, height: 76, rx: 5, class: 'market-trend-zone market-trend-zone--muted' }),
+    svgElement('rect', { x: 228, y: 12, width: 150, height: 82, rx: 5, class: 'market-trend-zone' }),
+    svgElement('path', { d: linePath(instrument.values), class: 'market-line market-line--draw is-selected', pathLength: 1 })
+  );
+  [3, 6, 8].forEach((index) => {
+    const point = pointAt(instrument.values, index);
+    svg.append(svgElement('circle', { cx: point.x, cy: point.y, r: 5, class: 'market-signal-dot' }));
   });
-  shell.append(svg);
+  return svg;
+}
+
+function renderRsi(instrument) {
+  const svg = chartShell('market-indicator market-indicator--rsi');
+  svg.append(
+    svgElement('rect', { x: 0, y: 8, width: 420, height: 18, class: 'market-zone' }),
+    svgElement('rect', { x: 0, y: 86, width: 420, height: 18, class: 'market-zone' }),
+    svgElement('line', { x1: 0, y1: 26, x2: 420, y2: 26, class: 'market-reference-line' }),
+    svgElement('line', { x1: 0, y1: 86, x2: 420, y2: 86, class: 'market-reference-line' }),
+    svgElement('path', { d: linePath(instrument.values), class: 'market-line market-line--draw is-selected', pathLength: 1 })
+  );
+  return svg;
+}
+
+function renderMacd(instrument) {
+  const svg = chartShell('market-indicator market-indicator--macd');
+  instrument.values.slice(0, 9).forEach((value, index) => {
+    const x = 12 + index * 47;
+    const height = Math.max(5, Math.abs(46 - value));
+    svg.append(svgElement('rect', {
+      x, y: value < 46 ? 56 - height : 56, width: 20, height,
+      class: value < 46 ? 'market-histogram market-histogram--positive' : 'market-histogram'
+    }));
+  });
+  const signalValues = instrument.values.map((value, index) => Math.max(10, Math.min(66, value + (index % 2 ? -5 : 6))));
+  svg.append(
+    svgElement('path', { d: linePath(instrument.values), class: 'market-macd-line market-macd-line--primary market-line--draw', pathLength: 1 }),
+    svgElement('path', { d: linePath(signalValues), class: 'market-macd-line market-macd-line--signal market-line--draw', pathLength: 1 })
+  );
+  return svg;
+}
+
+function renderIndicator(instrument) {
+  const shell = element('div', `market-oscillator market-oscillator--${instrument.id}`);
+  if (instrument.id === 'rsi') shell.append(renderRsi(instrument));
+  else if (instrument.id === 'macd') shell.append(renderMacd(instrument));
+  else shell.append(renderVanguard(instrument));
+  const label = element('span', 'market-visual-label', instrument.symbol);
+  label.dir = 'ltr';
+  shell.append(label);
   return shell;
 }
 
 function renderVisualization(category, instrument) {
-  if (category.visualization === 'candles') return renderCandles(instrument);
+  if (category.visualization === 'candles') return renderCrypto(instrument);
   if (category.visualization === 'sparklines') return renderSparklines(category, instrument.id);
-  if (category.visualization === 'oscillator') return renderOscillator(instrument);
-  return renderPaths(category, instrument.id);
+  if (category.visualization === 'oscillator') return renderIndicator(instrument);
+  return renderForex(category, instrument.id);
 }
 
 export function renderMarketExplorer(container) {
@@ -120,7 +200,6 @@ export function renderMarketExplorer(container) {
     tablist.id = 'markets-list';
     tablist.setAttribute('role', 'tablist');
     translateElement(tablist, 'markets.tabsAria', 'aria-label');
-    const tabButtons = [];
 
     marketCategories.forEach((candidate, index) => {
       const active = candidate.id === category.id;
@@ -133,10 +212,7 @@ export function renderMarketExplorer(container) {
       button.setAttribute('aria-controls', 'market-detail');
       button.tabIndex = active ? 0 : -1;
       const top = element('span');
-      const icon = element('i');
-      icon.dataset.lucide = candidate.icon;
-      icon.setAttribute('aria-hidden', 'true');
-      top.append(icon, element('b', '', `0${index + 1}`));
+      top.append(createMarketCategoryIcon(candidate.id), element('b', '', `0${index + 1}`));
       button.append(top, translateElement(element('strong'), candidate.labelKey), translateElement(element('small'), candidate.shortKey));
       button.addEventListener('click', () => {
         categoryId = candidate.id;
@@ -161,7 +237,6 @@ export function renderMarketExplorer(container) {
         categoryId = marketCategories[next].id;
         render({ focusTab: true });
       });
-      tabButtons.push(button);
       tablist.append(button);
     });
 
@@ -171,15 +246,12 @@ export function renderMarketExplorer(container) {
     panel.setAttribute('role', 'tabpanel');
     const categoryIndex = marketCategories.findIndex((candidate) => candidate.id === category.id);
     panel.setAttribute('aria-labelledby', `market-tab-${categoryIndex}`);
-    panel.setAttribute('aria-live', 'polite');
     panel.tabIndex = 0;
 
     const copy = element('div', 'market-detail__copy');
     const iconShell = element('span', 'market-detail__icon');
     iconShell.setAttribute('aria-hidden', 'true');
-    const icon = element('i');
-    icon.dataset.lucide = category.icon;
-    iconShell.append(icon);
+    iconShell.append(createMarketCategoryIcon(category.id));
     const content = element('div');
     const compatibilityLabel = translateElement(element('span'), category.labelKey);
     compatibilityLabel.id = 'market-detail-title';
@@ -187,7 +259,7 @@ export function renderMarketExplorer(container) {
     content.append(
       compatibilityLabel,
       translateElement(element('p', 'section-index'), 'markets.selectedCategory'),
-      translateElement(element('h3', '', undefined), category.titleKey),
+      translateElement(element('h3'), category.titleKey),
       translateElement(element('p'), category.descriptionKey)
     );
     const instrumentList = element('div', 'market-instruments');
@@ -209,16 +281,16 @@ export function renderMarketExplorer(container) {
       instrumentList.append(button);
     });
     content.append(instrumentList);
-    if (category.clarificationKey) content.append(translateElement(element('p', 'market-detail__clarification'), category.clarificationKey));
     copy.append(iconShell, content);
 
     const preview = element('div', 'market-detail__preview');
-    translateElement(preview, 'markets.visualAria', 'aria-label');
     const toolbar = element('div', 'market-detail__toolbar');
     const eyebrow = element('b', '', category.eyebrow);
     eyebrow.dir = 'ltr';
     toolbar.append(translateElement(element('span'), 'markets.demo'), eyebrow);
     const visual = element('div', 'market-detail__visual');
+    visual.setAttribute('role', 'img');
+    translateElement(visual, `markets.${category.id}.visualAria`, 'aria-label');
     visual.append(renderVisualization(category, instrument));
     const settings = element('div', 'market-detail__settings');
     const context = element('span');
@@ -231,7 +303,6 @@ export function renderMarketExplorer(container) {
     panel.append(copy, preview, disclaimer);
     container.append(tablist, panel);
 
-    createIcons({ icons: { Bitcoin, ChartNoAxesCombined, ChartSpline, Landmark } });
     if (focusTab) container.querySelector(`[data-category-id="${category.id}"]`)?.focus();
     if (focusInstrument) container.querySelector(`[data-instrument-id="${instrument.id}"]`)?.focus();
   };

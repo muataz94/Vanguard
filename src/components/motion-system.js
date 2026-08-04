@@ -8,7 +8,7 @@ function revealEverything() {
 }
 
 function prepareTargets() {
-  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .hero-copy > *, .hero-chart, .indicator-preview, .bundle-console`)
+  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .hero-copy > *, .indicator-preview, .bundle-console`)
     .forEach((target) => target.classList.add('motion-reveal-target'));
 }
 
@@ -28,7 +28,7 @@ function createRevealTriggers(ScrollTrigger) {
 
 function revealHero() {
   requestAnimationFrame(() => {
-    document.querySelectorAll('.hero-copy > *, .hero-chart').forEach((target, index) => {
+    document.querySelectorAll('.hero-copy > *').forEach((target, index) => {
       window.setTimeout(() => target.classList.add('is-revealed'), index * 45);
     });
   });

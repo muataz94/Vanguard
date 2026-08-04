@@ -6,29 +6,6 @@ const targetViewports = [
   [320, 568], [360, 800], [390, 844], [430, 932], [768, 1024],
   [1024, 768], [1280, 800], [1366, 768], [1440, 900], [1920, 1080]
 ];
-const tradingViewScriptUrl = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-const mockedTradingViewPages = new WeakSet();
-
-async function mockTradingView(page) {
-  if (mockedTradingViewPages.has(page)) return;
-  mockedTradingViewPages.add(page);
-  await page.route(tradingViewScriptUrl, async (route) => {
-    await route.fulfill({
-      contentType: 'application/javascript',
-      body: `(() => {
-        const script = document.currentScript;
-        const config = JSON.parse(script.textContent);
-        window.__tradingViewConfigs = [...(window.__tradingViewConfigs || []), config];
-        const iframe = document.createElement('iframe');
-        iframe.title = 'Mock TradingView advanced chart';
-        iframe.src = 'about:blank';
-        script.parentElement.insertBefore(iframe, script);
-        setTimeout(() => iframe.dispatchEvent(new Event('load')), 0);
-      })();`
-    });
-  });
-}
-
 function watchPage(page) {
   const errors = [];
   const failures = [];
@@ -39,7 +16,6 @@ function watchPage(page) {
 }
 
 async function openLanding(page) {
-  await mockTradingView(page);
   const response = await page.goto('/Vanguard/', { waitUntil: 'networkidle' });
   expect(response?.status()).toBe(200);
   await page.waitForTimeout(700);
@@ -52,6 +28,12 @@ test('home, assets, navigation, pricing and WhatsApp are production-ready', asyn
   await expect(page).toHaveTitle(/مؤشر فانگارد/);
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(page.locator('h1')).toHaveCount(1);
+  await expect(page.locator('.hero-description p')).toHaveCount(3);
+  await expect(page.locator('.primary-nav a[href="#pricing"]')).toHaveCount(1);
+  expect((await page.locator('.primary-nav a:not(.button)').allTextContents()).join(' ')).not.toMatch(/الباقات|Packages/);
+  await expect(page.locator('[data-tradingview-hero], .hero-chart')).toHaveCount(0);
+  await expect(page.locator('body')).not.toContainText('+964 771 722 0578');
+  await expect(page.locator('body')).not.toContainText('LuxAlgo');
   await expect(page.locator('.brand img').first()).toBeVisible();
   expect(await page.locator('.brand img').first().evaluate((image) => image.naturalWidth)).toBeGreaterThan(0);
   expect(await page.locator('.brand img').first().evaluate((image) => image.currentSrc)).not.toContain('/Vanguard/Vanguard/');
@@ -131,7 +113,7 @@ test('typography uses the three-font system without undersized meaningful text',
   expect(families.cardTitle).toContain('Alexandria');
   expect(families.navigation).toContain('Readex Pro');
 
-  const undersized = await page.locator('body *:not([data-tradingview-widget] *)').evaluateAll((nodes) => nodes
+  const undersized = await page.locator('body *').evaluateAll((nodes) => nodes
     .filter((node) => [...node.childNodes].some((child) => child.nodeType === Node.TEXT_NODE && child.textContent.trim()))
     .filter((node) => {
       const style = getComputedStyle(node);
@@ -173,8 +155,7 @@ test('reduced motion renders complete static content without WebGL', async ({ br
   await openLanding(page);
   await expect(page.locator('canvas[data-vanguard-abstract]')).toHaveCount(0);
   await expect(page.locator('html')).toHaveAttribute('data-motion-mode', 'static');
-  await expect(page.locator('[data-tradingview-hero]')).toHaveAttribute('data-widget-state', 'ready');
-  await expect(page.locator('[data-tradingview-widget] iframe')).toHaveCount(1);
+  await expect(page.locator('[data-tradingview-hero], [data-tradingview-widget]')).toHaveCount(0);
   await expect(page.locator('video')).toHaveCount(0);
   await expect(page.locator('.indicator-preview img')).toBeVisible();
   const states = await page.locator('.motion-group, .indicator-preview').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
@@ -199,51 +180,19 @@ test('theme follows the system, toggles accessibly and persists', async ({ brows
   await context.close();
 });
 
-test('hero uses the official TradingView configuration and reinitializes once per theme', async ({ page }) => {
+test('hero copy, spacing structure and disclaimer are bilingual and widget-free', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const diagnostics = watchPage(page);
   await openLanding(page);
-  const chart = page.locator('[data-tradingview-hero]');
-  await expect(chart).toHaveAttribute('data-widget-state', 'ready');
-  await expect(page.locator('[data-tradingview-widget] iframe')).toHaveCount(1);
-  await expect(page.locator('[data-tradingview-widget] script')).toHaveCount(1);
-  const config = await page.evaluate(() => window.__tradingViewConfigs[0]);
-  expect(config).toEqual(expect.objectContaining({
-    autosize: true,
-    symbol: 'OANDA:XAUUSD',
-    interval: '1',
-    timezone: 'Etc/UTC',
-    style: '1',
-    locale: 'en',
-    withdateranges: true,
-    allow_symbol_change: false,
-    save_image: false,
-    calendar: false,
-    hide_side_toolbar: false,
-    hide_top_toolbar: false,
-    support_host: 'https://www.tradingview.com'
-  }));
-  expect(config.studies).toBeUndefined();
-  const initialTheme = await chart.getAttribute('data-widget-theme');
+  await expect(page.locator('.hero-description p')).toHaveCount(3);
+  await expect(page.locator('.risk-note')).toHaveText('أداة تحليلية مساعدة وليست توصية مالية أو ضماناً للنتائج. تحقق من كل إعداد وأدر المخاطر قبل التداول.');
+  await expect(page.locator('[data-tradingview-hero], .hero-chart, iframe')).toHaveCount(0);
   await page.locator('[data-theme-toggle]').click();
-  await expect(chart).not.toHaveAttribute('data-widget-theme', initialTheme);
-  await expect(chart).toHaveAttribute('data-widget-init-count', '2');
-  await expect(page.locator('[data-tradingview-widget] iframe')).toHaveCount(1);
-  await expect(page.locator('[data-tradingview-widget] script')).toHaveCount(1);
-  await expect(page.locator('.hero-chart__action')).toHaveAttribute('href', 'https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/');
-  await expect(page.locator('#hero-chart-clarification')).toHaveText('الرسم التفاعلي لعرض حركة السوق — افتح المؤشر على TradingView لعرض إشارات Vanguard.');
-  await expect(page.locator('#hero-chart-risk')).toHaveText('أداة تحليلية مساعدة وليست توصية مالية أو ضماناً للنتائج.');
+  await page.locator('[data-language-toggle]').click();
+  await expect(page.locator('.hero-description p').first()).toContainText('Vanguard Indicator is an automated strategy');
+  await expect(page.locator('.risk-note')).toHaveText('An analytical support tool, not financial advice or a guarantee of results. Verify every setup and manage risk before trading.');
   expect(diagnostics.errors).toEqual([]);
   expect(diagnostics.failures).toEqual([]);
-});
-
-test('hero chart exposes a useful fallback when TradingView is unavailable', async ({ page }) => {
-  await page.route(tradingViewScriptUrl, (route) => route.abort('failed'));
-  await page.goto('/Vanguard/', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('[data-tradingview-hero]')).toHaveAttribute('data-widget-state', 'error');
-  await expect(page.locator('[data-tradingview-error]')).toBeVisible();
-  await expect(page.locator('[data-tradingview-error] a')).toHaveAttribute('href', 'https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/');
-  await expect(page.locator('h1')).toBeVisible();
 });
 
 test('mobile menu traps focus, closes with Escape and keeps actions reachable', async ({ page }) => {

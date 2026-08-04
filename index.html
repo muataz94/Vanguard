@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-4AwSWWaqZYXQHDLnbFNUjQW/GvNpGqqwGB3ptRut5aQ=' https://s3.tradingview.com; style-src 'self' 'unsafe-hashes' 'sha256-JyHF32z4Ou/Ujas95CX3WgBqlTt7Dxzo/fQG5/5oBo8=' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src https://s.tradingview.com https://www.tradingview.com https://www.tradingview-widget.com; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-4AwSWWaqZYXQHDLnbFNUjQW/GvNpGqqwGB3ptRut5aQ='; style-src 'self' 'unsafe-hashes' 'sha256-JyHF32z4Ou/Ujas95CX3WgBqlTt7Dxzo/fQG5/5oBo8=' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; upgrade-insecure-requests">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مؤشر فانگارد | أداة تحليل وتنبيهات لمنصة TradingView</title>
     <meta name="description" content="مؤشر فانگارد أداة تحليلية لمنصة TradingView تساعد على تنظيم قراءة الإشارات ومناطق المتابعة والتنبيهات ضمن سير عمل واضح.">
@@ -34,26 +34,25 @@
 
     <header class="site-header" id="top">
       <div class="container header-inner">
-        <div class="header-brand-group">
-          <a class="brand" href="#top" aria-label="Vanguard Indicator — مؤشر فانگارد — الصفحة الرئيسية" data-i18n-aria-label="brand.homeAria">
-            <img src="./assets/vanguard-logo.png" alt="" width="48" height="48">
-            <span><b>Vanguard</b><small>Indicator</small></span>
-          </a>
+        <a class="brand" href="#top" aria-label="Vanguard Indicator — مؤشر فانگارد — الصفحة الرئيسية" data-i18n-aria-label="brand.homeAria">
+          <img src="./assets/vanguard-logo.png" alt="" width="48" height="48">
+          <span><b>Vanguard</b><small>Indicator</small></span>
+        </a>
+        <nav id="primary-navigation" class="primary-nav" aria-label="التنقل الرئيسي" data-i18n-aria-label="nav.aria">
+          <a href="#benefits" data-i18n="nav.benefits">المزايا</a>
+          <a href="#how-it-works" data-i18n="nav.workflow">طريقة العمل</a>
+          <a href="#demo" data-i18n="nav.demo">العرض</a>
+          <a href="#faq" data-i18n="nav.faq">الأسئلة</a>
+          <a class="button button--small button--primary" href="#pricing" data-i18n="common.choosePlan">اختر باقتك</a>
+        </nav>
+        <div class="header-actions">
           <button class="language-toggle" type="button" data-language-toggle aria-label="تغيير اللغة إلى الإنجليزية" aria-pressed="false">EN</button>
           <button class="theme-toggle" type="button" data-theme-toggle aria-label="تفعيل الوضع الفاتح" aria-pressed="false">
             <i class="theme-toggle__sun" data-lucide="sun" aria-hidden="true"></i>
             <i class="theme-toggle__moon" data-lucide="moon" aria-hidden="true"></i>
           </button>
+          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" aria-label="فتح قائمة التنقل" data-i18n-aria-label="nav.menuOpen"><span></span><span></span><span></span></button>
         </div>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" aria-label="فتح قائمة التنقل" data-i18n-aria-label="nav.menuOpen"><span></span><span></span><span></span></button>
-        <nav id="primary-navigation" class="primary-nav" aria-label="التنقل الرئيسي" data-i18n-aria-label="nav.aria">
-          <a href="#benefits" data-i18n="nav.benefits">المزايا</a>
-          <a href="#how-it-works" data-i18n="nav.workflow">طريقة العمل</a>
-          <a href="#demo" data-i18n="nav.demo">العرض</a>
-          <a href="#pricing" data-i18n="nav.pricing">الباقات</a>
-          <a href="#faq" data-i18n="nav.faq">الأسئلة</a>
-          <a class="button button--small button--primary" href="#pricing" data-i18n="common.choosePlan">اختر باقتك</a>
-        </nav>
       </div>
     </header>
 
@@ -62,54 +61,19 @@
         <div class="container hero-layout">
           <div class="hero-copy">
             <p class="eyebrow"><span></span><b data-i18n="hero.eyebrow">تحليل أوضح · متابعة أسرع · قرار منضبط</b></p>
-            <h1 id="hero-title"><span data-i18n="hero.title">حوّل ازدحام الرسم إلى</span> <em data-i18n="hero.titleEm">سير عمل أوضح</em></h1>
-            <p class="hero-lead" data-i18n="hero.lead">مؤشر تحليلي لمنصة TradingView يساعدك على تنظيم مناطق المتابعة، مراجعة شروط الإشارة، واستلام التنبيهات على هاتفك—مع بقاء قرار التداول وإدارة المخاطر بيدك.</p>
+            <h1 id="hero-title"><span class="hero-title-line" data-i18n="hero.title">حوّل ازدحام الرسم إلى</span> <em class="hero-title-line" data-i18n="hero.titleEm">سير عمل أوضح</em></h1>
+            <div class="hero-description">
+              <p data-i18n="hero.lead1">مؤشر فانگارد هو استراتيجية آلية مبرمجة لتقوم بكل شي من تحليل الاسواق و تحديد الاتجاه وتحييد الصفقة الجيدة عن السيئة اي ما يعني انه لن تحتاج الى ان تفعل اي شي بنفسك</p>
+              <p data-i18n="hero.lead2">وانما تنتظر اشعار المنبه ليقول لك ان صفقة البيع او الشراء الان متاحة</p>
+              <p data-i18n="hero.lead3">وتقوم انت بالدخول اليها وتضع مكانات الستوب والهدف وتغلق المنصة وتكمل حياتك بالشكل الطبيعي</p>
+            </div>
             <div class="button-row">
               <a class="button button--primary" href="#pricing" data-track="hero-primary"><span data-i18n="common.choosePlan">اختر باقتك</span> <i class="directional-icon" data-lucide="arrow-left" aria-hidden="true"></i></a>
               <a class="button button--secondary" href="#demo"><span data-i18n="hero.secondaryCta">استكشف طريقة العمل</span> <i data-lucide="play" aria-hidden="true"></i></a>
             </div>
             <ul class="trust-list" aria-label="مزايا أساسية" data-i18n-aria-label="hero.trustAria"><li data-i18n="hero.trust1">متوافق مع TradingView</li><li data-i18n="hero.trust2">تنبيهات على الهاتف</li><li data-i18n="hero.trust3">تفعيل يدوي ودعم مباشر</li></ul>
-            <p class="risk-note"><strong data-i18n="hero.riskLabel">تنبيه مخاطر:</strong> <span data-i18n="hero.risk">فانگارد أداة تحليلية مساعدة ولا يضمن الربح. التداول قد يؤدي إلى خسارة جزء أو كامل رأس المال.</span></p>
+            <p class="risk-note" data-i18n="hero.risk">أداة تحليلية مساعدة وليست توصية مالية أو ضماناً للنتائج. تحقق من كل إعداد وأدر المخاطر قبل التداول.</p>
           </div>
-
-          <section class="hero-chart" data-tradingview-hero aria-labelledby="hero-chart-title" aria-describedby="hero-chart-clarification hero-chart-risk">
-            <div class="hero-chart__heading">
-              <div>
-                <p data-i18n="chart.eyebrow">رسم السوق التفاعلي</p>
-                <h2 id="hero-chart-title" data-i18n="chart.title">حركة الذهب مقابل الدولار</h2>
-              </div>
-              <span dir="ltr"><b>XAUUSD</b><small>1m</small></span>
-            </div>
-
-            <div class="hero-chart__viewport" data-tradingview-viewport>
-              <div class="hero-chart__skeleton" data-tradingview-loading role="status" aria-live="polite">
-                <span data-i18n="chart.loading">جارٍ تحميل الرسم التفاعلي…</span>
-                <i aria-hidden="true"></i><i aria-hidden="true"></i><i aria-hidden="true"></i>
-              </div>
-
-              <div class="tradingview-widget-container hero-chart__widget" data-tradingview-widget>
-                <div class="tradingview-widget-container__widget" data-tradingview-mount></div>
-                <div class="tradingview-widget-copyright">
-                  <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener noreferrer nofollow" target="_blank"><span class="blue-text">XAUUSD chart</span></a><span class="trademark"> by TradingView</span>
-                </div>
-              </div>
-
-              <div class="hero-chart__fallback" data-tradingview-error role="status" hidden>
-                <strong data-i18n="chart.errorTitle">تعذر تحميل الرسم التفاعلي حالياً.</strong>
-                <p data-i18n="chart.errorCopy">يمكنك متابعة السوق وفتح مؤشر Vanguard مباشرة على TradingView.</p>
-                <a href="https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/" target="_blank" rel="noopener noreferrer" data-i18n="chart.open">فتح المؤشر على TradingView</a>
-              </div>
-            </div>
-
-            <div class="hero-chart__footer">
-              <p id="hero-chart-clarification" data-i18n="chart.clarification">الرسم التفاعلي لعرض حركة السوق — افتح المؤشر على TradingView لعرض إشارات Vanguard.</p>
-              <a class="hero-chart__action" href="https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/" target="_blank" rel="noopener noreferrer">
-                <span data-i18n="chart.openFull">افتح مؤشر Vanguard على TradingView</span>
-                <i data-lucide="external-link" aria-hidden="true"></i>
-              </a>
-              <p id="hero-chart-risk" class="hero-chart__risk" data-i18n="chart.risk">أداة تحليلية مساعدة وليست توصية مالية أو ضماناً للنتائج.</p>
-            </div>
-          </section>
         </div>
         <div class="hero-ticker" aria-hidden="true"><span>FOREX</span><i></i><span>CRYPTO</span><i></i><span>STOCKS</span><i></i><span>INDICES</span><i></i><span>TRADINGVIEW</span></div>
       </section>
@@ -168,7 +132,7 @@
       <section class="final-cta" aria-labelledby="final-title"><div class="container final-cta__panel"><div class="final-cta__visual" aria-hidden="true"><span></span><img src="./assets/vanguard-logo-transparent.png" alt="" width="220" height="220"></div><div class="final-cta__copy"><p class="section-index" data-i18n="final.index">ابدأ بخطوة واضحة</p><h2 id="final-title"><span data-i18n="final.title">راجع الباقات، ثم</span> <em data-i18n="final.titleEm">تواصل مباشرة</em></h2><p data-i18n="final.copy">سنرسل لك تفاصيل الدفع والتفعيل عبر واتساب قبل بدء الوصول.</p><div class="button-row"><a class="button button--primary" href="#pricing" data-i18n="common.choosePlan">اختر باقتك</a><a class="button button--secondary" data-whatsapp data-source="final_cta" aria-label="تواصل معنا عبر واتساب" data-i18n="final.whatsapp" data-i18n-aria-label="common.whatsappAria">تواصل عبر واتساب</a></div></div></div></section>
     </main>
 
-    <footer class="site-footer"><div class="container footer-grid"><div class="footer-brand"><a class="brand" href="#top"><img src="./assets/vanguard-logo.png" alt="شعار مؤشر فانگارد" data-i18n-alt="footer.logoAlt" width="52" height="52"><span><b>Vanguard</b><small>Indicator</small></span></a><p data-i18n="footer.copy">أداة تحليلية مساعدة لمنصة TradingView لتنظيم قراءة الإشارات والتنبيهات، ولا تضمن النتائج المستقبلية.</p></div><div><h2 data-i18n="footer.links">روابط مهمة</h2><a href="#benefits" data-i18n="nav.benefits">المزايا</a><a href="#demo" data-i18n="footer.demo">العرض البصري</a><a href="#pricing" data-i18n="nav.pricing">الباقات</a><a href="#faq" data-i18n="footer.faq">الأسئلة الشائعة</a></div><div><h2 data-i18n="footer.policies">السياسات</h2><a href="/Vanguard/privacy.html" data-i18n="footer.privacy">سياسة الخصوصية</a><a href="/Vanguard/terms.html" data-i18n="footer.terms">الشروط والأحكام</a><a href="/Vanguard/refund.html" data-i18n="footer.refund">سياسة الاسترجاع</a><a href="/Vanguard/risk-disclosure.html" data-i18n="footer.risk">إفصاح المخاطر</a></div><div><h2 data-i18n="footer.contact">التواصل</h2><a data-whatsapp data-source="footer" aria-label="تواصل معنا عبر واتساب" data-i18n="common.whatsapp" data-i18n-aria-label="common.whatsappAria">واتساب</a><p id="whatsapp-number" class="footer-phone" dir="ltr"></p><p id="business-identity" class="footer-neutral" data-i18n="footer.identity">بيانات الناشر متاحة عبر قناة التواصل الرسمية.</p></div></div><div class="container footer-bottom"><p>© <span id="current-year"></span> <span data-i18n="footer.copyright">مؤشر فانگارد. جميع الحقوق محفوظة.</span></p><p data-i18n="footer.warning">النتائج السابقة لا تضمن النتائج المستقبلية.</p></div></footer>
+    <footer class="site-footer"><div class="container footer-grid"><div class="footer-brand"><a class="brand" href="#top"><img src="./assets/vanguard-logo.png" alt="شعار مؤشر فانگارد" data-i18n-alt="footer.logoAlt" width="52" height="52"><span><b>Vanguard</b><small>Indicator</small></span></a><p data-i18n="footer.copy">أداة تحليلية مساعدة لمنصة TradingView لتنظيم قراءة الإشارات والتنبيهات، ولا تضمن النتائج المستقبلية.</p></div><div><h2 data-i18n="footer.links">روابط مهمة</h2><a href="#benefits" data-i18n="nav.benefits">المزايا</a><a href="#demo" data-i18n="footer.demo">العرض البصري</a><a href="#pricing" data-i18n="nav.pricing">الباقات</a><a href="#faq" data-i18n="footer.faq">الأسئلة الشائعة</a></div><div><h2 data-i18n="footer.policies">السياسات</h2><a href="/Vanguard/privacy.html" data-i18n="footer.privacy">سياسة الخصوصية</a><a href="/Vanguard/terms.html" data-i18n="footer.terms">الشروط والأحكام</a><a href="/Vanguard/refund.html" data-i18n="footer.refund">سياسة الاسترجاع</a><a href="/Vanguard/risk-disclosure.html" data-i18n="footer.risk">إفصاح المخاطر</a></div><div><h2 data-i18n="footer.contact">التواصل</h2><a data-whatsapp data-source="footer" aria-label="تواصل معنا عبر واتساب" data-i18n="common.whatsapp" data-i18n-aria-label="common.whatsappAria">واتساب</a><p id="business-identity" class="footer-neutral" data-i18n="footer.identity">بيانات الناشر متاحة عبر قناة التواصل الرسمية.</p></div></div><div class="container footer-bottom"><p>© <span id="current-year"></span> <span data-i18n="footer.copyright">مؤشر فانگارد. جميع الحقوق محفوظة.</span></p><p data-i18n="footer.warning">النتائج السابقة لا تضمن النتائج المستقبلية.</p></div></footer>
 
     <a class="whatsapp-float" data-whatsapp data-source="floating_button" aria-label="تواصل معنا عبر واتساب" data-i18n-aria-label="common.whatsappAria"><img src="./assets/whatsapp-mark.svg" alt="" width="25" height="25"><span data-i18n="common.whatsapp">واتساب</span></a>
     <button class="scroll-top" type="button" aria-label="العودة إلى أعلى الصفحة" data-i18n-aria-label="scrollTop.aria"><i data-lucide="chevron-up" aria-hidden="true"></i></button>

@@ -8,26 +8,7 @@ import { buildPlanMessage, createWhatsAppUrl, getContactDestination } from '../s
 
 const htmlPages = ['index.html', 'privacy.html', 'terms.html', 'refund.html', 'risk-disclosure.html', '404.html'];
 const legalRoutes = ['privacy.html', 'terms.html', 'refund.html', 'risk-disclosure.html', '404.html'];
-const tradingViewScriptUrl = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-
-async function mockTradingView(page) {
-  await page.route(tradingViewScriptUrl, async (route) => {
-    await route.fulfill({
-      contentType: 'application/javascript',
-      body: `(() => {
-        const script = document.currentScript;
-        const iframe = document.createElement('iframe');
-        iframe.title = 'Mock TradingView advanced chart';
-        iframe.src = 'about:blank';
-        script.parentElement.insertBefore(iframe, script);
-        setTimeout(() => iframe.dispatchEvent(new Event('load')), 0);
-      })();`
-    });
-  });
-}
-
 async function expectNoSeriousAxeViolations(page, route) {
-  await mockTradingView(page);
   await page.goto(`/Vanguard/${route}`, { waitUntil: 'networkidle' });
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -53,7 +34,6 @@ test('normal navigation produces no CSP violations', async ({ page }) => {
       violations.push(message.text());
     }
   });
-  await mockTradingView(page);
   await page.goto('/Vanguard/', { waitUntil: 'networkidle' });
   await page.locator('[data-demo-step="context"]').click();
   await page.locator('#market-tab-2').click();
@@ -68,7 +48,6 @@ test('normal navigation produces no CSP violations', async ({ page }) => {
 });
 
 test('new-tab links always isolate their opener', async ({ page }) => {
-  await mockTradingView(page);
   await page.goto('/Vanguard/', { waitUntil: 'networkidle' });
   const unsafe = await page.locator('a[target="_blank"]').evaluateAll((links) => links
     .filter((link) => {
@@ -144,8 +123,8 @@ test('HTML uses restrictive meta CSP and contains no inline handlers or styles',
     expect(csp, file).not.toContain("'unsafe-eval'");
     if (file === 'index.html') {
       expect(csp).toContain('script-src');
-      expect(csp).toContain('https://s3.tradingview.com');
-      expect(csp).toContain('frame-src https://s.tradingview.com https://www.tradingview.com https://www.tradingview-widget.com');
+      expect(csp).toContain("frame-src 'none'");
+      expect(csp).not.toContain('s3.tradingview.com');
     }
   }
 });

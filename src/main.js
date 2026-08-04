@@ -1,15 +1,14 @@
 import './styles.css';
-import { createIcons, ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, ExternalLink, Landmark, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } from 'lucide';
+import { createIcons, ArrowLeft, BellRing, Check, ChevronUp, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } from 'lucide';
 import { siteConfig, validateConfig } from './config.js';
 import { benefits, faqs, workflow } from './content.js';
 import { initAnalytics, trackEvent } from './analytics.js';
 import { renderPricing } from './components/pricing.js';
 import { renderFaq } from './components/faq.js';
 import { renderEvidence } from './components/evidence.js';
-import { initContactLinks, isWhatsAppConfigured } from './components/contact.js';
+import { initContactLinks } from './components/contact.js';
 import { initMobileCta } from './components/mobile-cta.js';
 import { initThemeToggle } from './components/theme.js';
-import { initTradingViewHeroChart } from './components/tradingview-hero-chart.js';
 import { initLanguageSystem, subscribeLanguage, t, translateElement } from './i18n.js';
 import { renderMarketExplorer } from './components/market-explorer.js';
 
@@ -83,22 +82,14 @@ function renderContent() {
   renderEvidence(document.querySelector('#evidence'), siteConfig.evidenceExamples);
   document.querySelector('#current-year').textContent = new Date().getFullYear();
 
-  const contactNode = document.querySelector('#whatsapp-number');
-  if (isWhatsAppConfigured()) {
-    const contactDigits = siteConfig.contact.whatsappNumber;
-    contactNode.textContent = contactDigits.length === 13
-      ? `+${contactDigits.slice(0, 3)} ${contactDigits.slice(3, 6)} ${contactDigits.slice(6, 9)} ${contactDigits.slice(9)}`
-      : `+${contactDigits}`;
-  } else {
-    contactNode.hidden = true;
-  }
-
-  createIcons({ icons: { ArrowLeft, BellRing, Bitcoin, ChartNoAxesCombined, ChartSpline, Check, ChevronUp, ExternalLink, Landmark, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } });
+  createIcons({ icons: { ArrowLeft, BellRing, Check, ChevronUp, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } });
 }
 
 function initNavigation() {
   const toggle = document.querySelector('.menu-toggle');
   const nav = document.querySelector('.primary-nav');
+  const headerControls = [...document.querySelectorAll('.header-actions button')];
+  const utilityControls = headerControls.filter((button) => button !== toggle);
   const backgroundRegions = [
     document.querySelector('main'),
     document.querySelector('footer'),
@@ -106,7 +97,8 @@ function initNavigation() {
     document.querySelector('.scroll-top'),
     document.querySelector('.mobile-action-bar')
   ].filter(Boolean);
-  const focusables = () => [...nav.querySelectorAll('a[href]')];
+  const navFocusables = () => [...nav.querySelectorAll('a[href]')];
+  const focusables = () => [toggle, ...navFocusables(), ...utilityControls];
   const setBackgroundInert = (inert) => backgroundRegions.forEach((region) => { region.inert = inert; });
   const closeMenu = (restoreFocus = false) => {
     toggle.setAttribute('aria-expanded', 'false');
@@ -126,7 +118,7 @@ function initNavigation() {
       nav.classList.add('is-open');
       document.body.classList.add('menu-open');
       setBackgroundInert(true);
-      focusables()[0]?.focus();
+      navFocusables()[0]?.focus();
     }
   });
   window.matchMedia('(min-width: 861px)').addEventListener('change', (event) => {
@@ -137,11 +129,11 @@ function initNavigation() {
     if (!nav.classList.contains('is-open')) return;
     if (event.key === 'Escape') closeMenu(true);
     if (event.key !== 'Tab') return;
-    const items = [toggle, ...focusables()];
-    const first = items[0];
-    const last = items.at(-1);
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    const items = focusables();
+    const activeIndex = Math.max(0, items.indexOf(document.activeElement));
+    const nextIndex = (activeIndex + (event.shiftKey ? -1 : 1) + items.length) % items.length;
+    event.preventDefault();
+    items[nextIndex].focus();
   });
 
   const navLinks = [...nav.querySelectorAll('a[href^="#"]:not(.button)')];
@@ -233,7 +225,6 @@ async function startEnhancements() {
 renderContent();
 const cleanupLanguage = initLanguageSystem();
 const cleanupTheme = initThemeToggle();
-const cleanupChart = initTradingViewHeroChart(document.querySelector('[data-tradingview-hero]'));
 const cleanupNavigation = initNavigation();
 const cleanupContact = initContactLinks();
 initMobileCta();
@@ -248,7 +239,6 @@ if (document.readyState === 'complete') startEnhancements();
 else window.addEventListener('load', startEnhancements, { once: true });
 window.addEventListener('pagehide', () => {
   cleanupTheme();
-  cleanupChart();
   cleanupLanguage();
   cleanupNavigation();
   cleanupContact?.();
