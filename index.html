@@ -45,7 +45,7 @@
             <a href="#demo" data-i18n="nav.demo">العرض</a>
             <a href="#faq" data-i18n="nav.faq">الأسئلة</a>
           </div>
-          <a class="button button--small button--primary nav-mobile-cta" href="#pricing"><span data-i18n="common.choosePlan">اختر باقتك</span><i class="directional-icon" data-lucide="arrow-left" aria-hidden="true"></i></a>
+          <a id="mobile-pricing-cta" class="button button--small button--primary nav-mobile-cta" href="#pricing"><span data-i18n="common.choosePlan">اختر باقتك</span><i class="directional-icon" data-lucide="arrow-left" aria-hidden="true"></i></a>
         </nav>
         <div class="header-actions">
           <div class="language-toggle" role="group" aria-label="اختيار لغة الموقع" data-language-switch data-i18n-aria-label="language.groupAria">
@@ -57,7 +57,7 @@
             <i class="theme-toggle__sun" data-lucide="sun" aria-hidden="true"></i>
             <i class="theme-toggle__moon" data-lucide="moon" aria-hidden="true"></i>
           </button>
-          <a class="button button--small button--primary header-cta" href="#pricing"><span data-i18n="common.choosePlan">اختر باقتك</span><i class="directional-icon" data-lucide="arrow-left" aria-hidden="true"></i></a>
+          <a id="desktop-pricing-cta" class="button button--small button--primary header-cta" href="#pricing"><span data-i18n="common.choosePlan">اختر باقتك</span><i class="directional-icon" data-lucide="arrow-left" aria-hidden="true"></i></a>
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" aria-label="فتح قائمة التنقل" data-i18n-aria-label="nav.menuOpen"><span></span><span></span><span></span></button>
         </div>
       </div>
@@ -80,6 +80,33 @@
             </div>
             <ul class="trust-list" aria-label="مزايا أساسية" data-i18n-aria-label="hero.trustAria"><li data-i18n="hero.trust1">متوافق مع TradingView</li><li data-i18n="hero.trust2">تنبيهات على الهاتف</li><li data-i18n="hero.trust3">تفعيل يدوي ودعم مباشر</li></ul>
             <p class="risk-note" data-i18n="hero.risk">أداة تحليلية مساعدة وليست توصية مالية أو ضماناً للنتائج. تحقق من كل إعداد وأدر المخاطر قبل التداول.</p>
+            <section class="tradingview-panel" data-tradingview-chart data-widget-state="idle" aria-labelledby="tradingview-title" aria-describedby="tradingview-description tradingview-risk">
+              <div class="tradingview-panel__header">
+                <p class="tradingview-panel__kicker" dir="ltr">TRADINGVIEW · XAUUSD</p>
+                <h2 id="tradingview-title" data-i18n="chart.title">الرسم التفاعلي للسوق</h2>
+                <p id="tradingview-description" data-i18n="chart.description">استكشف حركة الذهب مقابل الدولار مباشرة داخل الرسم التفاعلي من TradingView.</p>
+              </div>
+              <div class="tradingview-panel__viewport">
+                <div class="tradingview-panel__loading" data-tradingview-loading role="status">
+                  <span class="tradingview-panel__spinner" aria-hidden="true"></span>
+                  <span data-i18n="chart.loading">جارٍ تحميل الرسم التفاعلي…</span>
+                </div>
+                <div class="tradingview-widget-container tradingview-panel__widget" data-tradingview-widget>
+                  <div class="tradingview-widget-container__widget" data-tradingview-mount></div>
+                  <div class="tradingview-widget-copyright">
+                    <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener noreferrer nofollow" target="_blank"><span class="blue-text" data-i18n="chart.attribution">مخطط XAUUSD</span></a><span class="trademark"> by TradingView</span>
+                  </div>
+                </div>
+                <div class="tradingview-panel__error" data-tradingview-error role="status" hidden>
+                  <strong data-i18n="chart.error">تعذر تحميل الرسم التفاعلي حالياً.</strong>
+                  <p data-i18n="chart.errorCopy">يمكنك الاستمرار في تصفح الصفحة أو فتح مؤشر Vanguard مباشرة على TradingView.</p>
+                </div>
+              </div>
+              <div class="tradingview-panel__footer">
+                <p id="tradingview-risk" data-i18n="chart.risk">الرسم يعرض بيانات السوق من TradingView ولا يشكل توصية مالية أو ضماناً للنتائج.</p>
+                <a class="tradingview-panel__action" href="https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/" target="_blank" rel="noopener noreferrer nofollow"><span data-i18n="chart.open">فتح مؤشر Vanguard على TradingView</span><i data-lucide="external-link" aria-hidden="true"></i></a>
+              </div>
+            </section>
           </div>
         </div>
         <div class="hero-ticker" aria-hidden="true"><span>FOREX</span><i></i><span>CRYPTO</span><i></i><span>STOCKS</span><i></i><span>INDICES</span><i></i><span>TRADINGVIEW</span></div>
@@ -97,34 +124,13 @@
 
       <section id="demo" class="section demo-section motion-section" aria-labelledby="demo-title">
         <div class="container demo-layout motion-group">
-            <div class="demo-copy"><p class="section-index" data-i18n="demo.index">03 — عرض بصري</p><h2 id="demo-title"><span data-i18n="demo.title">كيف تتحول الإشارة إلى</span> <em data-i18n="demo.titleEm">مراجعة منظّمة</em></h2><p data-i18n="demo.intro">راجع خطوات تقييم الإشارة، ثم استكشف حركة السوق داخل الرسم التفاعلي المستقل.</p><div class="demo-steps" role="tablist" aria-label="خطوات العرض" data-i18n-aria-label="demo.tabsAria"><button type="button" role="tab" aria-selected="true" aria-controls="demo-step-copy" data-demo-step="signal" data-i18n="demo.signal">01 الإشارة</button><button type="button" role="tab" aria-selected="false" aria-controls="demo-step-copy" data-demo-step="context" data-i18n="demo.context">02 السياق</button><button type="button" role="tab" aria-selected="false" aria-controls="demo-step-copy" data-demo-step="alert" data-i18n="demo.alert">03 التنبيه</button></div><p id="demo-step-copy" class="demo-step-copy" role="tabpanel" tabindex="0" data-i18n="demo.signalCopy">تظهر منطقة المتابعة بصريًا لتبدأ منها المراجعة، لا لتنفذ الصفقة تلقائيًا.</p></div>
-          <section class="tradingview-panel" data-tradingview-chart data-widget-state="idle" aria-labelledby="tradingview-title" aria-describedby="tradingview-description tradingview-risk">
-            <div class="tradingview-panel__header">
-              <p class="tradingview-panel__kicker" dir="ltr">TRADINGVIEW · XAUUSD</p>
-              <h3 id="tradingview-title" data-i18n="chart.title">الرسم التفاعلي للسوق</h3>
-              <p id="tradingview-description" data-i18n="chart.description">استكشف حركة الذهب مقابل الدولار مباشرة داخل الرسم التفاعلي من TradingView.</p>
+            <div class="demo-copy"><p class="section-index" data-i18n="demo.index">03 — عرض بصري</p><h2 id="demo-title"><span data-i18n="demo.title">كيف تتحول الإشارة إلى</span> <em data-i18n="demo.titleEm">مراجعة منظّمة</em></h2><p data-i18n="demo.intro">هذه لقطة حقيقية لواجهة مؤشر Vanguard داخل TradingView وليست دليل أداء. اختر خطوة لترى كيف يمكن ترتيب عملية المراجعة.</p><div class="demo-steps" role="tablist" aria-label="خطوات العرض" data-i18n-aria-label="demo.tabsAria"><button type="button" role="tab" aria-selected="true" aria-controls="demo-step-copy" data-demo-step="signal" data-i18n="demo.signal">01 الإشارة</button><button type="button" role="tab" aria-selected="false" aria-controls="demo-step-copy" data-demo-step="context" data-i18n="demo.context">02 السياق</button><button type="button" role="tab" aria-selected="false" aria-controls="demo-step-copy" data-demo-step="alert" data-i18n="demo.alert">03 التنبيه</button></div><p id="demo-step-copy" class="demo-step-copy" role="tabpanel" tabindex="0" data-i18n="demo.signalCopy">تظهر منطقة المتابعة بصريًا لتبدأ منها المراجعة، لا لتنفذ الصفقة تلقائيًا.</p></div>
+          <figure class="indicator-preview">
+            <div class="indicator-preview__media">
+              <img src="./images/vanguard-indicator-preview.png" alt="لقطة شاشة لمؤشر Vanguard على رسم الذهب مقابل الدولار داخل TradingView، وتظهر عليها مناطق المتابعة والإشارات المرئية" data-i18n-alt="demo.imageAlt" width="1288" height="318" loading="lazy" decoding="async">
             </div>
-            <div class="tradingview-panel__viewport">
-              <div class="tradingview-panel__loading" data-tradingview-loading role="status">
-                <span class="tradingview-panel__spinner" aria-hidden="true"></span>
-                <span data-i18n="chart.loading">جارٍ تحميل الرسم التفاعلي…</span>
-              </div>
-              <div class="tradingview-widget-container tradingview-panel__widget" data-tradingview-widget>
-                <div class="tradingview-widget-container__widget" data-tradingview-mount></div>
-                <div class="tradingview-widget-copyright">
-                  <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" rel="noopener noreferrer nofollow" target="_blank"><span class="blue-text" data-i18n="chart.attribution">مخطط XAUUSD</span></a><span class="trademark"> by TradingView</span>
-                </div>
-              </div>
-              <div class="tradingview-panel__error" data-tradingview-error role="status" hidden>
-                <strong data-i18n="chart.error">تعذر تحميل الرسم التفاعلي حالياً.</strong>
-                <p data-i18n="chart.errorCopy">يمكنك الاستمرار في تصفح الصفحة أو فتح مؤشر Vanguard مباشرة على TradingView.</p>
-              </div>
-            </div>
-            <div class="tradingview-panel__footer">
-              <p id="tradingview-risk" data-i18n="chart.risk">الرسم يعرض بيانات السوق من TradingView ولا يشكل توصية مالية أو ضماناً للنتائج.</p>
-              <a class="tradingview-panel__action" href="https://www.tradingview.com/script/eyqTPbol-NEW-VANGUARD-INDICATOR/" target="_blank" rel="noopener noreferrer nofollow"><span data-i18n="chart.open">فتح مؤشر Vanguard على TradingView</span><i data-lucide="external-link" aria-hidden="true"></i></a>
-            </div>
-          </section>
+            <figcaption><strong data-i18n="demo.captionTitle">واجهة مؤشر Vanguard على TradingView</strong><span data-i18n="demo.captionCopy">صورة توضيحية للمؤشر المرفق، وليست توصية مالية أو ضمانًا للنتائج.</span></figcaption>
+          </figure>
         </div>
       </section>
 

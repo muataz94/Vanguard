@@ -162,6 +162,10 @@ test('hero spacing remains collision-free across the required viewport, language
             secondTitleLine: rect('.hero-title-line:last-child'),
             description: rect('.hero-description'),
             buttons: rect('.hero .button-row'),
+            risk: rect('.risk-note'),
+            chart: rect('.hero [data-tradingview-chart]'),
+            demoImage: rect('#demo .indicator-preview img'),
+            widgetInDemo: document.querySelectorAll('#demo [data-tradingview-widget], #demo iframe, #demo script[data-tradingview-loader]').length,
             paragraphs,
             textIssues,
             scrollWidth: document.documentElement.scrollWidth,
@@ -172,6 +176,10 @@ test('hero spacing remains collision-free across the required viewport, language
         expect(layout.secondTitleLine.top).toBeGreaterThanOrEqual(layout.firstTitleLine.bottom - 1);
         expect(layout.description.top - layout.title.bottom).toBeGreaterThanOrEqual(18);
         expect(layout.buttons.top - layout.description.bottom).toBeGreaterThanOrEqual(22);
+        expect(layout.chart.top - layout.risk.bottom).toBeGreaterThanOrEqual(23);
+        expect(layout.widgetInDemo).toBe(0);
+        expect(layout.demoImage.left).toBeGreaterThanOrEqual(-1);
+        expect(layout.demoImage.right).toBeLessThanOrEqual(layout.clientWidth + 1);
         layout.paragraphs.slice(1).forEach((paragraph, index) => {
           expect(paragraph.top).toBeGreaterThanOrEqual(layout.paragraphs[index].bottom + 8);
         });

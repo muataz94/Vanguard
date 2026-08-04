@@ -143,7 +143,7 @@ html[dir="ltr"] .directional-icon { transform: scaleX(-1); }
 .header-cta svg, .nav-mobile-cta svg { width: 16px; transition: transform .2s ease; }
 .header-cta:hover svg, .nav-mobile-cta:hover svg { transform: translateX(-2px); }
 html[dir="ltr"] .header-cta:hover svg, html[dir="ltr"] .nav-mobile-cta:hover svg { transform: scaleX(-1) translateX(-2px); }
-.nav-mobile-cta { display: none; }
+.primary-nav .nav-mobile-cta { display: none; }
 .menu-toggle { display: none; width: 44px; height: 44px; padding: 11px; border: 1px solid var(--border-subtle); border-radius: 50%; background: var(--surface-900); color: var(--text-primary); cursor: pointer; }
 .menu-toggle span { display: block; height: 2px; margin-block: 4px; background: var(--brand-white); transition: transform .2s ease, opacity .2s ease; }
 .menu-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
@@ -164,7 +164,7 @@ html[dir="ltr"] .header-cta:hover svg, html[dir="ltr"] .nav-mobile-cta:hover svg
 
 .hero { position: relative; padding-block: clamp(58px, 7vw, 92px) 0; background: radial-gradient(circle at 50% 11%, rgba(71, 176, 123, .13), transparent 31%), linear-gradient(180deg, var(--surface-975), var(--surface-950)); }
 .hero-layout { display: block; }
-.hero-copy { position: relative; z-index: 2; width: min(100%, 940px); text-align: center; }
+.hero-copy { position: relative; z-index: 2; width: min(100%, 940px); margin-inline: auto; text-align: center; }
 .eyebrow { display: flex; align-items: center; gap: 10px; margin-block-end: 20px; color: var(--green-300); font-family: var(--font-ui); font-size: max(.875rem, 14px); font-weight: 600; }
 .hero .eyebrow { justify-content: center; margin-block-end: clamp(.9rem, 2vw, 1.25rem); }
 .eyebrow > span { width: 26px; height: 1px; background: var(--brand-green); }
@@ -233,10 +233,10 @@ html[lang="en"] .hero-description p { line-height: 1.68; }
 .demo-steps button { min-height: 44px; padding: 9px 15px; border: 1px solid var(--border-subtle); border-radius: 8px; background: transparent; color: var(--text-secondary); cursor: pointer; font-family: var(--font-ui); font-size: max(.875rem, 14px); font-weight: 600; }
 .demo-steps button[aria-selected="true"] { border-color: var(--brand-green); background: var(--brand-green); color: #041109; }
 .demo-step-copy { min-height: 58px; margin: 0; font-size: var(--text-card-copy); line-height: 1.8; }
-.tradingview-panel { margin: 0; border: 1px solid var(--border-green); border-radius: var(--radius-lg); background: var(--surface-850); box-shadow: var(--shadow-lg), 0 0 60px rgba(71,176,123,.08); }
+.tradingview-panel { margin: clamp(24px, 3vw, 40px) 0 0; overflow: hidden; border: 1px solid var(--border-green); border-radius: var(--radius-lg); background: var(--surface-850); box-shadow: var(--shadow-lg), 0 0 60px rgba(71,176,123,.08); text-align: start; }
 .tradingview-panel__header { padding: clamp(22px, 3vw, 32px); border-block-end: 1px solid var(--border-subtle); }
 .tradingview-panel__kicker { margin-block-end: 10px; color: var(--green-300) !important; font: 650 max(.875rem, 14px)/1.4 var(--font-ui); letter-spacing: .04em; }
-.tradingview-panel h3 { margin-block-end: 12px; font-size: clamp(1.45rem, 2.4vw, 2.2rem); }
+.tradingview-panel h2 { margin-block-end: 12px; font-size: clamp(1.45rem, 2.4vw, 2.2rem); }
 .tradingview-panel__header > p:last-child { max-width: 68ch; margin: 0; }
 .tradingview-panel__viewport { position: relative; height: clamp(430px, 52vw, 620px); overflow: hidden; background: #0d111c; }
 .tradingview-panel__widget, .tradingview-widget-container__widget { width: 100%; height: 100%; }
@@ -259,6 +259,13 @@ html[lang="en"] .hero-description p { line-height: 1.68; }
 .tradingview-panel__action:hover { border-color: var(--brand-green); background: rgba(71,176,123,.1); transform: translateY(-2px); }
 .tradingview-panel__action svg { width: 16px; }
 @keyframes tradingview-spin { to { transform: rotate(360deg); } }
+
+.indicator-preview { margin: 0; overflow: hidden; border: 1px solid var(--border-green); border-radius: var(--radius-lg); background: #111722; box-shadow: var(--shadow-lg), 0 0 60px rgba(71,176,123,.08); }
+.indicator-preview__media { overflow: hidden; background: #111722; }
+.indicator-preview img { width: 100%; max-inline-size: 100%; height: auto; aspect-ratio: 1288 / 318; object-fit: contain; background: #111722; }
+.indicator-preview figcaption { padding: 18px clamp(18px, 3vw, 30px); display: flex; align-items: center; justify-content: space-between; gap: 12px 28px; border-block-start: 1px solid rgba(245,250,247,.11); background: var(--surface-850); }
+.indicator-preview figcaption strong { color: var(--text-primary); font-family: var(--font-heading); font-size: 1.125rem; }
+.indicator-preview figcaption span { color: var(--text-secondary); font-size: max(.875rem, 14px); line-height: 1.7; }
 
 .markets-section { background: var(--surface-900); }
 .market-explorer { display: grid; gap: 14px; }
@@ -489,7 +496,7 @@ html[data-theme="light"] .final-cta__visual span::after { border-color: rgba(16,
   .nav-rail > a { min-height: 52px; display: flex; align-items: center; border-radius: 12px; }
   .nav-rail > a::after { inset-inline-start: 16px; inset-block-end: 50%; transform: translateY(50%) scale(.4); }
   .nav-rail > a.is-active::after { transform: translateY(50%) scale(1); }
-  .nav-mobile-cta { width: 100%; margin-block-start: 12px; display: flex; }
+  .primary-nav .nav-mobile-cta { width: 100%; margin-block-start: 12px; display: flex; }
   .hero-copy { max-width: 820px; }
   .benefits-grid { grid-template-columns: repeat(2, 1fr); }
   .demo-layout, .bundle-layout, .faq-layout { grid-template-columns: 1fr; }
@@ -531,6 +538,7 @@ html[data-theme="light"] .final-cta__visual span::after { border-color: rgba(16,
   .tradingview-panel__viewport { height: clamp(360px, 108vw, 470px); }
   .tradingview-panel__footer { align-items: flex-start; flex-direction: column; }
   .tradingview-panel__action { width: 100%; justify-content: center; }
+  .indicator-preview figcaption { align-items: flex-start; flex-direction: column; }
   .market-pills { grid-template-columns: 1fr 1fr; }
   .market-pills > button { min-height: 122px; padding: 16px; }
   .market-detail { grid-template-columns: 1fr; padding: 18px; }

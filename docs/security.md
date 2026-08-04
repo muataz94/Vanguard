@@ -18,7 +18,7 @@ Vanguard is a static Vite site deployed through GitHub Pages. The repository imp
 
 ## TradingView widget dependency
 
-The landing page contains one lazy-loaded TradingView Advanced Chart in the visual demo section. The integration uses the official embed loader at `https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js` and permits frames only from `https://s.tradingview.com`, `https://www.tradingview.com`, and `https://www.tradingview-widget.com`.
+The landing page contains one lazy-loaded TradingView Advanced Chart in the hero immediately after the risk note. The separate visual-demo section contains only the local Vanguard product screenshot. The integration uses the official embed loader at `https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js` and permits frames only from `https://s.tradingview.com`, `https://www.tradingview.com`, and `https://www.tradingview-widget.com`.
 
 These origins are present only in the landing-page CSP. Legal pages keep `frame-src 'none'` and do not allow the external loader. The widget receives no API key, private Vanguard study, visitor message, contact detail, or analytics identifier. Automated browser tests replace the external loader with a deterministic local mock and separately verify the failure fallback.
 
