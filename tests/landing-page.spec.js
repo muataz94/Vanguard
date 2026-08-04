@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { mockTradingView, tradingViewScriptUrl } from './tradingview-mock.js';
 
 const targetViewports = [
-  [320, 568], [360, 800], [390, 844], [430, 932], [768, 1024],
+  [320, 568], [360, 640], [360, 800], [390, 844], [430, 932], [768, 1024],
   [1024, 768], [1280, 800], [1366, 768], [1440, 900], [1920, 1080]
 ];
 function watchPage(page) {
@@ -16,9 +17,18 @@ function watchPage(page) {
 }
 
 async function openLanding(page) {
+  await mockTradingView(page);
   const response = await page.goto('/Vanguard/', { waitUntil: 'networkidle' });
   expect(response?.status()).toBe(200);
   await page.waitForTimeout(700);
+}
+
+async function revealTradingView(page) {
+  const panel = page.locator('[data-tradingview-chart]');
+  await panel.scrollIntoViewIfNeeded();
+  await expect(panel).toHaveAttribute('data-widget-state', 'ready');
+  await expect(panel.locator('iframe')).toHaveCount(1);
+  return panel;
 }
 
 test('home, assets, navigation, pricing and WhatsApp are production-ready', async ({ page }) => {
@@ -38,8 +48,8 @@ test('home, assets, navigation, pricing and WhatsApp are production-ready', asyn
   expect(await page.locator('.brand img').first().evaluate((image) => image.naturalWidth)).toBeGreaterThan(0);
   expect(await page.locator('.brand img').first().evaluate((image) => image.currentSrc)).not.toContain('/Vanguard/Vanguard/');
 
-  await expect(page.locator('.indicator-preview img')).toBeVisible();
-  await expect(page.locator('.indicator-preview img')).toHaveAttribute('src', /images\/vanguard-indicator-preview\.png$/);
+  await expect(page.locator('[data-tradingview-widget]')).toHaveCount(1);
+  await expect(page.locator('.indicator-preview, #demo video, #demo canvas, #demo img')).toHaveCount(0);
   await expect(page.locator('canvas[data-vanguard-abstract]')).toHaveCount(0);
   await expect(page.getByText('المعلومة كثيرة. المطلوب هو ترتيبها', { exact: true })).toHaveCount(0);
   await expect(page.locator('.section-transition-host, .market-scroll-effect, .pin-spacer')).toHaveCount(0);
@@ -64,6 +74,7 @@ test('home, assets, navigation, pricing and WhatsApp are production-ready', asyn
   await page.locator('.hero a[href="#demo"]').click();
   await expect(page).toHaveURL(/#demo$/);
   await expect(page.locator('#demo-title')).toBeInViewport();
+  await revealTradingView(page);
   await page.locator('[data-demo-step="context"]').click();
   await expect(page.locator('[data-demo-step="context"]')).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('[data-demo-step="context"]')).toHaveAttribute('aria-controls', 'demo-step-copy');
@@ -155,11 +166,14 @@ test('reduced motion renders complete static content without WebGL', async ({ br
   await openLanding(page);
   await expect(page.locator('canvas[data-vanguard-abstract]')).toHaveCount(0);
   await expect(page.locator('html')).toHaveAttribute('data-motion-mode', 'static');
-  await expect(page.locator('[data-tradingview-hero], [data-tradingview-widget]')).toHaveCount(0);
+  await expect(page.locator('[data-tradingview-hero]')).toHaveCount(0);
+  await expect(page.locator('[data-tradingview-widget]')).toHaveCount(1);
   await expect(page.locator('video')).toHaveCount(0);
-  await expect(page.locator('.indicator-preview img')).toBeVisible();
-  const states = await page.locator('.motion-group, .indicator-preview').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
+  await revealTradingView(page);
+  const states = await page.locator('.motion-group, .tradingview-panel').evaluateAll((nodes) => nodes.map((node) => ({ opacity: getComputedStyle(node).opacity, transform: getComputedStyle(node).transform })));
   expect(states.every(({ opacity, transform }) => opacity === '1' && transform === 'none')).toBeTruthy();
+  const navbarMotion = await page.locator('.language-toggle').evaluate((node) => Math.max(...getComputedStyle(node, '::before').transitionDuration.split(',').map((value) => parseFloat(value) || 0)));
+  expect(navbarMotion).toBeLessThanOrEqual(0.001);
   expect(diagnostics.errors).toEqual([]);
   expect(diagnostics.failures).toEqual([]);
   await context.close();
@@ -180,7 +194,7 @@ test('theme follows the system, toggles accessibly and persists', async ({ brows
   await context.close();
 });
 
-test('hero copy, spacing structure and disclaimer are bilingual and widget-free', async ({ page }) => {
+test('hero copy, spacing structure and disclaimer are bilingual and chart-free', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const diagnostics = watchPage(page);
   await openLanding(page);
@@ -188,7 +202,7 @@ test('hero copy, spacing structure and disclaimer are bilingual and widget-free'
   await expect(page.locator('.risk-note')).toHaveText('أداة تحليلية مساعدة وليست توصية مالية أو ضماناً للنتائج. تحقق من كل إعداد وأدر المخاطر قبل التداول.');
   await expect(page.locator('[data-tradingview-hero], .hero-chart, iframe')).toHaveCount(0);
   await page.locator('[data-theme-toggle]').click();
-  await page.locator('[data-language-toggle]').click();
+  await page.locator('[data-language-option="en"]').click();
   await expect(page.locator('.hero-description p').first()).toContainText('Vanguard Indicator is an automated strategy');
   await expect(page.locator('.risk-note')).toHaveText('An analytical support tool, not financial advice or a guarantee of results. Verify every setup and manage risk before trading.');
   expect(diagnostics.errors).toEqual([]);
@@ -208,6 +222,122 @@ test('mobile menu traps focus, closes with Escape and keeps actions reachable', 
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
   await expect(page.locator('.mobile-action-bar')).toBeVisible();
   await expect(page.locator('[data-mobile-contact]')).toHaveAttribute('href', /^https:\/\/wa\.me\/9647717220578\?text=/);
+});
+
+for (const [width, height] of [[1440, 900], [1280, 800], [1024, 768]]) {
+  test(`floating navbar zones and official brand lockup remain collision-free at ${width}x${height}`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await openLanding(page);
+    await expect(page.locator('.menu-toggle')).toBeHidden();
+    await expect(page.locator('.brand img').first()).toHaveAttribute('src', './assets/vanguard-logo.png');
+    const layout = await page.evaluate(() => {
+      const box = (selector) => {
+        const rect = document.querySelector(selector).getBoundingClientRect();
+        return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, center: rect.left + rect.width / 2 };
+      };
+      return {
+        brand: box('.site-header .brand'),
+        navigation: box('.nav-rail'),
+        actions: box('.header-actions'),
+        wordmark: box('.site-header .brand b'),
+        descriptor: box('.site-header .brand small'),
+        viewportCenter: innerWidth / 2
+      };
+    });
+    const zones = [layout.brand, layout.navigation, layout.actions].sort((a, b) => a.left - b.left);
+    expect(zones[1].left).toBeGreaterThanOrEqual(zones[0].right - 1);
+    expect(zones[2].left).toBeGreaterThanOrEqual(zones[1].right - 1);
+    expect(Math.abs(layout.navigation.center - layout.viewportCenter)).toBeLessThanOrEqual(2);
+    expect(layout.descriptor.top).toBeGreaterThanOrEqual(layout.wordmark.bottom - 1);
+  });
+}
+
+for (const [width, height] of [[430, 932], [390, 844], [360, 800]]) {
+  test(`mobile navbar remains bounded and fully operable at ${width}x${height}`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    await openLanding(page);
+    const menu = page.locator('.primary-nav');
+    const toggle = page.locator('.menu-toggle');
+    await toggle.click();
+    await expect(menu).toBeVisible();
+    await expect(menu.locator('.nav-rail > a')).toHaveCount(4);
+    await expect(menu.locator('a[href="#pricing"]')).toHaveCount(1);
+    const bounds = await menu.evaluate((node) => {
+      const rect = node.getBoundingClientRect();
+      return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: innerWidth, height: innerHeight };
+    });
+    expect(bounds.left).toBeGreaterThanOrEqual(0);
+    expect(bounds.right).toBeLessThanOrEqual(bounds.width);
+    expect(bounds.top).toBeGreaterThanOrEqual(0);
+    expect(bounds.bottom).toBeLessThanOrEqual(bounds.height);
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeHidden();
+    await expect(toggle).toBeFocused();
+  });
+}
+
+test('TradingView initializes lazily with an approved configuration and never duplicates', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openLanding(page);
+  const panel = page.locator('[data-tradingview-chart]');
+  await expect(page.locator('[data-tradingview-widget]')).toHaveCount(1);
+  await expect(page.locator(`script[src="${tradingViewScriptUrl}"]`)).toHaveCount(0);
+  await expect(panel.locator('iframe')).toHaveCount(0);
+
+  await revealTradingView(page);
+  await expect(page.locator(`script[src="${tradingViewScriptUrl}"]`)).toHaveCount(1);
+  const initial = await page.evaluate(() => ({
+    count: window.__tradingViewLoaderExecutions,
+    config: window.__tradingViewConfigs.at(-1)
+  }));
+  expect(initial.count).toBe(1);
+  expect(initial.config).toMatchObject({
+    autosize: true,
+    symbol: 'OANDA:XAUUSD',
+    interval: '60',
+    timezone: 'Etc/UTC',
+    style: '1',
+    withdateranges: true,
+    allow_symbol_change: true,
+    save_image: false,
+    calendar: false,
+    hide_side_toolbar: false,
+    hide_top_toolbar: false,
+    support_host: 'https://www.tradingview.com'
+  });
+  expect(initial.config.studies).toBeUndefined();
+
+  await page.locator('[data-language-option="en"]').click();
+  expect(await page.evaluate(() => window.__tradingViewLoaderExecutions)).toBe(1);
+  await expect(panel.locator('iframe')).toHaveCount(1);
+
+  for (let index = 0; index < 3; index += 1) {
+    await page.locator('[data-theme-toggle]').click();
+    await expect(panel).toHaveAttribute('data-widget-state', 'ready');
+    await expect(page.locator(`script[src="${tradingViewScriptUrl}"]`)).toHaveCount(1);
+    await expect(panel.locator('iframe')).toHaveCount(1);
+  }
+  const lifecycle = await panel.evaluate((node) => ({
+    initCount: Number(node.dataset.widgetInitCount),
+    executions: window.__tradingViewLoaderExecutions
+  }));
+  expect(lifecycle.initCount).toBe(4);
+  expect(lifecycle.executions).toBe(4);
+  await expect(page.locator('.tradingview-widget-copyright')).toBeVisible();
+  await expect(page.locator('.tradingview-widget-copyright a')).toHaveAttribute('rel', /noopener.*noreferrer.*nofollow/);
+});
+
+test('TradingView failure exposes an accessible fallback without breaking the page', async ({ page }) => {
+  await page.route(tradingViewScriptUrl, (route) => route.abort('failed'));
+  const response = await page.goto('/Vanguard/', { waitUntil: 'networkidle' });
+  expect(response?.status()).toBe(200);
+  const panel = page.locator('[data-tradingview-chart]');
+  await panel.scrollIntoViewIfNeeded();
+  await expect(panel).toHaveAttribute('data-widget-state', 'error');
+  await expect(panel.locator('[data-tradingview-error]')).toBeVisible();
+  await expect(panel.locator('iframe')).toHaveCount(0);
+  await expect(page.locator('h1')).toBeVisible();
+  await expect(page.locator('.tradingview-panel__action')).toBeVisible();
 });
 
 test('keyboard landmarks and FAQ ARIA behavior work', async ({ page }) => {
@@ -235,6 +365,14 @@ for (const [width, height] of targetViewports) {
     await openLanding(page);
     const dimensions = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }));
     expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+    const overflowing = await page.locator('h1, h2, h3, p, a, button, img, iframe, [role="tab"], [role="tabpanel"]').evaluateAll((nodes) => nodes
+      .filter((node) => {
+        const style = getComputedStyle(node);
+        const rect = node.getBoundingClientRect();
+        return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && (rect.left < -1 || rect.right > document.documentElement.clientWidth + 1);
+      })
+      .map((node) => ({ tag: node.tagName, className: node.className, text: node.textContent?.trim().slice(0, 60) })));
+    expect(overflowing).toEqual([]);
   });
 }
 
@@ -272,7 +410,7 @@ for (const route of ['privacy.html', 'terms.html', 'refund.html', 'risk-disclosu
 
 test('normal scroll avoids long blocking tasks', async ({ page }) => {
   await openLanding(page);
-  await page.locator('.indicator-preview img').waitFor({ state: 'attached' });
+  await revealTradingView(page);
   await page.evaluate(() => document.fonts?.ready);
   await page.waitForTimeout(500);
   await page.evaluate(() => {
@@ -313,6 +451,7 @@ test('capture required responsive section screenshots', async ({ browser, baseUR
   ]) {
     const context = await browser.newContext({ viewport, locale: 'ar-IQ', colorScheme: 'dark', reducedMotion: 'reduce' });
     const page = await context.newPage();
+    await mockTradingView(page);
     await page.goto(`${baseURL}/Vanguard/`, { waitUntil: 'networkidle' });
     for (const [name, selector] of captures) {
       const target = page.locator(selector);

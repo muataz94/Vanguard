@@ -5,10 +5,12 @@ import { resolve } from 'node:path';
 import { siteConfig } from '../src/config.js';
 import { sanitizeAnalyticsMetadata } from '../src/analytics.js';
 import { buildPlanMessage, createWhatsAppUrl, getContactDestination } from '../src/components/contact.js';
+import { mockTradingView } from './tradingview-mock.js';
 
 const htmlPages = ['index.html', 'privacy.html', 'terms.html', 'refund.html', 'risk-disclosure.html', '404.html'];
 const legalRoutes = ['privacy.html', 'terms.html', 'refund.html', 'risk-disclosure.html', '404.html'];
 async function expectNoSeriousAxeViolations(page, route) {
+  await mockTradingView(page);
   await page.goto(`/Vanguard/${route}`, { waitUntil: 'networkidle' });
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
@@ -34,7 +36,10 @@ test('normal navigation produces no CSP violations', async ({ page }) => {
       violations.push(message.text());
     }
   });
+  await mockTradingView(page);
   await page.goto('/Vanguard/', { waitUntil: 'networkidle' });
+  await page.locator('[data-tradingview-chart]').scrollIntoViewIfNeeded();
+  await expect(page.locator('[data-tradingview-chart]')).toHaveAttribute('data-widget-state', 'ready');
   await page.locator('[data-demo-step="context"]').click();
   await page.locator('#market-tab-2').click();
   await page.locator('.faq-question').nth(2).click();
@@ -48,6 +53,7 @@ test('normal navigation produces no CSP violations', async ({ page }) => {
 });
 
 test('new-tab links always isolate their opener', async ({ page }) => {
+  await mockTradingView(page);
   await page.goto('/Vanguard/', { waitUntil: 'networkidle' });
   const unsafe = await page.locator('a[target="_blank"]').evaluateAll((links) => links
     .filter((link) => {
@@ -78,7 +84,8 @@ test('configuration rendering code uses text nodes instead of executable HTML si
     'src/legal.js',
     'src/components/evidence.js',
     'src/components/faq.js',
-    'src/components/pricing.js'
+    'src/components/pricing.js',
+    'src/components/tradingview-chart.js'
   ];
   for (const file of renderingFiles) {
     const source = await readFile(resolve(file), 'utf8');
@@ -121,10 +128,15 @@ test('HTML uses restrictive meta CSP and contains no inline handlers or styles',
     expect(csp, file).toContain("form-action 'none'");
     expect(csp, file).not.toContain("'unsafe-inline'");
     expect(csp, file).not.toContain("'unsafe-eval'");
+    expect(csp, file).not.toMatch(/(?:^|\s)\*(?:\s|;|$)/);
     if (file === 'index.html') {
-      expect(csp).toContain('script-src');
-      expect(csp).toContain("frame-src 'none'");
-      expect(csp).not.toContain('s3.tradingview.com');
+      expect(csp).toContain("script-src 'self' 'sha256-4AwSWWaqZYXQHDLnbFNUjQW/GvNpGqqwGB3ptRut5aQ=' https://s3.tradingview.com");
+      expect(csp).toContain('frame-src https://s.tradingview.com https://www.tradingview.com https://www.tradingview-widget.com');
+      expect((csp.match(/https:\/\/s3\.tradingview\.com/g) || [])).toHaveLength(1);
+    } else {
+      expect(csp, file).toContain("frame-src 'none'");
+      expect(csp, file).not.toContain('tradingview.com');
+      expect(csp, file).not.toContain('tradingview-widget.com');
     }
   }
 });

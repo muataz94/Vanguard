@@ -8,13 +8,13 @@ function revealEverything() {
 }
 
 function prepareTargets() {
-  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .hero-copy > *, .indicator-preview, .bundle-console`)
+  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .hero-copy > *, .tradingview-panel, .bundle-console`)
     .forEach((target) => target.classList.add('motion-reveal-target'));
 }
 
 function createRevealTriggers(ScrollTrigger) {
   const triggers = [];
-  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .indicator-preview, .bundle-console`).forEach((target) => {
+  document.querySelectorAll(`${revealSelector}, ${cardSelector}, .tradingview-panel, .bundle-console`).forEach((target) => {
     const trigger = ScrollTrigger.create({
       trigger: target,
       start: 'top 90%',

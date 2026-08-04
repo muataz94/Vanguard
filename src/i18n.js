@@ -23,6 +23,9 @@ const ar = {
   'nav.pricing': 'الباقات',
   'nav.faq': 'الأسئلة',
   'language.action': 'تغيير اللغة إلى الإنجليزية',
+  'language.groupAria': 'اختيار لغة الموقع',
+  'language.ar': 'العربية',
+  'language.en': 'الإنجليزية',
   'theme.enableLight': 'تفعيل الوضع الفاتح',
   'theme.enableDark': 'تفعيل الوضع الداكن',
   'theme.light': 'الوضع الفاتح',
@@ -76,7 +79,7 @@ const ar = {
   'demo.index': '03 — عرض بصري',
   'demo.title': 'كيف تتحول الإشارة إلى',
   'demo.titleEm': 'مراجعة منظّمة',
-  'demo.intro': 'هذه لقطة حقيقية لواجهة مؤشر Vanguard داخل TradingView وليست دليل أداء. اختر خطوة لترى كيف يمكن ترتيب عملية المراجعة.',
+  'demo.intro': 'راجع خطوات تقييم الإشارة، ثم استكشف حركة السوق داخل الرسم التفاعلي المستقل.',
   'demo.tabsAria': 'خطوات العرض',
   'demo.signal': '01 الإشارة',
   'demo.context': '02 السياق',
@@ -88,6 +91,14 @@ const ar = {
   'demo.imageAlt': 'لقطة شاشة لمؤشر Vanguard على رسم الذهب مقابل الدولار داخل TradingView، وتظهر عليها مناطق المتابعة والإشارات المرئية',
   'demo.captionTitle': 'واجهة مؤشر Vanguard على TradingView',
   'demo.captionCopy': 'صورة توضيحية للمؤشر المرفق، وليست توصية مالية أو ضمانًا للنتائج.',
+  'chart.title': 'الرسم التفاعلي للسوق',
+  'chart.description': 'استكشف حركة الذهب مقابل الدولار مباشرة داخل الرسم التفاعلي من TradingView.',
+  'chart.risk': 'الرسم يعرض بيانات السوق من TradingView ولا يشكل توصية مالية أو ضماناً للنتائج.',
+  'chart.loading': 'جارٍ تحميل الرسم التفاعلي…',
+  'chart.error': 'تعذر تحميل الرسم التفاعلي حالياً.',
+  'chart.errorCopy': 'يمكنك الاستمرار في تصفح الصفحة أو فتح مؤشر Vanguard مباشرة على TradingView.',
+  'chart.open': 'فتح مؤشر Vanguard على TradingView',
+  'chart.attribution': 'مخطط XAUUSD',
   'markets.index': '04 — الأسواق',
   'markets.title': 'واجهة واحدة، وسياق',
   'markets.titleEm': 'يختلف بين الأسواق',
@@ -249,11 +260,12 @@ const en = {
   'meta.ogDescription': 'Organize signal reviews, focus zones, and mobile alerts within a clearer workflow.',
   'meta.twitterTitle': 'Vanguard Indicator',
   'meta.twitterDescription': 'A supporting analysis tool for TradingView.',
-  'common.whatsapp': 'WhatsApp', 'common.whatsappAria': 'Contact us on WhatsApp', 'common.choosePlan': 'Choose your plan',
+  'common.whatsapp': 'WhatsApp', 'common.whatsappAria': 'Contact us on WhatsApp', 'common.choosePlan': 'Choose Your Plan',
   'skip.main': 'Skip to main content', 'brand.homeAria': 'Vanguard Indicator — Home',
   'nav.menuOpen': 'Open navigation menu', 'nav.menuClose': 'Close navigation menu', 'nav.aria': 'Main navigation',
-  'nav.benefits': 'Benefits', 'nav.workflow': 'How it works', 'nav.demo': 'Demo', 'nav.pricing': 'Plans', 'nav.faq': 'FAQ',
+  'nav.benefits': 'Features', 'nav.workflow': 'How It Works', 'nav.demo': 'Demo', 'nav.pricing': 'Plans', 'nav.faq': 'FAQ',
   'language.action': 'Switch language to Arabic',
+  'language.groupAria': 'Choose site language', 'language.ar': 'Arabic', 'language.en': 'English',
   'theme.enableLight': 'Enable light mode', 'theme.enableDark': 'Enable dark mode', 'theme.light': 'Light mode', 'theme.dark': 'Dark mode',
   'hero.eyebrow': 'Clearer analysis · Faster review · Disciplined decisions',
   'hero.title': 'Turn a crowded chart into', 'hero.titleEm': 'a clearer workflow',
@@ -280,7 +292,7 @@ const en = {
   'workflow.4.title': 'Enable alerts', 'workflow.4.copy': 'Configure alerts to arrive when your defined conditions are met.',
   'workflow.5.title': 'Apply risk management', 'workflow.5.copy': 'Set your risk size and invalidation point before every trade.',
   'demo.index': '03 — VISUAL DEMO', 'demo.title': 'How a signal becomes', 'demo.titleEm': 'an organized review',
-  'demo.intro': 'This is a real screenshot of Vanguard Indicator inside TradingView, not performance evidence. Choose a step to see how the review can be organized.',
+  'demo.intro': 'Review the signal-assessment steps, then explore market movement in the independent interactive chart.',
   'demo.tabsAria': 'Demo steps', 'demo.signal': '01 Signal', 'demo.context': '02 Context', 'demo.alert': '03 Alert',
   'demo.signalCopy': 'The review zone appears visually as a starting point for assessment, not automatic execution.',
   'demo.contextCopy': 'Review market direction, timeframe, and the invalidation point before evaluating a signal.',
@@ -288,6 +300,14 @@ const en = {
   'demo.viewportAria': 'Horizontally scrollable preview on small screens',
   'demo.imageAlt': 'Screenshot of Vanguard Indicator on a gold versus US dollar TradingView chart showing visual signals and review zones',
   'demo.captionTitle': 'Vanguard Indicator interface on TradingView', 'demo.captionCopy': 'An illustrative image of the included indicator, not financial advice or a guarantee of results.',
+  'chart.title': 'Interactive Market Chart',
+  'chart.description': 'Explore gold versus the US dollar directly in the interactive TradingView chart.',
+  'chart.risk': 'The chart displays market data from TradingView and is not financial advice or a guarantee of results.',
+  'chart.loading': 'Loading the interactive chart…',
+  'chart.error': 'The interactive chart is currently unavailable.',
+  'chart.errorCopy': 'You can continue browsing or open Vanguard Indicator directly on TradingView.',
+  'chart.open': 'Open Vanguard Indicator on TradingView',
+  'chart.attribution': 'XAUUSD chart',
   'markets.index': '04 — MARKETS', 'markets.title': 'One interface, with context that', 'markets.titleEm': 'changes by market',
   'markets.intro': 'Choosing a category does not mean every setting suits every asset or timeframe. Test the setting before use.',
   'markets.tabsAria': 'Market categories', 'markets.selectedCategory': 'Selected category', 'markets.instrumentsAria': 'Choose a demonstration instrument',
@@ -447,21 +467,21 @@ export function subscribeLanguage(listener) {
 }
 
 export function initLanguageSystem() {
-  const toggle = document.querySelector('[data-language-toggle]');
-  const syncToggle = () => {
-    if (!toggle) return;
-    toggle.textContent = activeLanguage === 'ar' ? 'EN' : 'AR';
-    toggle.setAttribute('aria-pressed', String(activeLanguage === 'en'));
-    toggle.setAttribute('aria-label', t('language.action'));
-    toggle.title = t('language.action');
+  const options = [...document.querySelectorAll('[data-language-option]')];
+  const syncOptions = () => {
+    options.forEach((option) => {
+      const active = option.dataset.languageOption === activeLanguage;
+      option.setAttribute('aria-pressed', String(active));
+      option.classList.toggle('is-active', active);
+    });
   };
-  const onToggle = () => setLanguage(activeLanguage === 'ar' ? 'en' : 'ar');
+  const onSelect = (event) => setLanguage(event.currentTarget.dataset.languageOption);
   applyTranslations();
-  syncToggle();
-  toggle?.addEventListener('click', onToggle);
-  const unsubscribe = subscribeLanguage(syncToggle);
+  syncOptions();
+  options.forEach((option) => option.addEventListener('click', onSelect));
+  const unsubscribe = subscribeLanguage(syncOptions);
   return () => {
-    toggle?.removeEventListener('click', onToggle);
+    options.forEach((option) => option.removeEventListener('click', onSelect));
     unsubscribe();
   };
 }

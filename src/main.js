@@ -1,5 +1,5 @@
 import './styles.css';
-import { createIcons, ArrowLeft, BellRing, Check, ChevronUp, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } from 'lucide';
+import { createIcons, ArrowLeft, BellRing, Check, ChevronUp, ExternalLink, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } from 'lucide';
 import { siteConfig, validateConfig } from './config.js';
 import { benefits, faqs, workflow } from './content.js';
 import { initAnalytics, trackEvent } from './analytics.js';
@@ -9,6 +9,7 @@ import { renderEvidence } from './components/evidence.js';
 import { initContactLinks } from './components/contact.js';
 import { initMobileCta } from './components/mobile-cta.js';
 import { initThemeToggle } from './components/theme.js';
+import { initTradingViewChart } from './components/tradingview-chart.js';
 import { initLanguageSystem, subscribeLanguage, t, translateElement } from './i18n.js';
 import { renderMarketExplorer } from './components/market-explorer.js';
 
@@ -82,7 +83,7 @@ function renderContent() {
   renderEvidence(document.querySelector('#evidence'), siteConfig.evidenceExamples);
   document.querySelector('#current-year').textContent = new Date().getFullYear();
 
-  createIcons({ icons: { ArrowLeft, BellRing, Check, ChevronUp, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } });
+  createIcons({ icons: { ArrowLeft, BellRing, Check, ChevronUp, ExternalLink, Moon, Play, ScanLine, ShieldCheck, Smartphone, Sun, TimerReset, BetweenHorizontalStart } });
 }
 
 function initNavigation() {
@@ -109,7 +110,7 @@ function initNavigation() {
     if (restoreFocus) toggle.focus();
   };
 
-  toggle.addEventListener('click', () => {
+  const onToggle = () => {
     const open = toggle.getAttribute('aria-expanded') === 'true';
     if (open) closeMenu();
     else {
@@ -120,21 +121,29 @@ function initNavigation() {
       setBackgroundInert(true);
       navFocusables()[0]?.focus();
     }
-  });
-  window.matchMedia('(min-width: 861px)').addEventListener('change', (event) => {
+  };
+  const desktopQuery = window.matchMedia('(min-width: 1000px)');
+  const onDesktopChange = (event) => {
     if (event.matches) closeMenu();
-  });
-  nav.addEventListener('click', (event) => { if (event.target.closest('a')) closeMenu(); });
-  document.addEventListener('keydown', (event) => {
+  };
+  const onNavClick = (event) => { if (event.target.closest('a')) closeMenu(); };
+  const onKeydown = (event) => {
     if (!nav.classList.contains('is-open')) return;
-    if (event.key === 'Escape') closeMenu(true);
+    if (event.key === 'Escape') {
+      closeMenu(true);
+      return;
+    }
     if (event.key !== 'Tab') return;
     const items = focusables();
     const activeIndex = Math.max(0, items.indexOf(document.activeElement));
     const nextIndex = (activeIndex + (event.shiftKey ? -1 : 1) + items.length) % items.length;
     event.preventDefault();
     items[nextIndex].focus();
-  });
+  };
+  toggle.addEventListener('click', onToggle);
+  desktopQuery.addEventListener('change', onDesktopChange);
+  nav.addEventListener('click', onNavClick);
+  document.addEventListener('keydown', onKeydown);
 
   const navLinks = [...nav.querySelectorAll('a[href^="#"]:not(.button)')];
   const sections = navLinks.map((link) => document.querySelector(link.hash)).filter(Boolean);
@@ -153,7 +162,15 @@ function initNavigation() {
   const unsubscribe = subscribeLanguage(() => {
     toggle.setAttribute('aria-label', t(toggle.getAttribute('aria-expanded') === 'true' ? 'nav.menuClose' : 'nav.menuOpen'));
   });
-  return unsubscribe;
+  return () => {
+    closeMenu();
+    toggle.removeEventListener('click', onToggle);
+    desktopQuery.removeEventListener('change', onDesktopChange);
+    nav.removeEventListener('click', onNavClick);
+    document.removeEventListener('keydown', onKeydown);
+    observer.disconnect();
+    unsubscribe();
+  };
 }
 
 function initDemoWalkthrough() {
@@ -225,6 +242,7 @@ async function startEnhancements() {
 renderContent();
 const cleanupLanguage = initLanguageSystem();
 const cleanupTheme = initThemeToggle();
+const cleanupChart = initTradingViewChart(document.querySelector('[data-tradingview-chart]'));
 const cleanupNavigation = initNavigation();
 const cleanupContact = initContactLinks();
 initMobileCta();
@@ -239,6 +257,7 @@ if (document.readyState === 'complete') startEnhancements();
 else window.addEventListener('load', startEnhancements, { once: true });
 window.addEventListener('pagehide', () => {
   cleanupTheme();
+  cleanupChart();
   cleanupLanguage();
   cleanupNavigation();
   cleanupContact?.();
