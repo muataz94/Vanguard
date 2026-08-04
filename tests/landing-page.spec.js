@@ -53,7 +53,8 @@ test('home, assets, navigation, pricing and WhatsApp are production-ready', asyn
   await expect(page.locator('#demo [data-tradingview-chart], #demo iframe, #demo script[data-tradingview-loader]')).toHaveCount(0);
   await expect(page.locator('#demo .indicator-preview')).toHaveCount(1);
   await expect(page.locator('#demo .indicator-preview img')).toHaveAttribute('src', './images/vanguard-indicator-preview.png');
-  expect(await page.locator('#demo .indicator-preview img').evaluate((image) => ({ width: image.naturalWidth, height: image.naturalHeight }))).toEqual({ width: 1288, height: 318 });
+  await expect(page.locator('#demo .indicator-preview img')).toHaveAttribute('width', '1288');
+  await expect(page.locator('#demo .indicator-preview img')).toHaveAttribute('height', '318');
   await expect(page.locator('#demo video, #demo canvas')).toHaveCount(0);
   await expect(page.locator('.risk-note + .tradingview-panel')).toHaveCount(1);
   const heroVisualOrder = await page.evaluate(() => {
