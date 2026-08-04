@@ -1,4 +1,4 @@
-# Codex Task — Restore the Interactive TradingView Panel and Rebuild the Responsive Navbar
+# Codex Task — Relocate the Interactive TradingView Panel, Restore the Vanguard Image, and Repair the Navbar
 
 Work inside the existing **Vanguard Indicator** repository:
 
@@ -13,14 +13,15 @@ Complete the implementation, verification, commit, and push. Do not stop after w
 
 Make one focused production update:
 
-1. Restore **exactly one real interactive TradingView chart panel** to the landing page.
+1. Keep **exactly one real interactive TradingView chart panel** and move it into the first/hero section, immediately below the visible risk disclaimer.
 2. Do not restore any poster, fake chart, local canvas simulation, autoplay video, or second TradingView widget.
-3. Replace the current navbar with the approved premium floating-navbar design described below.
-4. Preserve the official Vanguard logo exactly as stored in the repository.
-5. Make the complete landing page responsive and collision-free at desktop, tablet, and mobile sizes.
-6. Audit spacing across all landing-page text so Arabic and English never overlap, clip, or crowd adjacent content.
-7. Preserve all working bilingual, RTL/LTR, theme, accessibility, market-explorer, pricing, FAQ, WhatsApp, and legal functionality.
-8. Run the complete verification suite, commit only scoped files, and push safely to `origin/main`.
+3. Restore `public/images/vanguard-indicator-preview.png` to its original visual-demo position in `#demo`; the TradingView widget must not replace this image.
+4. Replace the broken/duplicated current navbar with the approved premium floating-navbar design described below.
+5. Preserve the official Vanguard logo exactly as stored in the repository.
+6. Make the complete landing page responsive and collision-free at desktop, tablet, and mobile sizes.
+7. Audit spacing across all landing-page text so Arabic and English never overlap, clip, or crowd adjacent content.
+8. Preserve all working bilingual, RTL/LTR, theme, accessibility, market-explorer, pricing, FAQ, WhatsApp, and legal functionality.
+9. Run the complete verification suite, commit only scoped files, and push safely to `origin/main`.
 
 ## 2. Inspect before editing
 
@@ -44,13 +45,13 @@ Before changing code:
    - the Content Security Policy in every HTML entry point
    - the official logo assets under `public/assets/`
 6. Review Git history, especially commit `9734ffa` (`feat: add interactive TradingView chart to hero`). It contains a previous working TradingView loader and test approach. Reuse sound ideas selectively, but do not blindly revert or cherry-pick the commit because the current site contains newer bilingual, navbar, spacing, market-explorer, and animation work that must remain.
-7. Inspect the current live page and local preview before editing. Record the current navbar, widget absence, overflow, text collisions, console errors, and failed network requests.
+7. Inspect the current live page and local preview before editing. Record the TradingView widget's current position, the missing/displaced Vanguard indicator image, the duplicated navbar/CTA shown in the supplied screenshot, overflow, text collisions, console errors, and failed network requests.
 
 If unrelated user changes exist, do not overwrite, stage, or commit them. Stop if they overlap the required files and cannot be preserved safely.
 
-## 3. Restore exactly one interactive TradingView panel
+## 3. Keep exactly one interactive TradingView panel and relocate it
 
-The real interactive TradingView panel was removed. Restore it.
+The real interactive TradingView panel is present but is in the wrong place. Reuse its working loader and lifecycle logic, move its rendered container to the required hero position, and do not create a second instance during the relocation.
 
 ### Single-instance rule
 
@@ -74,13 +75,62 @@ data-tradingview-widget
 
 Add an automated assertion that the page contains exactly one matching widget and, after successful mocked loading, exactly one TradingView iframe.
 
-### Placement
+### Exact placement and page order
 
-Place the interactive widget in the existing visual demo section (`#demo`) where the current static indicator preview appears. Replace the non-interactive chart screenshot in that section so users see one clear market panel instead of competing chart visuals.
+The current placement is wrong. Move the interactive TradingView panel out of `#demo` and place it in the first/hero section directly below this visible disclaimer:
 
-Do not add a second large chart to the hero. The hero should remain focused on the headline, supporting copy, CTA buttons, trust items, and risk note.
+```text
+أداة تحليلية مساعدة وليست توصية مالية أو ضماناً للنتائج. تحقق من كل إعداد وأدر المخاطر قبل التداول.
+```
 
-If the existing static image is still useful elsewhere for performance or fallback purposes, use it only as a loading/error fallback inside the same widget footprint and never as a separate chart panel. It must be clearly labeled as a static fallback, not live data.
+English equivalent:
+
+```text
+An analytical support tool, not financial advice or a guarantee of results. Verify every setup and manage risk before trading.
+```
+
+Required visible hero order:
+
+1. eyebrow;
+2. hero heading;
+3. three-paragraph hero description;
+4. CTA row;
+5. trust items;
+6. `.risk-note` containing the disclaimer above;
+7. **the single interactive TradingView panel**;
+8. the existing hero ticker or the next section.
+
+The TradingView panel must be the next major visible block after `.risk-note`. Do not place another paragraph, CTA, decorative image, or full section between the disclaimer and the widget. A concise accessible heading/label may be integrated inside the widget card, but it must not create a separate section or weaken the direct visual relationship.
+
+Keep the panel within the hero's main container and give it deliberate responsive spacing, for example `margin-block-start: clamp(1.5rem, 3vw, 2.5rem)`. Reserve its dimensions before the third-party script loads to prevent layout shift. The widget must not overlap the hero text, CTAs, navbar, or ticker.
+
+### Restore the Vanguard Indicator image
+
+Return the existing local product image to the separate visual-demo section (`#demo`) in its original `indicator-preview` figure:
+
+```text
+public/images/vanguard-indicator-preview.png
+```
+
+Requirements:
+
+- preserve the existing image asset; do not regenerate, crop, recolor, or replace it;
+- preserve its existing translated alt text and the `indicator-preview` caption/step interaction;
+- keep it lazy-loaded and responsive;
+- use it as the principal visual inside `#demo`, in the location currently occupied by the TradingView widget;
+- do not use it as the TradingView loading/error fallback;
+- do not present the image as live data;
+- do not remove or duplicate the image elsewhere;
+- ensure `#demo` contains the Vanguard image and contains no TradingView iframe or loader script.
+
+The final page intentionally contains both visuals in different places:
+
+- hero: one real interactive TradingView panel immediately below the disclaimer;
+- `#demo`: one local Vanguard Indicator image in its original product-demo position.
+
+This is not a duplicate-chart violation: the local image demonstrates the Vanguard product interface, while the hero widget is the only interactive TradingView instance. Label both honestly and keep their purposes visually distinct.
+
+If TradingView fails, show a neutral accessible loading/error state within the widget footprint. Do not substitute the Vanguard Indicator image into that footprint.
 
 ### TradingView configuration
 
@@ -203,7 +253,25 @@ Mock the external widget script in Playwright. Automated tests must not depend o
 
 ## 5. Approved navbar design
 
-Rebuild the current header as a premium floating capsule based on the approved mockup. Preserve Vanguard's restrained black, green, mint, and soft-white visual language.
+Rebuild the current header as a premium floating capsule based on the approved mockup. Preserve Vanguard's restrained black, green, mint, and soft-white visual language. The supplied screenshot shows the current defect clearly: the primary pricing CTA is rendered once inside the intended header row and again on a second line below the navigation. Treat this as a structural responsive-state bug, not a spacing tweak.
+
+### Remove all duplication first
+
+Audit the header markup, responsive CSS, and navigation JavaScript before styling it. Remove duplicate desktop/mobile header fragments and repair breakpoint visibility.
+
+The final desktop header must render exactly:
+
+- one brand lockup;
+- one primary navigation rail;
+- one language control;
+- one theme control;
+- one `اختر باقتك` / `Choose Your Plan` CTA;
+- no second CTA row beneath the navigation;
+- no repeated navigation link;
+- no duplicate logo or utility group;
+- no empty element reserving a second navbar row.
+
+Do not solve the screenshot defect by absolutely positioning the duplicate off-screen or hiding it with `opacity: 0`. Remove redundant markup when it serves no necessary responsive purpose. If separate desktop and mobile CTA elements are retained, they must have unique IDs, correct accessible names, and mutually exclusive breakpoint/display rules so only the correct one is visible and keyboard-focusable at any viewport. A hidden mobile control must use `display: none` or the `hidden` attribute, not remain in the accessibility tree.
 
 ### Critical logo rule
 
@@ -235,6 +303,8 @@ Build three visually balanced zones inside the navbar:
 3. **Utility zone:** language control, theme toggle, and primary pricing CTA grouped together; on Arabic pages this appears on the left.
 
 Use CSS Grid or another stable layout so the central nav remains visually centered in the viewport/container, not merely centered in the leftover space.
+
+The desktop navbar must remain a single horizontal row. Do not allow the navigation rail or CTA to wrap onto a second row. Switch to the mobile header before the three-zone layout becomes cramped.
 
 Arabic navigation:
 
@@ -342,6 +412,9 @@ Requirements:
 - touch targets are at least approximately 44×44px;
 - safe-area insets are respected;
 - WhatsApp, scroll-to-top, and mobile CTA controls do not cover the menu or page content.
+- only the compact header is visible; the desktop nav rail and desktop CTA are not visible or focusable;
+- only one pricing CTA may be visible inside the open mobile menu; do not also show a second header CTA at the same breakpoint;
+- the existing fixed `.mobile-action-bar` is a separate page action bar, not part of the navbar, and must never be accidentally cloned into the header.
 
 Do not hide essential controls merely to make the header fit.
 
@@ -353,9 +426,11 @@ Audit every section in Arabic and English:
 
 - navbar and mobile menu;
 - hero eyebrow, title, three description paragraphs, buttons, trust list, and risk note;
+- the spacing between the hero risk note and the interactive TradingView panel;
 - benefits;
 - workflow;
-- interactive TradingView demo;
+- the hero TradingView panel;
+- the separate `#demo` product-image section;
 - market explorer and all category/instrument states;
 - bundle content;
 - pricing;
@@ -387,6 +462,7 @@ Rules:
 - Keep measure readable, generally no wider than about 65–72 characters for long paragraphs.
 - Maintain WCAG AA text contrast.
 - Prevent cumulative layout shift caused by late font, icon, navbar, or widget sizing.
+- Ensure the added hero widget does not compress the risk note or remove the breathing room before the hero ticker/next section.
 
 Preserve the current three-paragraph hero description and the existing visible financial-risk disclaimer. Do not introduce profit guarantees or language implying that Vanguard removes the need for judgment or risk management.
 
@@ -410,14 +486,15 @@ Also test one short mobile viewport, such as `360 × 640`, to catch vertical cro
 
 - Floating navbar remains aligned and centered.
 - Brand, center navigation, and utilities never collide.
-- TradingView panel has a useful height without dominating the entire first viewport.
-- Demo copy and chart remain visually balanced.
+- TradingView panel has a useful height and clear separation after the risk note without overlapping the hero or dominating the page.
+- The restored Vanguard Indicator image and demo copy remain visually balanced in `#demo`.
 - Long English labels do not force the CTA outside the container.
 
 ### Tablet
 
 - Switch from three-zone desktop navigation before content becomes cramped.
-- TradingView panel remains usable and does not overflow.
+- The hero TradingView panel remains usable and does not overflow.
+- The `#demo` image scales inside its figure without cropping translated captions.
 - Multi-column sections stack or reduce columns naturally.
 
 ### Mobile
@@ -428,6 +505,8 @@ Also test one short mobile viewport, such as `360 × 640`, to catch vertical cro
 - Mobile menu remains within the viewport.
 - Widget height uses a mobile-friendly `clamp()` or aspect strategy.
 - The chart iframe is not wider than its parent.
+- The TradingView toolbar and attribution remain usable at 430px, 390px, and 360px.
+- The restored Vanguard image uses `max-inline-size: 100%`/responsive sizing and does not cause horizontal overflow.
 - Market chips and category cards wrap cleanly.
 - Footer columns stack with clear gaps.
 - Floating buttons do not cover interactive controls or final content.
@@ -499,26 +578,31 @@ Add or update tests for:
 3. Theme and language persistence remain independent.
 4. The official logo asset is used; `Indicator` is below `Vanguard` by layout/bounding-box assertion.
 5. `Packages` / `الباقات` is absent from ordinary navbar links.
-6. The Choose Your Plan CTA remains present and links to pricing.
-7. Desktop navbar zones do not overlap at 1440, 1280, and 1024 widths.
-8. Mobile navigation works at 430, 390, and 360 widths.
-9. Escape closes the mobile menu and focus returns correctly.
-10. Reduced-motion mode disables nonessential navbar movement.
-11. Exactly one TradingView widget container exists.
-12. The official TradingView loader is requested only once per initialization.
-13. Successful mocked loading produces exactly one iframe.
-14. Repeated theme changes never leave more than one script or iframe.
-15. Widget failure reveals the accessible fallback and does not break the page.
-16. The widget configuration contains the approved symbol and no proprietary Vanguard study injection.
-17. TradingView attribution remains visible.
-18. CSP permits only the required TradingView origins and contains no wildcard/broad unsafe regression.
-19. No static chart poster, demo video, or fake canvas appears as a second market panel.
-20. Hero text and every section heading/paragraph remain collision-free across the required viewport, language, and theme matrix.
-21. No page-level horizontal overflow exists.
-22. Market category and instrument interaction still passes.
-23. FAQ, pricing, WhatsApp, scroll-to-top, and legal links still work.
-24. No translation key appears visibly.
-25. No uncaught exception, console error, CSP violation, or unexpected failed request occurs during normal mocked test operation.
+6. Exactly one navbar pricing CTA is visible and focusable on desktop; there is no second CTA row.
+7. Exactly one navbar pricing CTA is visible inside the open mobile menu; desktop navbar actions are hidden and unfocusable.
+8. Every visible Choose Your Plan CTA links to pricing.
+9. Desktop navbar zones do not overlap at 1440, 1280, and 1024 widths.
+10. Mobile navigation works at 430, 390, and 360 widths.
+11. Escape closes the mobile menu and focus returns correctly.
+12. Reduced-motion mode disables nonessential navbar movement.
+13. Exactly one TradingView widget container exists.
+14. The widget container is inside the first `.hero` section, follows `.risk-note` in DOM/visual order, and its top edge is below the disclaimer's bottom edge.
+15. `#demo` contains `images/vanguard-indicator-preview.png` and contains no TradingView widget, loader, or iframe.
+16. The official TradingView loader is requested only once per initialization.
+17. Successful mocked loading produces exactly one iframe.
+18. Repeated theme changes never leave more than one script or iframe.
+19. Widget failure reveals the accessible fallback and does not break the page.
+20. The widget configuration contains the approved symbol and no proprietary Vanguard study injection.
+21. TradingView attribution remains visible.
+22. CSP permits only the required TradingView origins and contains no wildcard/broad unsafe regression.
+23. The Vanguard Indicator image remains a product demonstration and is never claimed to be live data.
+24. No extra static market poster, demo video, or fake canvas appears as a second interactive market panel.
+25. Hero text and every section heading/paragraph remain collision-free across the required viewport, language, and theme matrix.
+26. No page-level horizontal overflow exists.
+27. Market category and instrument interaction still passes.
+28. FAQ, pricing, WhatsApp, scroll-to-top, and legal links still work.
+29. No translation key appears visibly.
+30. No uncaught exception, console error, CSP violation, or unexpected failed request occurs during normal mocked test operation.
 
 When testing third-party loading, intercept the exact TradingView script URL and return a small deterministic mock that reads the configuration and inserts one test iframe. Keep a separate failure test that aborts the request.
 
@@ -533,15 +617,17 @@ After automated tests pass:
 5. Confirm navbar compact state and active-section state.
 6. Open and close the mobile menu repeatedly.
 7. Change language and theme repeatedly.
-8. Confirm exactly one interactive TradingView chart is visible.
-9. Interact with the chart when network access allows it.
-10. Verify the fallback by blocking the TradingView script.
-11. Test every market category and instrument.
-12. Check the browser console and network panel.
-13. Confirm no text overlaps or is clipped.
-14. Confirm no horizontal page scrolling.
-15. Confirm floating controls do not cover content.
-16. Confirm the official logo is unchanged.
+8. Confirm the risk disclaimer is followed immediately by exactly one interactive TradingView chart in the hero.
+9. Confirm the Vanguard Indicator image is restored in `#demo` and the widget is absent from that section.
+10. Interact with the chart when network access allows it.
+11. Verify the fallback by blocking the TradingView script.
+12. Confirm the navbar never shows a duplicated CTA, link rail, logo, or second row at any breakpoint.
+13. Test every market category and instrument.
+14. Check the browser console and network panel.
+15. Confirm no text overlaps or is clipped.
+16. Confirm no horizontal page scrolling.
+17. Confirm floating controls do not cover content.
+18. Confirm the official logo is unchanged.
 
 Capture local screenshots for review if useful, but do not commit them unless the repository already expects those exact artifacts and they are part of the scoped change.
 
@@ -577,7 +663,7 @@ Before committing:
 Use this commit message:
 
 ```text
-feat: restore TradingView panel and responsive navbar
+feat: relocate TradingView panel and repair navbar
 ```
 
 Push to:
@@ -601,9 +687,11 @@ If `origin/main` changes during implementation, fetch and integrate safely, reru
 After pushing, report:
 
 - concise summary of the visible result;
-- exact TradingView component and placement;
+- exact TradingView component and confirmation that it sits immediately below the hero disclaimer;
 - confirmation that only one interactive widget exists;
+- confirmation that the Vanguard Indicator image is restored in `#demo` and unchanged;
 - navbar architecture and responsive breakpoints;
+- confirmation that no duplicate navbar/CTA instance is visible or focusable;
 - confirmation that the original logo asset is unchanged and `Indicator` sits below `Vanguard`;
 - typography/spacing fixes;
 - accessibility behavior;
